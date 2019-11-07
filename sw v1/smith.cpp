@@ -8,10 +8,6 @@
 
 using namespace std;
 
-const int gap = -2;
-const int match = +3;
-const int mismatch = -3;
-
 typedef struct{
 	int x;
 	int y;
