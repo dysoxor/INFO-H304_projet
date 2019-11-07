@@ -86,9 +86,9 @@ int main(int argc, char** argv){
 	for (int j = 0; j <= len2; j++)
 		tableau[0][j]=0;
 
-	/*int gap = -2;
+	int gap = -2;
 	int match = +3;
-	int mismatch = -3;*/
+	int mismatch = -3;
 	int up = 0;
 	int left = 0;
 	int diag = 0;
