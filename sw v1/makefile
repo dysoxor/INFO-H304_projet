@@ -1,8 +1,10 @@
 all: smith;
 
-smith: swissWaterman.o;\
-g++ -o smith swissWaterman.o
-swissWaterman.o : swissWaterman.cpp;\
-g++ -c swissWaterman.cpp
+smith: smith.o BlosumMatrix.o;\
+g++ -o smith.o
+smith.o : smith.cpp;\
+g++ -c smith.cpp
+BlosumMatrix.o : BlosumMatrix.cpp;\
+g++ -c BlosumMatrix.cpp
 clean:\
 rm *.o
