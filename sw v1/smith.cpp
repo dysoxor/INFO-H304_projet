@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 #include "BlosumMatrix.h"
-#include "Position.h"
 #include "ScoringMatrix.h"
 
 using namespace std;
@@ -38,12 +37,12 @@ string findPath(Position* pos, string prot1, string prot2, int gap, BlosumMatrix
 			returnValue+= "/";
 		}
 		if (aa1){
-			returnValue+=prot1[pos.getX()-1];
+			returnValue+=prot1[pos->getX()-1];
 		} else {
 			returnValue+="-";
 		}
 		if (aa2){
-			returnValue+=prot2[pos.y-1];
+			returnValue+=prot2[pos->getY()-1];
 		} else {
 			returnValue+="-";
 		}
@@ -125,12 +124,12 @@ int main(int argc, char** argv){
 	//vector<vector<int>> tableau(len1+1, vector<int>(len2+1,0));
 	for (int i = 0; i <= len1 ; i++){
 		pos=new Position(i,0);
-		matrice.addPosition(pos);
+		matrice->addPosition(pos);
 	}
 		//tableau[i][0]= 0;
 	for (int j = 0; j <= len2; j++){
 		pos=new Position(0,j);
-		matrice.addPosition(pos);
+		matrice->addPosition(pos);
 		//tableau[0][j]=0;
 	}
 
@@ -164,18 +163,18 @@ int main(int argc, char** argv){
 				diag+=mismatch;*/
 			diag+=match;
 			//tableau[i][j] = max(up,max(left,max(diag,0)));
-			highValue = max(up,max(left,max(diag,0)));
-			pos.setValue(highValue);
+			int highValue = max(up,max(left,max(diag,0)));
+			pos->setValue(highValue);
 			if (highValue == up){
-				matrice->addRoot(matrice->getPosition(i,j-1), pos);
+				matrice->setRootTarget(matrice->getPosition(i,j-1), pos);
 			}
 			if (highValue == left){
-				matrice->addRoot(matrice->getPosition(i-1,j), pos);
+				matrice->setRootTarget(matrice->getPosition(i-1,j), pos);
 			}
 			if (highValue == diag){
-				matrice->addRoot(matrice->getPosition(i-1,j-1), pos);
+				matrice->setRootTarget(matrice->getPosition(i-1,j-1), pos);
 			}
-			if (highValue > maxPos.getValue()){
+			if (highValue > maxPos->getValue()){
 				maxPos = pos;
 			}
 			/*if (tableau[i][j] > vmax){
@@ -210,7 +209,7 @@ int main(int argc, char** argv){
 	}*/
 	//printf("Max en %i %i avec comme valeur %i\n",pos.x, pos.y, max);
 
-	string res = findPath(maxPos, prot1, prot2, gap, matrice);
+	string res = findPath(maxPos, prot1, prot2, gap, blosum);
 	cout << "L'alignement de " << argv[1] << " et " << argv[2] << " donne " << res << " et a un score de "<< vmax << endl;
 
 }
