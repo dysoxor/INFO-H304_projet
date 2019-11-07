@@ -3,7 +3,7 @@ using namespace std;
 
 
 BlosumMatrix::BlosumMatrix(){
-
+	cout<<"Matrice créée" << endl;
 };
 
 void BlosumMatrix::setup(string pathToBlosumMatrix){
@@ -15,22 +15,24 @@ void BlosumMatrix::setup(string pathToBlosumMatrix){
 	int n_colonne = 0;
 	if (file.is_open()){
 		while(getline(file,line)){
-			if (line != "#"){
+			if (line.at(0) != '#'){
 				n_colonne=0;
 				if (first_line){
 					first_line=false;
 					for (int i = 0; i < line.length();i++){
 						if (line.at(i) != ' '){
+							cout<< line.at(i);
 							charToInt.insert(pair<char,int>(line.at(i),n_colonne));
 							n_colonne++;
 						}
 					}
+					matrice.assign(charToInt.size(), vector<int> (charToInt.size(),0));
 				} else {
 					line.erase(0,1);//on enleve la lettre
 					for (int i = 0; i< line.length();i++){
 						if (line.at(i) != ' ' && line.at(i) != '-'){
 							value = (int)line.at(i) -48; //ASCII digits commence à 48
-							if (line.at(i-1) == '-'){
+							if (i != 0 && line.at(i-1) == '-'){
 								value = -value;
 							}
 							matrice[n_ligne][n_colonne] = value;
@@ -39,6 +41,7 @@ void BlosumMatrix::setup(string pathToBlosumMatrix){
 					}
 					n_ligne++;
 				}
+
 			}
 		}
 		file.close();
@@ -47,10 +50,14 @@ void BlosumMatrix::setup(string pathToBlosumMatrix){
 	}
 };
 
-const int BlosumMatrix::get(string aa1, string aa2){
-	int line = charToInt[aa1.at(0)];
-	int colonne = charToInt[aa2.at(0)];
+const int BlosumMatrix::get(char aa1, char aa2){
+	int line = charToInt[aa1];
+	int colonne = charToInt[aa2];
 	return matrice[line][colonne];
+};
+
+const int BlosumMatrix::get(string aa1, string aa2){
+	return BlosumMatrix::get(aa1.at(0), aa2.at(0));
 };
 
 const void BlosumMatrix::print(){
