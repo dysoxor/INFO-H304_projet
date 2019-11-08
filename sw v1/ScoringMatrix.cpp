@@ -35,9 +35,9 @@ void ScoringMatrix::setRootTarget(Position* rootPos, Position* targetPos){
 };
 
 const void ScoringMatrix::print(){
-  for (int i = 0; i < sizeX; i++){
-		for (int j = 0; j < sizeY; j++){
-			cout << getValue(i, j) << " ";
+  for (int i = 0; i < sizeY; i++){
+		for (int j = 0; j < sizeX; j++){
+			cout << getValue(j, i) << " ";
 		}
 		cout << endl;
 	}
