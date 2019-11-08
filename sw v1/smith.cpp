@@ -30,9 +30,9 @@ string findPath(Position* pos, string prot1, string prot2, int gap, BlosumMatrix
 		bool aa1 = true;
 		bool aa2 = true;
 		if (rootPos->getX() == pos->getX()){
-			aa2=false;
+			aa1=false;
 		} else if (rootPos->getY() == pos->getY()){
-			aa1 = false;
+			aa2 = false;
 		}
 		if (res != ""){
 			returnValue+=res;
