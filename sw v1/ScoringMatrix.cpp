@@ -1,7 +1,9 @@
 #include "ScoringMatrix.h"
+using namespace std;
 
 ScoringMatrix::ScoringMatrix(){
-
+  sizeX=0;
+  sizeY=0;
 };
 
 Position* ScoringMatrix::getPosition(int x, int y){
@@ -19,9 +21,24 @@ const int ScoringMatrix::getValue(int x, int y){
 
 void ScoringMatrix::addPosition(Position* pos){
   tableau.insert(pair<pair<int, int>, Position*> (pair<int,int>(pos->getX(),pos->getY()),pos));
+  if (pos->getX()+1 > sizeX){
+    sizeX = pos->getX() +1;
+  }
+  if (pos->getY()+1 > sizeY){
+    sizeY = pos->getY() +1;
+  }
 };
 
 void ScoringMatrix::setRootTarget(Position* rootPos, Position* targetPos){
   rootPos->addTarget(targetPos);
   targetPos->addRoot(rootPos);
 };
+
+const void ScoringMatrix::print(){
+  for (int i = 0; i < sizeX; i++){
+		for (int j = 0; j < sizeY; j++){
+			cout << getValue(i, j) << " ";
+		}
+		cout << endl;
+	}
+}

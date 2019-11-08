@@ -19,11 +19,13 @@ string findPath(Position* pos, string prot1, string prot2, int gap, BlosumMatrix
 	//printf("Je suis a la pos %i %i\n",pos.x, pos.y);
 	//if (tableau[pos.x][pos.y] == 0 ){// || (pos.x == 0) || (pos.y == 0)){
 		//printf("J'arrive à un 0\n");
+		cout << pos->getX() << " " << pos->getY() << endl;
 		if (pos->getValue() == 0){
 			return "";
 	} else {
 		string returnValue;
-		Position* rootPos = pos->getRoot()[0];
+		vector<Position*> rootPosVector = pos->getRoot();
+		Position* rootPos = rootPosVector[0];
 		string res = findPath(rootPos, prot1, prot2, gap, blosum);
 		bool aa1 = true;
 		bool aa2 = true;
@@ -112,6 +114,7 @@ int main(int argc, char** argv){
 	}
 
 	BlosumMatrix* blosum = new BlosumMatrix();
+	blosum->setup("blosum62");
 	ScoringMatrix* matrice = new ScoringMatrix();
 
 	string prot1=argv[1];
@@ -134,16 +137,16 @@ int main(int argc, char** argv){
 	}
 
 
-	int gap = 2;
+	int gap = 6;
 	int match;
+	//int mismatch;
 	int up = 0;
 	int left = 0;
 	int diag = 0;
 
-	int vmax = 0;
 	//int nb_of_max = 0; //pour un seul max pour l'instant
 	//Pos pos;
-	Position* maxPos;
+	Position* maxPos = new Position();
 	//pos.x=0;
 	//pos.y=0;
 	for (int i = 1; i <= len1 ; i++){
@@ -153,10 +156,13 @@ int main(int argc, char** argv){
 			/*up = tableau[i][j-1] + gap;
 			left = tableau[i-1][j] + gap;
 			diag = tableau[i-1][j-1];*/
-			up = matrice->getValue(i,j-1);
-			left = matrice->getValue(i-1,j);
+			up = matrice->getValue(i,j-1) - gap;
+			left = matrice->getValue(i-1,j) -gap;
 			diag = matrice->getValue(i-1,j-1);
+			/*match = 3;
+			mismatch = -3;*/
 			match=blosum->get(prot1.at(i-1), prot2.at(j-1));
+			//cout << prot1.at(i-1) << prot2.at(j-1) << " " <<match << endl;
 			/*if (prot1[i-1] == prot2[j-1]) //On a du ajouter une colonne et une ligne vide
 				diag+=match;
 			else
@@ -176,7 +182,10 @@ int main(int argc, char** argv){
 			}
 			if (highValue > maxPos->getValue()){
 				maxPos = pos;
+				cout<< maxPos->getValue()<< endl;
+
 			}
+
 			/*if (tableau[i][j] > vmax){
 				vmax = tableau[i][j];
 				//nb_of_max = 1;
@@ -208,8 +217,9 @@ int main(int argc, char** argv){
 		/*}
 	}*/
 	//printf("Max en %i %i avec comme valeur %i\n",pos.x, pos.y, max);
-
+	//cout << maxPos->getValue() <<" " << maxPos->getX() << " " << maxPos->getY() << endl;
+	matrice->print();
 	string res = findPath(maxPos, prot1, prot2, gap, blosum);
-	cout << "L'alignement de " << argv[1] << " et " << argv[2] << " donne " << res << " et a un score de "<< vmax << endl;
+	cout << "L'alignement de " << argv[1] << " et " << argv[2] << " donne " << res << " et a un score de "<< maxPos->getValue() << endl;
 
 }

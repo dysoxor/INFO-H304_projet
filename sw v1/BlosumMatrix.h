@@ -11,6 +11,7 @@ class BlosumMatrix{
 		map<char,int> charToInt;
 	public:
 		BlosumMatrix();
+		//BlosumMatrix(string pathToBlosumMatrix);
 		void setup(string pathToBlosumMatrix);
 		const int get(string aa1, string aa2);
 		const int get(char aa1, char aa2);

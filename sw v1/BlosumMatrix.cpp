@@ -5,6 +5,10 @@ using namespace std;
 BlosumMatrix::BlosumMatrix(){
 	cout<<"Matrice créée" << endl;
 };
+/*BlosumMatrix::BlosumMatrix(string pathToBlosumMatrix){
+	cout<<"Matrice créée avec " << pathToBlosumMatrix<< endl;
+	BlosumMatrix::setup(pathToBlosumMatrix);
+};*/
 
 void BlosumMatrix::setup(string pathToBlosumMatrix){
 	ifstream file(pathToBlosumMatrix);
@@ -21,7 +25,6 @@ void BlosumMatrix::setup(string pathToBlosumMatrix){
 					first_line=false;
 					for (int i = 0; i < line.length();i++){
 						if (line.at(i) != ' '){
-							cout<< line.at(i);
 							charToInt.insert(pair<char,int>(line.at(i),n_colonne));
 							n_colonne++;
 						}
@@ -53,6 +56,7 @@ void BlosumMatrix::setup(string pathToBlosumMatrix){
 const int BlosumMatrix::get(char aa1, char aa2){
 	int line = charToInt[aa1];
 	int colonne = charToInt[aa2];
+	//cout << line << " " <<colonne << " " << matrice[line][colonne]<< endl;
 	return matrice[line][colonne];
 };
 

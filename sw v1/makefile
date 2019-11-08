@@ -1,14 +1,16 @@
-all: smith;\
+#all: smith;\
 
-smith: smith.o;\
-g++ -o smith smith.o
-smith.o : smith.cpp BlosumMatrix.o ScoringMatrix.o;\
-g++ -c smith.cpp
-BlosumMatrix.o : BlosumMatrix.cpp Position.o;\
-g++ -c BlosumMatrix.cpp
-ScoringMatrix.o : ScoringMatrix.cpp Position.o;\
-g++ -c ScoringMatrix.cpp
-Position.o : Position.cpp;\
+all :;\
+g++ -o smith smith.cpp BlosumMatrix.cpp ScoringMatrix.cpp Position.cpp
+#smith: smith.o;\
+g++ -o smith smith.cpp BlosumMatrix.cpp ScoringMatrix.cpp Position.cpp
+#smith.o : smith.cpp BlosumMatrix.o ScoringMatrix.o;\
+g++ -c smith.cpp BlosumMatrix.o ScoringMatrix.o
+#BlosumMatrix.o : BlosumMatrix.cpp Position.o;\
+g++ -c BlosumMatrix.cpp Position.o
+#ScoringMatrix.o : ScoringMatrix.cpp Position.o;\
+g++ -c ScoringMatrix.cpp Position.o
+#Position.o : Position.cpp;\
 g++ -c Position.cpp
 #test: testBlosum.o;\
 g++ -o testBlosum testBlosum.o
