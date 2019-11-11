@@ -89,6 +89,7 @@ int main(int argc, char** argv){
 		for (int j = 1; j <= len2 ; j++){
 			pos = new Position(i,j);
 			matrice->addPosition(pos);
+			
 			/*up = tableau[i][j-1] + gap;
 			left = tableau[i-1][j] + gap;
 			diag = tableau[i-1][j-1];*/
