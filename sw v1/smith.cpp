@@ -57,8 +57,7 @@ int main(int argc, char** argv){
 
 	}
 
-	BlosumMatrix* blosum = new BlosumMatrix();
-	blosum->setup("blosum62");
+	BlosumMatrix* blosum = new BlosumMatrix("blosum62");
 	ScoringMatrix* matrice = new ScoringMatrix();
 
 	string prot1=argv[1];

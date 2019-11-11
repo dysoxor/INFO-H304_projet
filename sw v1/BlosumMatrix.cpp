@@ -2,13 +2,13 @@
 using namespace std;
 
 
-BlosumMatrix::BlosumMatrix(){
+/*BlosumMatrix::BlosumMatrix(){
 	cout<<"Matrice créée" << endl;
-};
-/*BlosumMatrix::BlosumMatrix(string pathToBlosumMatrix){
+};*/
+BlosumMatrix::BlosumMatrix(string pathToBlosumMatrix){
 	cout<<"Matrice créée avec " << pathToBlosumMatrix<< endl;
 	BlosumMatrix::setup(pathToBlosumMatrix);
-};*/
+};
 
 void BlosumMatrix::setup(string pathToBlosumMatrix){
 	ifstream file(pathToBlosumMatrix);
