@@ -7,7 +7,10 @@ ScoringMatrix::ScoringMatrix(){
 };
 
 Position* ScoringMatrix::getPosition(int x, int y){
-  return tableau[pair<int,int>(x,y)];
+  //if (x >= 0 && y >= 0){
+    return tableau[pair<int,int>(x,y)];
+  //}
+  //return nullptr;
 };
 
 void ScoringMatrix::setValue(int value, int x, int y){
