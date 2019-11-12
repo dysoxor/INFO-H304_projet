@@ -146,5 +146,5 @@ int main(int argc, char** argv){
 	matrice->print();
 	string res = findPath(maxPos, prot1, prot2, gap, blosum);
 	cout << "L'alignement de " << argv[1] << " et " << argv[2] << " donne " << res << " et a un score de "<< maxPos->getValue() << endl;
-
+	return 0;
 }
