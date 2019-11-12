@@ -11,7 +11,6 @@ using namespace std;
 
 
 string findPath(Position* pos, string prot1, string prot2, int gap, BlosumMatrix* blosum){
-
 		cout << pos->getX() << " " << pos->getY() << endl;
 		if (pos->getValue() == 0){
 			return "";
@@ -50,16 +49,16 @@ string findPath(Position* pos, string prot1, string prot2, int gap, BlosumMatrix
 
 int main(int argc, char** argv){
 	if (argc != 3){
-		printf("Erreur, pas le bon nombre d'arguments rentrés\n");
-		printf("Nombre d'arguments attendus : 2\n");
-		printf("Nombre d'arguments donnés : %i\n", argc);
+		cout << "Erreur, pas le bon nombre d'arguments rentrés" << endl;
+		cout << "Nombre d'arguments attendus : 2" << endl;
+		cout <<"Nombre d'arguments donnés : " << (argc - 1) << endl;
 		return EXIT_FAILURE;
-
 	}
 
 	BlosumMatrix* blosum = new BlosumMatrix("blosum62");
 	ScoringMatrix* matrice = new ScoringMatrix();
-
+	const int gap_op = 11;
+	const int gap_ex = 1;
 	string prot1=argv[1];
 	string prot2=argv[2];
 
@@ -76,7 +75,7 @@ int main(int argc, char** argv){
 	}
 
 
-	int gap = 6;
+	//int gap = 6;
 	int match;
 	//int mismatch;
 	int up = 0;
@@ -91,14 +90,14 @@ int main(int argc, char** argv){
 		for (int j = 1; j <= len2 ; j++){
 			pos = new Position(i,j);
 			matrice->addPosition(pos);
-			upgap = 11;
-			leftgap = 11;
+			upgap = gap_op;
+			leftgap = gap_op;
 			if (j>=2 && matrice->getPosition(i,j-1)->getRoot().size() >= 1 && matrice->getPosition(i,j-1)->getRoot()[0] == matrice->getPosition(i,j-2)){
-				upgap = 1;
+				upgap = gap_ex;
 				cout << "Expansion up en " << i << " " << j << endl;
 			}
 			if (i>=2 && matrice->getPosition(i-1,j)->getRoot().size() >= 1 && matrice->getPosition(i-1,j)->getRoot()[0] == matrice->getPosition(i-2,j)){
-				leftgap = 1;
+				leftgap = gap_ex;
 				cout << "Expansion left en "  << i << " " << j << endl;
 			}
 			/*up = tableau[i][j-1] + gap;
