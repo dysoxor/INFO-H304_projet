@@ -1,10 +1,6 @@
 #include "BlosumMatrix.h"
 using namespace std;
 
-
-/*BlosumMatrix::BlosumMatrix(){
-	cout<<"Matrice créée" << endl;
-};*/
 BlosumMatrix::BlosumMatrix(string pathToBlosumMatrix){
 	cout<<"Matrice créée avec " << pathToBlosumMatrix<< endl;
 	BlosumMatrix::setup(pathToBlosumMatrix);
