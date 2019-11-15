@@ -25,8 +25,8 @@ void BlosumMatrix::setup(string pathToBlosumMatrix){
 					for (int i = 0; i < line.length();i++){
 						if (line.at(i) != ' '){
 							// If we get a character different than a void char, we put it in a map
-							charToInt.insert(pair<char,int>(line.at(i),n_colonne));
-							n_colonne++;
+							charToInt.insert(pair<char,int>(line.at(i),n_column));
+							n_column++;
 						}
 					}
 					matrix.assign(charToInt.size(), vector<int> (charToInt.size(),0));

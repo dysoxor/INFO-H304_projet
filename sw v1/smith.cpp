@@ -10,7 +10,7 @@
 using namespace std;
 
 
-string findPath(Position* pos, string prot1, string prot2, int gap, BlosumMatrix* blosum){
+string findPath(Position* pos, string prot1, string prot2, BlosumMatrix* blosum){
 		if (pos->getValue() == 0){ //If we fall to 0, it is the end of the alignement
 			return "";
 		}
@@ -18,7 +18,7 @@ string findPath(Position* pos, string prot1, string prot2, int gap, BlosumMatrix
 			string returnValue;
 			vector<Position*> rootPosVector = pos->getRoot();
 			Position* rootPos = rootPosVector[0]; // we consider only the first root
-			string res = findPath(rootPos, prot1, prot2, gap, blosum);
+			string res = findPath(rootPos, prot1, prot2, blosum);
 			bool aa1 = true;
 			bool aa2 = true;
 		if (rootPos->getX() == pos->getX()){
@@ -148,7 +148,7 @@ int main(int argc, char** argv){
 		}
 	}
 	matrix->print();
-	string res = findPath(maxPos, prot1, prot2, gap, blosum);
+	string res = findPath(maxPos, prot1, prot2, blosum);
 	cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
 	return 0;
 }
