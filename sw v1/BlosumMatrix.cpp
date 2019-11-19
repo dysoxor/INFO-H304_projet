@@ -4,7 +4,7 @@ using namespace std;
 //Create BlosumMatrix
 BlosumMatrix::BlosumMatrix(string pathToBlosumMatrix){
 	cout<<"Matrix created with " << pathToBlosumMatrix<< endl;
-	BlosumMatrix::setup(pathToBlosumMatrix);
+	setup(pathToBlosumMatrix);
 };
 
 //Setup it
