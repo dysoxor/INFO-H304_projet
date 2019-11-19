@@ -172,22 +172,22 @@ int main(int argc, char** argv){
 			temp[3] = 0;
 			tempVal = findMax(temp,4);
 			matrice[i][j] = tempVal;
-			if (tempVal>mline){
+			if (tempVal>=mline){
 				maxLine[j] = tempVal;
 				posXmaxLine[j] = i;
 			}
-			if (tempVal > mcolumn){
+			if (tempVal >= mcolumn){
 				maxColumn[i] = tempVal;
 				posYmaxColumn[i] = j;
 			}
-			/*if (tempVal > maxValue){
+			if (tempVal > maxValue){
 				maxValue = matrice[i][j];
-				maxX = i;
-				maxY = j;
-			}*/
+				/*maxX = i;
+				maxY = j;*/
+			}
 		}
 	}
-	maxValue = findMax2(maxColumn, maxLine, len2+1, len1+1);
+	//maxValue = findMax2(maxColumn, maxLine, len1+1, len2+1);
 	//int root[len1+1][len2+1];
 
 	/*Position* maxPos = new Position();
@@ -274,7 +274,7 @@ int main(int argc, char** argv){
 	double k = 0.041;
 	double bitscore = double(score);
 	bitscore = (lambda*bitscore - log(k))/log(2);
-	cout << "Score donne : "<< score << " en " << time << " secondes"<< endl;
+	cout << "Score donne : "<< bitscore << " en " << time << " secondes"<< endl;
 	//free(allPos);
 	//Pas oublier de delete !!!!
 
