@@ -23,10 +23,4 @@ public:
   void setY(int newY);
   const int getValue();
   void setValue(int newValue);
-
-
-
-
-
-
 };
