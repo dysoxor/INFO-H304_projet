@@ -1,7 +1,7 @@
 #all: smith;\
 
 all :;\
-g++ -o smith smith.cpp BlosumMatrix.cpp fasta.cpp
+g++ -o smith smith.cpp fasta.cpp
 #smith: smith.o;\
 g++ -o smith smith.cpp BlosumMatrix.cpp ScoringMatrix.cpp Position.cpp
 #smith.o : smith.cpp BlosumMatrix.o ScoringMatrix.o;\

@@ -64,6 +64,9 @@ const int BlosumMatrix::get(char aa1, char aa2){
 const int BlosumMatrix::get(string aa1, string aa2){
 	return BlosumMatrix::get(aa1.at(0), aa2.at(0));
 };
+const int BlosumMatrix::get(int aa1, int aa2){
+	return matrix[aa1][aa2];
+};
 
 const void BlosumMatrix::print(){
 	for (int i = 0; i < matrix.size(); i++){
@@ -73,3 +76,11 @@ const void BlosumMatrix::print(){
 		cout << endl;
 	}
 };
+
+const int BlosumMatrix::charToIntConversion(char a){
+	return charToInt[a];
+}
+
+const vector<vector<int>> BlosumMatrix::getMatrix(){
+	return matrix;
+}

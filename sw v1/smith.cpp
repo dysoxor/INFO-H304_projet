@@ -11,7 +11,55 @@
 
 using namespace std;
 
+vector<vector<int>> blosumMatrix;
+map<char,int> charToInt;
 
+void setupBlosumMatrix(string pathToBlosumMatrix){
+	ifstream file(pathToBlosumMatrix);
+	string line;
+	bool first_line = true;
+	int value;
+	int n_line = 0;
+	int n_column = 0;
+	if (file.is_open()){
+		while(getline(file,line)){ //We check every line
+			if (line.at(0) != '#'){ //We don't do anything we the comments of the file
+				n_column=0;
+				if (first_line){
+					//If we are at the first line, we can read the character of the amino acid
+					first_line=false;
+					for (int i = 0; i < line.length();i++){
+						if (line.at(i) != ' '){
+							// If we get a character different than a void char, we put it in a map
+							charToInt.insert(pair<char,int>(line.at(i),n_column));
+							n_column++;
+						}
+					}
+					blosumMatrix.assign(charToInt.size(), vector<int> (charToInt.size(),0));
+					//We initialize the matrix with full 0
+				} else {
+					line.erase(0,1);//remove the letter of the line
+					for (int i = 0; i< line.length();i++){
+						if (line.at(i) != ' ' && line.at(i) != '-'){//We skip the '-' character
+							value = (int)line.at(i) -48; //ASCII digits starts at 48
+							if (i != 0 && line.at(i-1) == '-'){
+								//If there is a '-' before the int, we have a negative value
+								value = -value;
+							}
+							blosumMatrix[n_line][n_column] = value; //Set the value
+							n_column++;
+						}
+					}
+					n_line++;
+				}
+
+			}
+		}
+		file.close();
+	} else {
+		cout << "Problem while opening the blosum file" << endl;
+	}
+};
 /*string findPath(Position* pos, string prot1, string prot2, BlosumMatrix* blosum){
 		if (pos->getValue() == 0){ //If we fall to 0, it is the end of the alignement
 			return "";
@@ -69,28 +117,38 @@ int main(int argc, char** argv){
 	}
 
 	List *listProtein1 = readFasta(argv[1]);
-  string content1 = listProtein1->getHead()->getSequence();
+  string prot1 = listProtein1->getHead()->getSequence();
 
 	List *listProtein2 = readFasta(argv[2]);
-  string content2 = listProtein2->getHead()->getSequence();
+  string prot2 = listProtein2->getHead()->getSequence();
 
 	clock_t begin = clock();
 	//creation of the blosum matrix
-	BlosumMatrix* blosum = new BlosumMatrix("blosum62");
-
+	/*BlosumMatrix* blosum = new BlosumMatrix("blosum62");
+	const vector<vector<int>> blosumMatrix=blosum->getMatrix();*/
+	setupBlosumMatrix("blosum62");
+	cout <<"here" << endl;
 	//define the 2 constants : gap opening and gap expansion
 	const int gap_op = 11;
 	const int gap_ex = 1;
 
 	//Define the 2 sequence and place them into 2 variables prot1 and prot2
 
-	string prot1=content1;
-	string prot2=content2;
+	int len1 = prot1.size();
+	int len2 = prot2.size();
+	vector<int> seq1;
+	for (int i = 0; i < len1; i++){
+		//seq1.push_back(blosum->charToIntConversion(prot1.at(i)));
+		seq1.push_back(charToInt[prot1.at(i)]);
+	}
+	vector<int> seq2;
+	for (int i = 0; i < len2; i++){
+		//seq2.push_back(blosum->charToIntConversion(prot2.at(i)));
+		seq2.push_back(charToInt[prot2.at(i)]);
+	}
 	/*string prot1 = argv[1];
 	string prot2 = argv[2];*/
 
-	int len1 = prot1.size();
-	int len2 = prot2.size();
 	//Define variables used in order to fill the ScoringMatrix
 	int up = 0;
 	int left = 0;
@@ -121,7 +179,9 @@ int main(int argc, char** argv){
 		for (int j = 1; j < len2+1; j++){
 			temp[0] = maxColumn[i] - gap_op - gap_ex*(j - posYmaxColumn[i]);
 			temp[1] = maxLine[j] - gap_op - gap_ex*(i - posXmaxLine[j]);
-			temp[2] = matrice[i-1][j-1] + blosum->get(prot1.at(i-1), prot2.at(j-1));
+			temp[2] = matrice[i-1][j-1] + blosumMatrix[seq1[i-1]][seq2[j-1]];
+
+			//temp[2] = matrice[i-1][j-1] + blosum->get(prot1.at(i-1), prot2.at(j-1));
 			tempVal = findMax(temp,4);
 			matrice[i][j] = tempVal;
 			if (tempVal >= maxColumn[i]-gap_ex*(j-posYmaxColumn[i])){
