@@ -24,7 +24,7 @@ int main( int argc, char **argv ){
   string dataFileName = argv[2];
   string sequence1 = "";
   string sequence2 = "";
-  if( argc == 5){
+  /*if( argc == 5){
     List *seq1 = readFasta(argv[3]);
     if ( seq1->getNumOfProtein() == 0){
       sequence1 = argv[3];
@@ -42,11 +42,13 @@ int main( int argc, char **argv ){
     }
     delete seq2;
     delete seq1;
-  }
+  }*/
   int state;
 
-  List *listProtein = readFasta(queryFileName);
-  if ( listProtein->getNumOfProtein() == 0){
+  //List *listProtein = readFasta(queryFileName);
+  content = readFasta2(queryFileName);
+  //if ( listProtein->getNumOfProtein() == 0){
+  if (content == ""){
     cerr << "the query file in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }
@@ -66,7 +68,7 @@ int main( int argc, char **argv ){
   // create an object PSQ which read the file *.psq
   PSQ *filePSQ = new PSQ();
   // get the index of the corresponding sequence in datafile
-  int index = filePSQ->read(filePIN, listProtein->getHead()->getSequence(), dataFileName);
+  int index = filePSQ->read(filePIN, content, dataFileName);
 
   if (index != -1){
     // if index exists it read the info about the query sequence from *.phr
@@ -86,7 +88,7 @@ int main( int argc, char **argv ){
   dbAlignment(dataFileName, queryFileName, filePIN, filePSQ);
   delete filePIN;
   delete filePSQ;
-  delete listProtein;
+  //delete listProtein;
 
   //int score = matching(sequence1, sequence2);
 

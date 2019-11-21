@@ -33,5 +33,5 @@ public:
   int getNumOfProtein() const;
   Protein* getHead();
 };
-
+string readFasta2(string file);
 List* readFasta(string file);

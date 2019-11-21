@@ -1,21 +1,93 @@
 #include "smith.h"
 
-int findMax(int tableau[], int size){
-	int res = tableau[0];
-	for (int i = 1; i < size; i++){
-		if (tableau[i]>res){
-			res = tableau[i];
-		}
-	}
-	return res;
-}
+
 
 vector<vector<int>> blosumMatrix;
 map<char,int> charToInt;
 vector<int> indexList;
 vector<int> scoreList;
-vector<bool> queryAlignement;
-vector<bool> dbAlignement;
+vector<vector<bool>> queryAlignement;
+vector<vector<bool>> dbAlignement;
+
+
+int findMaxIndex(int tableau[]){
+	int res = 0;
+	for (int i = 1; i < 4; i++){
+		if (tableau[i]>tableau[res]){
+			res = i;
+		}
+	}
+	return res;
+}
+
+void merge(vector<int> &scorev, vector<int> &indexv, int left, int mid, int right)
+{
+	/** Merge two sorted vectors **/
+	int nl = mid-left;
+	int nr = right - mid +1;
+	vector<int> Lscore;
+	vector<int> Lindex;
+	vector<int> Rscore;
+	vector<int> Rindex;
+	for (int i = 0; i <= nl-1; i++){
+		Lscore.push_back(l[left+i]);
+		Lindex.push_back(l[left+i]);
+	}
+	for (int i = 0; i <= nr-1; i++){
+		Rscore.push_back(l[mid+i]);
+		Rindex.push_back(l[mid+i]);
+	}
+
+	const int infini = 9999999;
+	Lscore.push_back(infini);
+	Rscore.push_back(infini);
+	int il = 0;
+	int ir = 0;
+	for (int i=left; i <= right; i++){
+		if (Lscore[il] <= Rscore[ir]){
+			scorev[i] = Lscore[il];
+			indexv[i] = Lindex[ir];
+			il++;
+		} else {
+			scorev[i] = Rscore[ir];
+			indexv[i] = Rindex[ir];
+			ir++;
+		}
+	}
+}
+
+void insertion_sortmerge(vector<int> & scorev, vector<int> &indexv,int left, int right){
+	int tmps;
+	int tempi;
+	for(int i=left; i<right; i++)
+	{
+		int j=i;
+		while ( j>left && scorev[j-1]>scorev[j] )
+		{
+			tmps = scorev[j];
+			tempi = indexv[j];
+			scorev[j] = scorev[j-1];
+			indexv[j] = indexv[j-1];
+			scorev[j-1] = tmps;
+			indexv[j-1] = tmpi;
+			j--;
+		}
+	}
+}
+
+void merge_sort(vector<int> &scorev, vector<int> &indexv, int left, int right)
+{
+	/** Sort a vector by calling merge() recursively **/
+	const int seuil = 256;
+	if(right-left+1 < seuil) { insertion_sortmerge(scorev, indexv,left, right); }
+	if (left < right){
+		int mid = ceil((float)(left+right)/2);
+		merge_sort(scorev, indexv, mid, right);
+		merge_sort(scorev, indexv, left, mid-1);
+		merge(scorev, indexv,left,mid,right);
+
+	}
+}
 
 void setupBlosumMatrix(string pathToBlosumMatrix){
 	ifstream file(pathToBlosumMatrix);
@@ -63,7 +135,24 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 		cout << "Problem while opening the blosum file" << endl;
 	}
 };
-
+void traceback(vector<vector<int>> rootAlignement, int maxX, int maxY, int sizeX, int sizeY){
+	int x = maxX;
+	int y = maxY;
+	vector<bool> query;
+	vector<bool> dbSeq;
+	query.assign(sizeX, false);
+	dbSeq.assign(sizeY, false);
+	int value = rootAlignement[x][y];
+	while (value != 0){ //temp[0] = 0
+		switch(value){
+			case 1 : query[x][y] = true; y--;break;//up
+			case 2 : dbSeq[x][y] = true; x--;break;//left
+			case 3 : dbSeq[x][y] = true; query[x][y] = true; x--; y--;break;//diag
+		}
+	}
+	queryAlignement.push_back(query);
+	dbAlignment.push_back(dbSeq);
+}
 int matching(vector<int> seq1, vector<int> seq2, int len1){
   //clock_t begin = clock();
 
@@ -107,11 +196,14 @@ int matching(vector<int> seq1, vector<int> seq2, int len1){
   int left = 0;
   int diag = 0;
   int maxValue = 0;
+	int maxX = 0;
+	int maxY = 0;
 	vector<vector<int>> rootAlignement;
   vector<vector<int>> matrice;
   vector<int> tempv;
   tempv.assign(len2+1,0);
   matrice.assign(len1+1,tempv);
+	rootAlignement.assign(len1+1,tempv);
   int maxLine[len2+1];
   int maxColumn[len1+1];
   int posXmaxLine[len2+1];
@@ -119,24 +211,29 @@ int matching(vector<int> seq1, vector<int> seq2, int len1){
   for (int i = 0; i < len1+1; i++){
     posYmaxColumn[i] = 0;
     maxColumn[i] = 0;
-    matrice[i][0] = 0;
+    /*matrice[i][0] = 0;
+		rootAlignement[i][0] = 0;*/
   }
   for (int j = 0; j < len2+1; j++){
     posXmaxLine[j] = 0;
     maxLine[j] = 0;
-    matrice[0][j] = 0;
+    /*matrice[0][j] = 0;
+		rootAlignement[0][j] = 0;*/
   }
   int temp[4];
-  temp[3] = 0;
+  temp[0] = 0;
   int tempVal;
+	int tempIndex;
   for (int i = 1; i < len1+1; i++){
     for (int j = 1; j < len2+1; j++){
-      temp[0] = maxColumn[i] - gap_op - gap_ex*(j - posYmaxColumn[i]);
-      temp[1] = maxLine[j] - gap_op - gap_ex*(i - posXmaxLine[j]);
-      temp[2] = matrice[i-1][j-1] + blosumMatrix[seq1[i-1]][seq2[j-1]];
+      temp[1] = maxColumn[i] - gap_op - gap_ex*(j - posYmaxColumn[i]);
+      temp[2] = maxLine[j] - gap_op - gap_ex*(i - posXmaxLine[j]);
+      temp[3] = matrice[i-1][j-1] + blosumMatrix[seq1[i-1]][seq2[j-1]];
 
       //temp[2] = matrice[i-1][j-1] + blosum->get(prot1.at(i-1), prot2.at(j-1));
-      tempVal = findMax(temp,4);
+      tempIndex = findMax(temp);
+			tempVal = temp[tempIndex];
+			rootAlignement[i][j] = tempIndex;
       matrice[i][j] = tempVal;
       if (tempVal >= maxColumn[i]-gap_ex*(j-posYmaxColumn[i])){
         maxColumn[i] = tempVal;
@@ -148,6 +245,8 @@ int matching(vector<int> seq1, vector<int> seq2, int len1){
       }
       if (tempVal > maxValue){
         maxValue = matrice[i][j];
+				maxX = i;
+				maxY = j;
       }
     }
   }
@@ -165,6 +264,7 @@ int matching(vector<int> seq1, vector<int> seq2, int len1){
 	//matrix->print();
 	//string res = findPath(maxPos, prot1, prot2, blosum);
 	//cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
+	traceback(rootAlignement, maxX,maxY, len1+1, len2+1)
 	return bitscore;
 }
 
@@ -181,9 +281,9 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
   for(int i=0; i < dbSize; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
 		indexList.push_back(i);
-		scoreList.push_back(matching(vquery, filePSQ->getSequence(i)));
-
+		scoreList.push_back(matching(vquery, filePSQ->getSequenceINT(i), len1));
   }
+	merge_sort(&scoreList, & indexList, 0, scoreList.size()-1);
   clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;
   cout << "The time of matching is : " << time << endl;

@@ -2,6 +2,34 @@
 
 // The purpose of this is to read fasta file (database or query file) and it stocks
 // the name and content of the sequences into a chained list
+
+string readFasta2(string file){
+  ifstream input(file);
+  string line, content;
+
+
+  //If it is not able to open the file it returns error and in the main it exits
+  // on failure
+  if(!input.good()){
+    return "";
+  }else{
+    //while it not in end of file it read the line
+    while( getline( input, line ).good() ){
+        //in fasta the symbol '>' precedes the name and nexts lines are the sequences
+        // of it
+        if( line[0] != '>' ){
+          content+=line;
+        }
+    }
+  }
+    // it inserts the last protein of fasta file that it read because it is not
+    // covered by the loop above
+    // the following commented line prints all the fasta file from list that it
+    // just built
+    //listProtein->printList();
+    return content;
+}
+
 List* readFasta(string file){
   ifstream input(file);
   string line, name, content;
