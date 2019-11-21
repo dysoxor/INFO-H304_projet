@@ -12,6 +12,10 @@ int findMax(int tableau[], int size){
 
 vector<vector<int>> blosumMatrix;
 map<char,int> charToInt;
+vector<int> indexList;
+vector<int> scoreList;
+vector<bool> queryAlignement;
+vector<bool> dbAlignement;
 
 void setupBlosumMatrix(string pathToBlosumMatrix){
 	ifstream file(pathToBlosumMatrix);
@@ -101,6 +105,7 @@ int matching(vector<int> seq1, string prot2){
   int left = 0;
   int diag = 0;
   int maxValue = 0;
+	vector<vector<int>> rootAlignement;
   vector<vector<int>> matrice;
   vector<int> tempv;
   tempv.assign(len2+1,0);
@@ -165,16 +170,14 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
   int dbSize = filePIN->getNumSeq();
   clock_t begin = clock();
 	vector<int> vquery;
-	for (int i = 0; i < vquery.size(); i++)
+	for (int i = 0; i < query.size(); i++)
 		vquery.push_back(charToInt[query.at(i)]);
   setupBlosumMatrix("blosum62");
-	vector<int> indexList;
-	vector<int> scoreList;
 	int score;
   for(int i=0; i < dbSize; i++){
-		score = matching(vquery, filePSQ->getSequence(i));
+		//score = matching(vquery, filePSQ->getSequence(i));
 		indexList.push_back(i);
-		scoreList.push_back(score);
+		scoreList.push_back(matching(vquery, filePSQ->getSequence(i)));
 
     /*if(i%1000 == 0)
       cout << "[score: " << i << "] " << score << endl;*/
