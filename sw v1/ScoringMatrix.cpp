@@ -7,8 +7,10 @@ ScoringMatrix::ScoringMatrix(){
 };
 
 Position* ScoringMatrix::getPosition(int x, int y){
-  //Return the position pointer of (x,y)
-  return tableau[pair<int,int>(x,y)];
+  //if (x >= 0 && y >= 0){
+    return tableau[pair<int,int>(x,y)];
+  //}
+  //return nullptr;
 };
 
 void ScoringMatrix::setValue(int value, int x, int y){
@@ -23,8 +25,6 @@ const int ScoringMatrix::getValue(int x, int y){
 void ScoringMatrix::addPosition(Position* pos){
   tableau.insert(pair<pair<int, int>, Position*> (pair<int,int>(pos->getX(),pos->getY()),pos));
   if (pos->getX()+1 > sizeX){
-    //If we add a new position with a x greater than our actual maximum x,
-    //redefine the sizeX
     sizeX = pos->getX() +1;
   }
   if (pos->getY()+1 > sizeY){
@@ -32,10 +32,10 @@ void ScoringMatrix::addPosition(Position* pos){
   }
 };
 
-/*void ScoringMatrix::setRootTarget(Position* rootPos, Position* targetPos){
+void ScoringMatrix::setRootTarget(Position* rootPos, Position* targetPos){
   rootPos->addTarget(targetPos);
   targetPos->addRoot(rootPos);
-};*/
+};
 
 const void ScoringMatrix::print(){
   for (int i = 0; i < sizeY; i++){
@@ -44,37 +44,4 @@ const void ScoringMatrix::print(){
 		}
 		cout << endl;
 	}
-}
-
-void ScoringMatrix::setMaxLine(int line, Position* pos){
-  if (pos->getValue() > maxLines[line]->getValue()){
-    maxLines[line] = pos;
-  }
-}
-
-Position* ScoringMatrix::getMaxLine(int line){
-  return maxLines[line];
-}
-
-void ScoringMatrix::setMaxColumn(int column, Position* pos){
-  if (pos->getValue() > maxColumns[column]->getValue()){
-    maxColumns[column] = pos;
-  }
-}
-
-Position* ScoringMatrix::getMaxColumn(int column){
-  return maxColumns[column];
-}
-
-void ScoringMatrix::setupMax(int len1, int len2){
-  maxLines.assign(len2,new Position());
-  maxColumns.assign(len1,new Position());
-}
-
-int ScoringMatrix::getDistYWithMax(Position* pos){
-  return pos->getY()-maxColumns[pos->getX()]->getY();
-}
-
-int ScoringMatrix::getDistXWithMax(Position* pos){
-  return pos->getX() - maxLines[pos->getY()]->getX();
 }
