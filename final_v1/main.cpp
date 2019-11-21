@@ -91,7 +91,7 @@ int main( int argc, char **argv ){
     return EXIT_FAILURE;
   }
   cout << "Algorithm in process ..."<< endl;
-  dbAlignment(dataFileName, queryFileName, filePIN, filePSQ);
+  dbAlignment(dataFileName, content, filePIN, filePSQ);
   cout << "Done"<<endl;
   delete filePIN;
   delete filePSQ;

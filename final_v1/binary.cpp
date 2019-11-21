@@ -169,8 +169,8 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
       filePSQ.read((char*)&sequence, sizeof(uint8_t));
       //while the seperator '0' is not read it compare each letter of the
       //sequence
-      if(sequence != 0)
-        dbSeq += conversionTable[sequence];
+      if(sequence != 0){
+        dbSeq += conversionTable[sequence];}
         //dbSeqInt.push_back(sequence);
       /*if (sequence != 0){
         if (!finded && isCorresponding){
@@ -193,10 +193,10 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
         }
       }*/
     }while(sequence!=0);
-    if(dbSeq!=""){
+    //cout << dbSeq.size() << endl;
 
       vectorSequences.push_back(dbSeq);
-    }
+
     //temp1.push_back(dbSeqInt);
     //vectorSequencesINT.push_back(dbSeqInt);
   }

@@ -169,9 +169,7 @@ void traceback(vector<vector<int>> rootAlignement, int maxX, int maxY, int sizeX
 }
 int matching(vector<int> seq1, string prot2, int len1){
   //clock_t begin = clock();
-	if (prot2.size() == 0){
-		cout << "Erreur prot2" << endl;
-	}
+	//cout << seq1.size() << " "<< prot2.size() << endl;
 	//int len2 = seq2.size();
 
 	/*//creation of the blosum matrix
@@ -317,10 +315,18 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
 
   setupBlosumMatrix("blosum62");
 	int score;
-  for(int i=0; i <dbSize-2 ; i++){
+	int pcent = 0;
+  for(int i=0; i <dbSize ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
 		indexList.push_back(i);
 		scoreList.push_back(matching(vquery, filePSQ->getSequence(i), len1));
+		if (i%(dbSize/100) == 0){
+			cout << pcent << "% ..." << endl;
+			pcent++;
+		}
+		if (i == dbSize-1){
+			cout << "100% ..." << endl;
+		}
   }
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 
