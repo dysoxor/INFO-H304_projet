@@ -60,20 +60,26 @@ int main( int argc, char **argv ){
 
   // create an object PIN wich read the file *.pin
   PIN *filePIN = new PIN();
+  cout << "Reading PIN ..."<< endl;
   state = filePIN->read(dataFileName);
   if(state == EXIT_FAILURE){
     cerr << "the blast data file (.pin) in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }
+  cout<<"PIN done"<<endl;
   // create an object PSQ which read the file *.psq
+
+  cout << "Reading PSQ ..."<< endl;
   PSQ *filePSQ = new PSQ();
   // get the index of the corresponding sequence in datafile
   int index = filePSQ->read(filePIN, content, dataFileName);
-
+  cout << "PSQ done"<<endl;
   if (index != -1){
     // if index exists it read the info about the query sequence from *.phr
+    cout <<"Reading PHR ..."<< endl;
     PHR *filePHR = new PHR();
     state = filePHR->read(filePIN,index, dataFileName);
+    cout << "PHR done"<<endl;
     delete filePHR;
   }
   if(index == EXIT_FAILURE){
@@ -84,8 +90,9 @@ int main( int argc, char **argv ){
     cerr << "the blast data file (.phr) in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }
-
+  cout << "Algorithm in process ..."<< endl;
   dbAlignment(dataFileName, queryFileName, filePIN, filePSQ);
+  cout << "Done"<<endl;
   delete filePIN;
   delete filePSQ;
   //delete listProtein;

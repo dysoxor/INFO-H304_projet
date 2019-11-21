@@ -42,7 +42,7 @@ public:
 
 class PSQ{
 private:
-  unsigned int sequence;
+  int sequence;
   vector<string> vectorSequences;
   vector<vector<int>> vectorSequencesINT;
 public:
