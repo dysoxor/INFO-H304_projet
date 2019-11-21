@@ -111,18 +111,11 @@ string PSQ::getSequence(int i){
   return vectorSequences[i];
 }
 
-int PSQ::getSequence(){
-  return sequence;
+
+vector<int> PSQ::getSequenceINT(int i){
+  return vectorSequencesINT[i];
 }
-int* PSQ::getSequencePtr(){
-  return &sequence;
-}
-void PSQ::addScore(int s){
-  scores.push_back(s);
-}
-int PSQ::getScore(int i){
-  return scores[i];
-}
+
 
 int PSQ::read(PIN* filePIN, string query, string dataFileName){
 
@@ -155,12 +148,15 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
   //need the index to find the offset of sequence in the header which is the same
   // as this
   string dbSeq;
+  vector<int> dbSeqInt;
+  vector<vector<int>> temp1;
+  vector<vector<int>> temp2;
   bool isCorresponding;
   int index = -1;
   clock_t begin = clock();
   int j;
   for (int i = 1; i < filePIN->getNumSeq(); i++){
-    /*if(i%1000 == 0)
+    if(i%1000 == 0)
       cout << "[" << i << "]" << endl;
     /*if (finded){
       break;
@@ -171,14 +167,17 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
     //the sequence from the data file has the same size as the query
     //filePSQ.seekg(filePIN->getSqOffset(i));
     //isCorresponding = true;
-    dbSeq = "";
+    //dbSeq = "";
+    dbSeqInt.clear();
     //j = 0;
     do{
       filePSQ.read((char*)&sequence, sizeof(uint8_t));
       //while the seperator '0' is not read it compare each letter of the
       //sequence
-      if(sequence != 0)
-        dbSeq += conversionTable[sequence];
+      if(sequence != 0){
+        dbSeqInt.push_back(sequence);
+      }
+        //dbSeq += conversionTable[sequence];
       /*if (sequence != 0){
         if (!finded && isCorresponding){
             //break; //there is not a perfect match
@@ -200,7 +199,8 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
         }
       }*/
     }while(sequence!=0);
-    vectorSequences.push_back(dbSeq);
+    temp1.push_back(dbSeqInt);
+    //vectorSequencesINT.push_back(dbSeqInt);
   }
   clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;

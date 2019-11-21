@@ -42,18 +42,14 @@ public:
 
 class PSQ{
 private:
-  int sequence;
-  string* listSequences;
+  unsigned int sequence;
   vector<string> vectorSequences;
-  vector<int> scores;
+  vector<vector<int>> vectorSequencesINT;
 public:
   int read(PIN* filePIN, string query, string dataFileName);
   string read(PIN* filePIN, string dataFileName, int target);
   string getSequence(int i);
-  int* getSequencePtr();
-  int getSequence();
-  int getScore(int i);
-  void addScore(int s);
+  vector<int> getSequenceINT(int i);
   vector<int> queryToInt(string query);
   char intToString(int residue);
 };
