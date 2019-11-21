@@ -4,13 +4,12 @@
 using namespace std;
 
 class Position{
-
 private:
   int x;
   int y;
   int value;
-  vector<Position*> root;
-  vector<Position*> target;
+  vector<Position*> root; //Vector of pointers pointing to its roots
+  vector<Position*> target;//Vector of pointers pointing to its targets
 public:
   Position();
   Position(int posX, int posY);

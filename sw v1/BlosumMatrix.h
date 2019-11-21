@@ -7,10 +7,9 @@ using namespace std;
 
 class BlosumMatrix{
 	private:
-		vector<vector<int>> matrice;
-		map<char,int> charToInt;
+		vector<vector<int>> matrix;
+		map<char,int> charToInt;//Map linking a amino acid to a column/line
 	public:
-		//BlosumMatrix();
 		BlosumMatrix(string pathToBlosumMatrix);
 		void setup(string pathToBlosumMatrix);
 		const int get(string aa1, string aa2);

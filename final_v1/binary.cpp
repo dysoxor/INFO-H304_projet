@@ -160,7 +160,7 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
   clock_t begin = clock();
   int j;
   for (int i = 1; i < filePIN->getNumSeq(); i++){
-    if(i%1000 == 0)
+    /*if(i%1000 == 0)
       cout << "[" << i << "]" << endl;
     /*if (finded){
       break;

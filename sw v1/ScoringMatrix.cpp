@@ -7,10 +7,8 @@ ScoringMatrix::ScoringMatrix(){
 };
 
 Position* ScoringMatrix::getPosition(int x, int y){
-  //if (x >= 0 && y >= 0){
-    return tableau[pair<int,int>(x,y)];
-  //}
-  //return nullptr;
+  //Return the position pointer of (x,y)
+  return tableau[pair<int,int>(x,y)];
 };
 
 void ScoringMatrix::setValue(int value, int x, int y){
@@ -25,6 +23,8 @@ const int ScoringMatrix::getValue(int x, int y){
 void ScoringMatrix::addPosition(Position* pos){
   tableau.insert(pair<pair<int, int>, Position*> (pair<int,int>(pos->getX(),pos->getY()),pos));
   if (pos->getX()+1 > sizeX){
+    //If we add a new position with a x greater than our actual maximum x,
+    //redefine the sizeX
     sizeX = pos->getX() +1;
   }
   if (pos->getY()+1 > sizeY){
