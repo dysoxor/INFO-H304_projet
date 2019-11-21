@@ -45,11 +45,13 @@ private:
   int sequence;
   string* listSequences;
   vector<string> vectorSequences;
+  vector<vector<int>> vectorSequencesINT;
   vector<int> scores;
 public:
   int read(PIN* filePIN, string query, string dataFileName);
   string read(PIN* filePIN, string dataFileName, int target);
   string getSequence(int i);
+  int getSequenceINT(int i);
   int* getSequencePtr();
   int getSequence();
   int getScore(int i);

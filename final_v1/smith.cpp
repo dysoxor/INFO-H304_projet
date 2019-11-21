@@ -60,8 +60,10 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 	}
 };
 
-int matching(string prot1, string prot2){
+int matching(vector<int> seq1, vector<int> seq2, int len1){
   //clock_t begin = clock();
+
+	int len2 = seq2.size();
 
 	/*//creation of the blosum matrix
 	BlosumMatrix* blosum = new BlosumMatrix("blosum62");*/
@@ -81,7 +83,7 @@ int matching(string prot1, string prot2){
 
   //Define the 2 sequence and place them into 2 variables prot1 and prot2
 
-  int len1 = prot1.size();
+  /*int len1 = prot1.size();
   int len2 = prot2.size();
   vector<int> seq1;
   for (int i = 0; i < len1; i++){
@@ -92,7 +94,7 @@ int matching(string prot1, string prot2){
   for (int i = 0; i < len2; i++){
     //seq2.push_back(blosum->charToIntConversion(prot2.at(i)));
     seq2.push_back(charToInt[prot2.at(i)]);
-  }
+  }*/
   /*string prot1 = argv[1];
   string prot2 = argv[2];*/
 
@@ -165,10 +167,18 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
   int dbSize = filePIN->getNumSeq();
   clock_t begin = clock();
 
+	int len1 = query.size();
+
+	vector<int> seq1;
+	for (int i = 0; i < len1; i++){
+		//seq1.push_back(blosum->charToIntConversion(prot1.at(i)));
+		seq1.push_back(charToInt[query.at(i)]);
+	}
+
   setupBlosumMatrix("blosum62");
 	int score;
   for(int i=0; i < dbSize; i++){
-		score = matching(query, filePSQ->getSequence(i));
+		score = matching(seq1, filePSQ->getSequenceINT(i), len1);
     if(i%1000 == 0)
       cout << "[score: " << i << "] " << score << endl;
 

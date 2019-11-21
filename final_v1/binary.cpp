@@ -155,6 +155,7 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
   //need the index to find the offset of sequence in the header which is the same
   // as this
   string dbSeq;
+  vector<int> dbSeqInt;
   bool isCorresponding;
   int index = -1;
   clock_t begin = clock();
@@ -171,14 +172,16 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
     //the sequence from the data file has the same size as the query
     //filePSQ.seekg(filePIN->getSqOffset(i));
     //isCorresponding = true;
-    dbSeq = "";
+    //dbSeq = "";
+    dbSeqInt.clear();
     //j = 0;
     do{
       filePSQ.read((char*)&sequence, sizeof(uint8_t));
       //while the seperator '0' is not read it compare each letter of the
       //sequence
       if(sequence != 0)
-        dbSeq += conversionTable[sequence];
+        dbSeqInt.push_back(sequence);
+        //dbSeq += conversionTable[sequence];
       /*if (sequence != 0){
         if (!finded && isCorresponding){
             //break; //there is not a perfect match
@@ -200,7 +203,7 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
         }
       }*/
     }while(sequence!=0);
-    vectorSequences.push_back(dbSeq);
+    vectorSequencesINT.push_back(dbSeqInt);
   }
   clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;

@@ -88,7 +88,7 @@ int main( int argc, char **argv ){
   delete filePSQ;
   delete listProtein;
 
-  int score = matching(sequence1, sequence2);
+  //int score = matching(sequence1, sequence2);
 
   return 0;
 }
