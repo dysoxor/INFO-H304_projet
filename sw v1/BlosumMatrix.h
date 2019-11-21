@@ -14,5 +14,8 @@ class BlosumMatrix{
 		void setup(string pathToBlosumMatrix);
 		const int get(string aa1, string aa2);
 		const int get(char aa1, char aa2);
+		const int get(int aa1, int aa2);
 		const void print();
+		const int charToIntConversion(char a);
+		const vector<vector<int>> getMatrix();
 };

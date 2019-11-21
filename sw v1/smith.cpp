@@ -5,12 +5,62 @@
 #include <iostream>
 #include <vector>
 #include "BlosumMatrix.h"
-#include "ScoringMatrix.h"
+#include "fasta.h"
+#include <ctime>
+#include <math.h>
 
 using namespace std;
 
+vector<vector<int>> blosumMatrix;
+map<char,int> charToInt;
 
-string findPath(Position* pos, string prot1, string prot2, BlosumMatrix* blosum){
+void setupBlosumMatrix(string pathToBlosumMatrix){
+	ifstream file(pathToBlosumMatrix);
+	string line;
+	bool first_line = true;
+	int value;
+	int n_line = 0;
+	int n_column = 0;
+	if (file.is_open()){
+		while(getline(file,line)){ //We check every line
+			if (line.at(0) != '#'){ //We don't do anything we the comments of the file
+				n_column=0;
+				if (first_line){
+					//If we are at the first line, we can read the character of the amino acid
+					first_line=false;
+					for (int i = 0; i < line.length();i++){
+						if (line.at(i) != ' '){
+							// If we get a character different than a void char, we put it in a map
+							charToInt.insert(pair<char,int>(line.at(i),n_column));
+							n_column++;
+						}
+					}
+					blosumMatrix.assign(charToInt.size(), vector<int> (charToInt.size(),0));
+					//We initialize the matrix with full 0
+				} else {
+					line.erase(0,1);//remove the letter of the line
+					for (int i = 0; i< line.length();i++){
+						if (line.at(i) != ' ' && line.at(i) != '-'){//We skip the '-' character
+							value = (int)line.at(i) -48; //ASCII digits starts at 48
+							if (i != 0 && line.at(i-1) == '-'){
+								//If there is a '-' before the int, we have a negative value
+								value = -value;
+							}
+							blosumMatrix[n_line][n_column] = value; //Set the value
+							n_column++;
+						}
+					}
+					n_line++;
+				}
+
+			}
+		}
+		file.close();
+	} else {
+		cout << "Problem while opening the blosum file" << endl;
+	}
+};
+/*string findPath(Position* pos, string prot1, string prot2, BlosumMatrix* blosum){
 		if (pos->getValue() == 0){ //If we fall to 0, it is the end of the alignement
 			return "";
 		}
@@ -47,9 +97,16 @@ string findPath(Position* pos, string prot1, string prot2, BlosumMatrix* blosum)
 		return returnValue;
 	}
 }
-
-
-
+*/
+int findMax(int tableau[], int size){
+	int res = tableau[0];
+	for (int i = 1; i < size; i++){
+		if (tableau[i]>res){
+			res = tableau[i];
+		}
+	}
+	return res;
+}
 
 int main(int argc, char** argv){
 	if (argc != 3){
@@ -58,97 +115,97 @@ int main(int argc, char** argv){
 		cout <<"Number of parameters given : " << (argc - 1) << endl;
 		return EXIT_FAILURE;
 	}
+
+	List *listProtein1 = readFasta(argv[1]);
+  string prot1 = listProtein1->getHead()->getSequence();
+
+	List *listProtein2 = readFasta(argv[2]);
+  string prot2 = listProtein2->getHead()->getSequence();
+
+	clock_t begin = clock();
 	//creation of the blosum matrix
-	BlosumMatrix* blosum = new BlosumMatrix("blosum62");
-
-	//Initialization of the ScoringMatrix
-	ScoringMatrix* matrix = new ScoringMatrix();
-
+	/*BlosumMatrix* blosum = new BlosumMatrix("blosum62");
+	const vector<vector<int>> blosumMatrix=blosum->getMatrix();*/
+	setupBlosumMatrix("blosum62");
+	cout <<"here" << endl;
 	//define the 2 constants : gap opening and gap expansion
 	const int gap_op = 11;
 	const int gap_ex = 1;
 
 	//Define the 2 sequence and place them into 2 variables prot1 and prot2
 
-	string prot1=argv[1];
-	string prot2=argv[2];
-
 	int len1 = prot1.size();
 	int len2 = prot2.size();
-
-	//pos is a object Position* we will use to build our matrix
-	Position* pos;
-
-	//First step of the algorithm is to place zeros
-	//in the first line and first column
-	for (int i = 0; i <= len1 ; i++){
-		pos=new Position(i,0);
-		matrix->addPosition(pos);
+	vector<int> seq1;
+	for (int i = 0; i < len1; i++){
+		//seq1.push_back(blosum->charToIntConversion(prot1.at(i)));
+		seq1.push_back(charToInt[prot1.at(i)]);
 	}
-	for (int j = 0; j <= len2; j++){
-		pos=new Position(0,j);
-		matrix->addPosition(pos);
+	vector<int> seq2;
+	for (int i = 0; i < len2; i++){
+		//seq2.push_back(blosum->charToIntConversion(prot2.at(i)));
+		seq2.push_back(charToInt[prot2.at(i)]);
 	}
-
+	/*string prot1 = argv[1];
+	string prot2 = argv[2];*/
 
 	//Define variables used in order to fill the ScoringMatrix
-	int match;
 	int up = 0;
 	int left = 0;
 	int diag = 0;
+	int maxValue = 0;
+	vector<vector<int>> matrice;
+	vector<int> tempv;
+	tempv.assign(len2+1,0);
+	matrice.assign(len1+1,tempv);
+	int maxLine[len2+1];
+	int maxColumn[len1+1];
+	int posXmaxLine[len2+1];
+	int posYmaxColumn[len1+1];
+	for (int i = 0; i < len1+1; i++){
+		posYmaxColumn[i] = 0;
+		maxColumn[i] = 0;
+		matrice[i][0] = 0;
+	}
+	for (int j = 0; j < len2+1; j++){
+		posXmaxLine[j] = 0;
+		maxLine[j] = 0;
+		matrice[0][j] = 0;
+	}
+	int temp[4];
+	temp[3] = 0;
+	int tempVal;
+	for (int i = 1; i < len1+1; i++){
+		for (int j = 1; j < len2+1; j++){
+			temp[0] = maxColumn[i] - gap_op - gap_ex*(j - posYmaxColumn[i]);
+			temp[1] = maxLine[j] - gap_op - gap_ex*(i - posXmaxLine[j]);
+			temp[2] = matrice[i-1][j-1] + blosumMatrix[seq1[i-1]][seq2[j-1]];
 
-	int upgap;
-	int leftgap;
-	Position* maxPos = new Position();
-
-	//We will go in every case to complete the matrix
-	for (int i = 1; i <= len1 ; i++){
-		for (int j = 1; j <= len2 ; j++){
-			pos = new Position(i,j);
-			matrix->addPosition(pos);
-			upgap = gap_op;
-			leftgap = gap_op;
-			//We check if the root is from the upper case.
-			//If yes, we check if the root of the upper case is also its own upper case
-			//If yes, this is an expansion and so, the penality due to this gap fall to 1
-			if (j>=2 && matrix->getPosition(i,j-1)->getRoot().size() >= 1 && matrix->getPosition(i,j-1)->getRoot()[0] == matrix->getPosition(i,j-2)){
-				upgap = gap_ex;
-				cout << "Expansion up en " << i << " " << j << endl;
+			//temp[2] = matrice[i-1][j-1] + blosum->get(prot1.at(i-1), prot2.at(j-1));
+			tempVal = findMax(temp,4);
+			matrice[i][j] = tempVal;
+			if (tempVal >= maxColumn[i]-gap_ex*(j-posYmaxColumn[i])){
+				maxColumn[i] = tempVal;
+				posYmaxColumn[i] = j;
 			}
-			//Same for the left case
-			if (i>=2 && matrix->getPosition(i-1,j)->getRoot().size() >= 1 && matrix->getPosition(i-1,j)->getRoot()[0] == matrix->getPosition(i-2,j)){
-				leftgap = gap_ex;
-				cout << "Expansion left en "  << i << " " << j << endl;
+			if (tempVal>=maxLine[j]-gap_ex*(i-posXmaxLine[j])){
+				maxLine[j] = tempVal;
+				posXmaxLine[j] = i;
 			}
-			up = matrix->getValue(i,j-1) - upgap; // we substract the gap to the value of the upper case
-			left = matrix->getValue(i-1,j) - leftgap; //Same for the left case
-			diag = matrix->getValue(i-1,j-1); // We just take the value of the left up diagonal case
-			//We find the value in the BlosumMatrix
-			match=blosum->get(prot1.at(i-1), prot2.at(j-1));
-			diag+=match; // Add the result of the blosum matrix to the diagonal value
-
-			//Now, we find the maximum value. If they are all negative, we take 0.
-			int highValue = max(up,max(left,max(diag,0)));
-			//We set it to the actual position
-			pos->setValue(highValue);
-			//We set the links between the roots and targets
-			if (highValue == diag){
-				matrix->setRootTarget(matrix->getPosition(i-1,j-1), pos);
-			}
-			else if (highValue == up){ //Attention, on considère qu'il ne peut y avoir qu'une seule root
-				matrix->setRootTarget(matrix->getPosition(i,j-1), pos);
-			}
-			else if (highValue == left){
-				matrix->setRootTarget(matrix->getPosition(i-1,j), pos);
-			}
-			//If this value is greater than the previous maximum, we keep the position and the value
-			if (highValue > maxPos->getValue()){
-				maxPos = pos;
+			if (tempVal > maxValue){
+				maxValue = matrice[i][j];
 			}
 		}
 	}
-	matrix->print();
-	string res = findPath(maxPos, prot1, prot2, blosum);
-	cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
+
+	clock_t end = clock();
+	double time = double(end - begin)/CLOCKS_PER_SEC;
+	double lambda = 0.267;
+	double k = 0.041;
+	double bitscore = double(maxValue);
+	bitscore = (lambda*bitscore - log(k))/log(2);
+	cout << "Score donne : "<< maxValue << "("<<bitscore<<" bitscore) en " << time << " secondes"<< endl;
+	//free(allPos);
+	//Pas oublier de delete !!!!
 	return 0;
 }

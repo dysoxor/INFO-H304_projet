@@ -12,7 +12,7 @@ Position::Position(int posX, int posY){
   value = 0;
 }
 
-const vector<Position*> Position::getRoot(){
+/*const vector<Position*> Position::getRoot(){
   return root;
 };
 
@@ -27,7 +27,7 @@ void Position::addRoot(Position* rootPos){
 void Position::addTarget(Position* targetPos) {
   target.push_back(targetPos);
 };
-
+*/
 const int Position::getX(){
   return x;
 };
