@@ -83,7 +83,7 @@ int main( int argc, char **argv ){
     return EXIT_FAILURE;
   }
 
-  dbAlignment(dataFileName, queryFileName, filePIN, filePSQ);
+  dbAlignment(dataFileName, listProtein->getHead()->getSequence(), filePIN, filePSQ);
   delete filePIN;
   delete filePSQ;
   delete listProtein;

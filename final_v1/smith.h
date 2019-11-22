@@ -21,7 +21,7 @@
 
 using namespace std;
 
-int matching(vector<int> seq1, vector<int> seq2, int len1);
+int matching(vector<int> seq1, string prot2, int len1);
 int findMax(int tableau[], int size);
 void setupBlosumMatrix(string pathToBlosumMatrix);
 void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ);
