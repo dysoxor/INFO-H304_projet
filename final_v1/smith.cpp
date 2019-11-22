@@ -167,7 +167,7 @@ void traceback(vector<vector<int>> rootAlignement, int maxX, int maxY, int sizeX
 
 	alignementList.push_back(alignement);
 }
-int matching(vector<int> seq1, string prot2, int len1){
+int matching(vector<int> seq1, vector<int> seq2, int len1){
   //clock_t begin = clock();
 	//cout << seq1.size() << " "<< prot2.size() << endl;
 	//int len2 = seq2.size();
@@ -197,12 +197,33 @@ int matching(vector<int> seq1, string prot2, int len1){
     //seq1.push_back(blosum->charToIntConversion(prot1.at(i)));
     seq1.push_back(charToInt[prot1.at(i)]);
   }*/
-  vector<int> seq2;
-	int len2 = prot2.size();
+  //vector<int> seq2;
+	int len2 = seq2.size();
+	/*bool isSize = false;
+	int size = 0;
+	int item;
   for (int i = 0; i < len2; i++){
+		if(isSize){
+			size = prot2.at(i);
+			isSize = false;
+		}
+		else if(size == 2){
+			size--;
+			item = prot2.at(i)*10;
+		}
+		else if(size == 1){
+			size--;
+			item += prot2.at(i);
+			seq2.push_back(item);
+
+		}
+		else if(prot2.at(i) == 'a')
+			isSize = true;
+
     //seq2.push_back(blosum->charToIntConversion(prot2.at(i)));
-    seq2.push_back(charToInt[prot2.at(i)]);
+    //seq2.push_back(charToInt[prot2.at(i)]);
   }
+	*/
   /*string prot1 = argv[1];
   string prot2 = argv[2];*/
 
@@ -323,7 +344,7 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
   for(int i=0; i <dbSize ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
 		indexList.push_back(i);
-		scoreList.push_back(matching(vquery, filePSQ->getSequence(i), len1));
+		scoreList.push_back(matching(vquery, filePSQ->getSequenceINT(i), len1));
 		if (i%(dbSize/100) == 0 && i != 0){
 			inter = clock();
 			pcent++;

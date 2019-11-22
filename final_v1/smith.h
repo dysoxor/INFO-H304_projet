@@ -21,7 +21,7 @@
 
 using namespace std;
 
-int matching(vector<int> seq1, string seq2, int len1);
+int matching(vector<int> seq1, vector<int> seq2, int len1);
 int findMax(int tableau[], int size);
 int findMax(vector<int> tableau, int size);
 
