@@ -1,77 +1,23 @@
-#include <stdlib.h>
-#include <array>
-#include <immintrin.h>
-#include <stdio.h>
+#include <emmintrin.h>
 #include <iostream>
+#include <math.h>
+#include <ctime>
 
 using namespace std;
 
-/*int32_t sum_array(const int32_t a[], const int n)
-{
-    __m128i vsum = _mm_set1_epi32(0);       // initialise vector of four partial 32 bit sums
-    int32_t sum;
-    int i;
 
-    for (i = 0; i < n; i += 4)
-    {
-        __m128i v = _mm_load_si128(&a[i]);  // load vector of 4 x 32 bit values
-        vsum = _mm_add_epi32(vsum, v);      // accumulate to 32 bit partial sum vector
-    }
-    // horizontal add of four 32 bit partial sums and return result
-    vsum = _mm_add_epi32(vsum, _mm_srli_si128(vsum, 8));
-    vsum = _mm_add_epi32(vsum, _mm_srli_si128(vsum, 4));
-    sum = _mm_cvtsi128_si32(vsum);
-    return sum;
-}
-
-int main(){
-  int32_t *array[16];
-  array[0] = 3;
-  array[5] = 5;
-  cout << sum_array(array, 16) << endl;
+/*int main(){
+  float a[] __attribute__ ((aligned (16))) = { 41982.,  81.5091, 3.14, 42.666 };
+  __m128* ptr = (__m128*)a;
+  __m128 t = _mm_sqrt_ps(*ptr);
+  float *p = (float*) &t;
+  cout << p[0] << endl;
+  return EXIT_SUCCESS;
 }*/
+void matching_SIMD(int* residues, int* sum, int* toAdd){
 
-
-
-
-/*union Line{
-    short int* row;
-    __m128i sRow;
-};
-
-short int* transpose_simd(short int * matrice1, short int* matrice2, int N){
-    short int i=0, n=0;
-
-    short int* __attribute__ ((aligned (16))) line1; //ligne de matrice
-    short int* __attribute__ ((aligned (16))) line2;
-
-    __m128i sLine1, sLine2; //ligne en version sse
-    __m128i sLine3, sLine4;
-
-
-    //There will be a loop surrounding the following code, but first I kept it simple
-
-
-            line1 = matrice1 + N*i;
-            line2 = matrice1 + N*(N/2 + i);
-
-            sLine1 = _mm_loadu_si128((__m128i*) line1); //charge 1 ligne (8 nombres de 16 bits = 128, "coup de bol")
-            sLine2 = _mm_loadu_si128((__m128i*) line2);
-
-
-
-            sLine3 = _mm_unpacklo_epi16 ( sLine1, sLine2 ); //shuffle les 4 premiers chiffres de line1, voir p74
-            sLine4 = _mm_unpackhi_epi16 ( sLine1, sLine2 ); //shuffle les 4 premiers chiffres de line1, voir p74
-
-            _mm_storeu_si128((__m128i*) (matrice2 + N*2*i), sLine3);
-            _mm_storeu_si128((__m128i*) (matrice2 + N*(2*i+1)), sLine4);
-
-            return matrice2;
-}*/
-
-short int* waterman_simd(short int * matrice1, short int* matrice2, int N){
-  //paddsb P[q], H // H = H + P[q]
-  __m128i sLine1 =  add_epi16(mi a,mi b)
+  /*--------------------------------------------------------------------------
+  paddsb P[q], H // H = H + P[q]
   pmaxub F, H // H = max(H, F)
   pmaxub E, H // H = max(H, E)
   pmaxub H, S // S = max(S, H)
@@ -81,28 +27,91 @@ short int* waterman_simd(short int * matrice1, short int* matrice2, int N){
   psubsb Q, H // H = H – Q
   pmaxub H, E // E = max(H, E)
   pmaxub H, F // F = max(H, F)
+  ----------------------------------------------------------------------------*/
+
+
+  __m128* residuePtr = (__m128*)residues;
+  __m128* sumPtr = (__m128*)sum;
+  __m128* addPtr = (__m128*)toAdd;
+
+  //_mm_store_ps(sum, _mm_add_ps(*residuePtr,*addPtr));
+  _mm_store_ps1(sum[0], _mm_add_ps(*residuePtr[0],*addPtr[0]));
+
+
+}
+void sse(float* a, int N)
+{
+  // We assume N % 4 == 0.
+  int nb_iters = N / 4;
+  __m128* ptr = (__m128*)a;
+
+  for (int i = 0; i < nb_iters; ++i, ++ptr, a += 4)
+    _mm_store_ps(a, _mm_sqrt_ps(*ptr));
 }
 
+int main(int argc, char** argv)
+{
+  int sequence[][] = {12, 1, 8, 7, 5, 18,
+                5, 7, 9, 1, 13, 8,
+                14, 13, 11, 7, 9, 8,
+                12, 4, 13, 7, 12, 1,
+                19, 18, 15, 1, 13, 10,
+                12, 1, 8, 7, 5, 18,
+                5, 7, 9, 1, 13, 8,
+                14, 13, 11, 7, 9, 8,
+                12, 4, 13, 7, 12, 1,
+                19, 18, 15, 1, 13, 10,
+                12, 1, 8, 7, 5, 18,
+                5, 7, 9, 1, 13, 8,
+                14, 13, 11, 7, 9, 8,
+                12, 4, 13, 7, 12, 1,
+                19, 18, 15, 1, 13, 10,
+                16, 7, 17, 18, 8, 9
+                }
+  int* residue;
+  posix_memalign((void**)&residue, 8,  16 * sizeof(int));
+  for(int i = 0; i<16; i++){
+    residue[i] = sequence[i][0];
+  }
+  int* sum;
+  posix_memalign((void**)&sum, 8,  16 * sizeof(int));
+  int* toAdd;
+  posix_memalign((void**)&toAdd, 8,  16 * sizeof(int));
+  for(int i = 0; i<16; i++){
+    toAdd[i] = 2;
+  }
+  matching_SIMD(residue, sum, toAdd);
+  for(int i = 0; i<16; i++){
+    cout << sum[i] << endl;
+  }
 
+  /*if (argc != 2)
+    return 1;
+  int N = atoi(argv[1]);
 
-int main(void){
-    const int N = 8;
-    short int  matrice1[] = {
-        10, 11, 12, 13, 14, 15, 16, 17,
-        20, 21, 22, 23, 24, 25, 26, 27,
-        30, 31, 32, 33, 34, 35, 36, 37,
-        40, 41, 42, 43, 44, 45, 46, 47,
-        50, 51, 52, 53, 54, 55, 56, 57,
-        60, 61, 62, 63, 64, 65, 66, 67,
-        70, 71, 72, 73, 74, 75, 76, 77,
-        80, 81, 82, 83, 84, 85, 86, 87
-    };
-    short int matrice2[N];
+  float* a;
+  posix_memalign((void**)&a, 16,  N * sizeof(float));
 
-    short int *matrice3 = transpose_simd(matrice1, matrice2, N);
-    for(int i = 0; i<N; i++)
-      cout << matrice3[i] << endl;
+  for (int i = 0; i < N; ++i){
+    float t = 3141592.65358;
+    a[i] = t;
+  }
 
+  clock_t begin = clock();
+  normal(a, N);
+  clock_t end = clock();
+  double interTime = double(end - begin)/CLOCKS_PER_SEC;
+  cout << "The normal exection time : " << interTime << endl;
 
- return 0;
+  for (int i = 0; i < N; ++i){
+    float t = 3141592.65358;
+    a[i] = t;
+  }
+
+  clock_t begin2 = clock();
+  sse(a, N);
+  clock_t end2 = clock();
+  double interTime2 = double(end2 - begin2)/CLOCKS_PER_SEC;
+  cout << "The sse exection time : " << interTime2 << endl;
+  */
 }

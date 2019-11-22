@@ -211,10 +211,10 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
   double time = double(end - begin)/CLOCKS_PER_SEC;
 
   cout << "The reading datafile time is : " << time << endl;
-  cout << "the first sequence is : " << endl;
+  /*cout << "the first sequence is : " << endl;
   for(int k = 0; k < vectorSequencesINT[1].size(); k++)
     cout << vectorSequencesINT[1][k];
-  cout << endl;
+  cout << endl;*/
   filePSQ.close();
   return index;
 }
