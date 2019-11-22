@@ -5,7 +5,7 @@
 int PIN::read(string dataFileName){
   ifstream filePIN;
   filePIN.open(dataFileName+".pin", ios::binary | ios::in);
-  //check the size of the file to know if the file is empty or does not exists
+  //check the size of the file to know if the file is empty or does not exist
   filePIN.seekg(0, ios::end);
   int fileSize=filePIN.tellg();
   filePIN.seekg(0, ios::beg);
@@ -13,8 +13,8 @@ int PIN::read(string dataFileName){
     return EXIT_FAILURE;
   }
   //it reads .pin file on uint32_t bytes which are stocked at the adress of
-  // 'version' since there it has to convert big endian to the little endian
-  // otherwize the computer is not able to understand the sequence of bytes.
+  // 'version'. Then,it has to convert big endian to the little endian.
+  // Otherwise, computer is not able to understand the sequence of bytes.
   filePIN.read( (char *)&version, sizeof(uint32_t));
   version = __bswap_32(version);
 
@@ -91,7 +91,7 @@ vector<int> PSQ::queryToInt(string query){
 }
 
 int PSQ::read(PIN* filePIN, string query, string dataFileName){
-  //convert query's sequence into a vector of integer to compare it faster with
+  //convert query's sequence into a vector of integers to compare it faster with
   // sequences from data file
   vector<int> table_query = queryToInt(query);
 
@@ -105,7 +105,7 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
     return EXIT_FAILURE;
   }
 
-  //boolean which knwos if the sequence was found in the .psq
+  //boolean which knows if the sequence was found in the .psq
   bool finded = false;
   int sizeOfSq;
   //need the index to find the offset of sequence in the header which is the same
@@ -115,24 +115,24 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
     if (finded){
       break;
     }
-    //difference between the following offset and the one it is at -1 for the
-    //seperator between sequences
+    //difference between the current offset and the following one, minus 1,
+    //to get the size of the sequence (last bit is separator)
     sizeOfSq = filePIN->getSqOffset(i+1) - filePIN->getSqOffset(i) - 1;
     //the sequence from the data file has the same size as the query
     if (sizeOfSq == table_query.size() ){
       filePSQ.seekg(filePIN->getSqOffset(i));
       for (int j = 0; j <= sizeOfSq; j++){
         filePSQ.read((char*)&sequence, sizeof(uint8_t));
-        //while the seperator '0' is not read it compare each letter of the
+        //while the seperator '0' is not read it compares each letter of the
         //sequence
         if (sequence != 0){
           if (table_query[j] != sequence){
-              break; //there is not a perfect match
+              break; //this is not a perfect match
           }
         }
         else {
-            finded = true;//if the separator is reach without break means that
-            //this is a perfect matching
+            finded = true;//if the separator is reach without break, it means that
+            //this is a perfect match
             index = i;
             break;
         }
@@ -218,7 +218,6 @@ int PHR::read(PIN* filePIN, int index, string dataFileName){
     else if(visible_string){//if it is reading visible string of the file
       if(string_length_bits == ""){//the byte which is next to '1a' is the length of the visible_string
         string_length_bits = byteToBits(binary);//convert the byte responsible to give the size of the string into bits
-
         significantBitOn = false;//see if the first bit is off or on
         if(string_length_bits[0] == '1'){
           significantBitOn = true;

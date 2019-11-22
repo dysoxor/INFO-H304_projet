@@ -25,7 +25,7 @@ pair<string, string> readFasta(string file){
   if(!input){
     return pair<string,string> ("","");
   }
-  //while it not in end of file it read the line
+  //while it is not in end of file it read the line
   while(getline( input, line )){
       //in fasta the symbol '>' precedes the name and nexts lines are the sequences
       // of it
@@ -59,7 +59,7 @@ void writeOutputInfo(string outputFile, string queryFileName, string dataBaseFil
 
 
 int main( int argc, char **argv ){
-  // It verify if the query file and the data file is given in parameter
+  // It verifies if the query file and the data file are given in parameters
   if( argc > 7 ){ //Problem because we allow maximum 3 parameters (+ 3 flags)
       cerr << "Program need 3 parameters maximum" << endl;
       return EXIT_FAILURE;
@@ -98,7 +98,7 @@ int main( int argc, char **argv ){
   //Let's start the timer
   clock_t begin = clock();
 
-  //it read the name and the content of query sequence
+  //it reads the name and the content of query sequence
   string name, content = "";
   int state;
 
@@ -108,23 +108,23 @@ int main( int argc, char **argv ){
     return EXIT_FAILURE;
   }
   //following commented lines print the query name and sequence
-  //cout << "The name is : " << listProtein->getHead()->getName() << endl;
-  //cout << "The sequence is " << listProtein->getHead()->getSequence() << endl;
+  //cout << "The name is : " << name << endl;
+  //cout << "The sequence is " << content << endl;
 
-  // create an object PIN wich read the file *.pin
+  // create an object PIN which reads the file *.pin
   PIN *filePIN = new PIN();
   state = filePIN->read(dataFileName);
   if(state == EXIT_FAILURE){
     cerr << "Blast data file (.pin) in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }
-  // create an object PSQ which read the file *.psq
+  // create an object PSQ which reads the file *.psq
   PSQ *filePSQ = new PSQ();
   // get the index of the corresponding sequence in datafile
   int index = filePSQ->read(filePIN, content, dataFileName);
 
   if (index != -1){
-    // if index exists it read the info about the query sequence from *.phr
+    // if index exists, it reads the info about the query sequence from *.phr
     PHR *filePHR = new PHR();
     state = filePHR->read(filePIN,index, dataFileName);
     delete filePHR;
