@@ -194,13 +194,13 @@ unsigned long PHR::toInt(std::string const &s) {
 int PHR::read(PIN* filePIN, int index, string dataFileName){
   ifstream filePHR;
   filePHR.open(dataFileName+".phr", ios::binary | ios::in);
+  if(!filePHR){
+    return EXIT_FAILURE;
+  }
   //check if the file is correct
   filePHR.seekg(0, ios::end);
   int fileSize = filePHR.tellg();
   filePHR.seekg(0, ios::beg);
-  if(fileSize == -1){
-    return EXIT_FAILURE;
-  }
 
   int seqOffset = filePIN->getHrOffset(index);//position in .psq file of the found sequence
   int size = filePIN->getHrOffset(index+1)-seqOffset;//size of the sequence's header
@@ -238,8 +238,8 @@ int PHR::read(PIN* filePIN, int index, string dataFileName){
         string_length--;
       }
     }
-
   }
   cout << "The title is : " << seqTitle << endl;
+  filePHR.close();
   return EXIT_SUCCESS;
 }
