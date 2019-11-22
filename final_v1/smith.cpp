@@ -316,16 +316,22 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
   setupBlosumMatrix("blosum62");
 	int score;
 	int pcent = 0;
+	clock_t inter;
+	double interTime;
+	double estimatedTime;
+	cout << "0% ..."<< endl;
   for(int i=0; i <dbSize ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
 		indexList.push_back(i);
 		scoreList.push_back(matching(vquery, filePSQ->getSequence(i), len1));
-		if (i%(dbSize/100) == 0){
-			cout << pcent << "% ..." << endl;
+		if (i%(dbSize/100) == 0 && i != 0){
+			inter = clock();
 			pcent++;
-		}
-		if (i == dbSize-1){
-			cout << "100% ..." << endl;
+		 	interTime = double(inter - begin)/CLOCKS_PER_SEC;
+			estimatedTime = interTime*(100-pcent);
+
+			cout << pcent << "% ... (estimated time remaining : "<<estimatedTime<< " s)" << endl;
+
 		}
   }
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);

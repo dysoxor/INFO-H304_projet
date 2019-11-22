@@ -153,6 +153,7 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
   clock_t begin = clock();
   int j;
   for (int i = 1; i < filePIN->getNumSeq(); i++){
+    
     /*if (finded){
       break;
     }*/
