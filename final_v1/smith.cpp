@@ -330,7 +330,7 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
 		 	interTime = double(inter - begin)/CLOCKS_PER_SEC;
 			estimatedTime = interTime*(100-pcent);
 
-			cout << pcent << "% ... (estimated time remaining : "<<estimatedTime<< " s)" << endl;
+			cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
 
 		}
   }
