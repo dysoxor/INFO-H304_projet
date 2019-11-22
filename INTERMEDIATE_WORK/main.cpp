@@ -9,7 +9,7 @@ Usage
 -q      name of query file (required)
 -d      name of data file (uniprot_sprot.fasta)
 -o      name of output file (result.txt)
-        the "false" value means no output file
+          "false" value means no output file
 */
 
 #include "binary.h"
@@ -137,7 +137,7 @@ int main( int argc, char **argv ){
     cerr << "Blast data file (.phr) in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }
-  
+
   delete filePIN;
   delete filePSQ;
 
