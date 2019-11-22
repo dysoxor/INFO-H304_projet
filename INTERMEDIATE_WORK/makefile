@@ -1,2 +1,2 @@
 all:
-	g++ -o main main.cpp binary.cpp
+	g++ -o find find.cpp binary.cpp
