@@ -107,12 +107,12 @@ char PSQ::intToString(int residue){
   return intToChar[residue];
 }
 
-string PSQ::getSequence(int i){
+string& PSQ::getSequence(int i){
   return vectorSequences[i];
 }
 
 
-vector<int> PSQ::getSequenceINT(int i){
+vector<int>& PSQ::getSequenceINT(int i){
   return vectorSequencesINT[i];
 }
 
@@ -153,9 +153,26 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
   bool isCorresponding;
   int index = -1;
   clock_t begin = clock();
+  clock_t inter;
+  double estimatedTime;
+  double interTime;
+  int pcent = 0;
   int j;
-  for (int i = 1; i < filePIN->getNumSeq(); i++){
 
+
+
+
+  cout << "0% ..." << endl;
+  for (int i = 1; i < filePIN->getNumSeq(); i++){
+    if (i%(filePIN->getNumSeq()/10) == 0){
+      inter = clock();
+      pcent+=10;
+      interTime = double(inter - begin)/CLOCKS_PER_SEC;
+      estimatedTime = interTime*(100-pcent)/pcent;
+
+      cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
+
+    }
     /*if (finded){
       break;
     }*/
@@ -165,8 +182,8 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
     //the sequence from the data file has the same size as the query
     //filePSQ.seekg(filePIN->getSqOffset(i));
     //isCorresponding = true;
-    //dbSeq = "";
-    dbSeqInt.clear();
+    dbSeq = "";
+    //dbSeqInt.clear();
     //dbSeqIS = "";
     //j = 0;
     do{
@@ -174,13 +191,13 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
       //while the seperator '0' is not read it compare each letter of the
       //sequence
       if(sequence != 0){
-        //dbSeq += conversionTable[sequence];
+        dbSeq += conversionTable[sequence];
         /*if(sequence < 10)
           dbSeq += "a1";
         if(sequence >= 10)
           dbSeq += "a2";*/
         //dbSeq+=to_string(sequence);
-        dbSeqInt.push_back(sequence);
+        //dbSeqInt.push_back(sequence);
         //dbSeqIS += sequence;
       }
       /*if (sequence != 0){
@@ -204,17 +221,17 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
         }
       }*/
     }while(sequence!=0);
-    vectorSequencesINT.push_back(dbSeqInt);
-    //vectorSequences.push_back(dbSeq);
+    //vectorSequencesINT.push_back(dbSeqInt);
+    vectorSequences.push_back(dbSeq);
   }
   clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;
 
   cout << "The reading datafile time is : " << time << endl;
-  cout << "the first sequence is : " << endl;
-  for(int k = 0; k < vectorSequencesINT[1].size(); k++)
+  //cout << "the first sequence is : " << endl;
+  /*for(int k = 0; k < vectorSequencesINT[1].size(); k++)
     cout << vectorSequencesINT[1][k];
-  cout << endl;
+  cout << endl;*/
   filePSQ.close();
   return index;
 }

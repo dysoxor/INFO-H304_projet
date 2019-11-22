@@ -7,6 +7,8 @@ map<char,int> charToInt;
 vector<int> indexList;
 vector<int> scoreList;
 vector<vector<int>> alignementList;
+vector<vector<int>> matrice;
+vector<vector<int>> rootAlignement;
 
 
 int findMax(int tableau[], int size){
@@ -144,7 +146,7 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 		cout << "Problem while opening the blosum file" << endl;
 	}
 };
-void traceback(vector<vector<int>> rootAlignement, int maxX, int maxY, int sizeX, int sizeY){
+void traceback(int maxX, int maxY, int sizeX, int sizeY){
 	int x = maxX;
 	int y = maxY;
 	vector<int> alignement;//on part de la fin
@@ -167,15 +169,15 @@ void traceback(vector<vector<int>> rootAlignement, int maxX, int maxY, int sizeX
 
 	alignementList.push_back(alignement);
 }
-int matching(vector<int> seq1, vector<int> seq2, int len1){
+int matching(vector<int> seq1, string& prot2, int len1){
   //clock_t begin = clock();
 	//cout << seq1.size() << " "<< prot2.size() << endl;
 	//int len2 = seq2.size();
-
 	/*//creation of the blosum matrix
 	BlosumMatrix* blosum = new BlosumMatrix("blosum62");*/
 
-
+	matrice.clear();
+	rootAlignement.clear();
 
 	//Initialization of the ScoringMatrix
 	//ScoringMatrix* matrix = new ScoringMatrix();
@@ -190,15 +192,16 @@ int matching(vector<int> seq1, vector<int> seq2, int len1){
 
   //Define the 2 sequence and place them into 2 variables prot1 and prot2
 
-  /*int len1 = prot1.size();
+  /*int len1 = prot1.size();*/
   int len2 = prot2.size();
-  /*vector<int> seq1;
-  for (int i = 0; i < len1; i++){
+
+  vector<int> seq2;
+  for (int i = 0; i < len2; i++){
     //seq1.push_back(blosum->charToIntConversion(prot1.at(i)));
-    seq1.push_back(charToInt[prot1.at(i)]);
-  }*/
+    seq2.push_back(charToInt[prot2.at(i)]);
+  }
   //vector<int> seq2;
-	int len2 = seq2.size();
+	//int len2 = prot2.size();
 	/*bool isSize = false;
 	int size = 0;
 	int item;
@@ -234,8 +237,8 @@ int matching(vector<int> seq1, vector<int> seq2, int len1){
   int maxValue = 0;
 	int maxX = 0;
 	int maxY = 0;
-	vector<vector<int>> rootAlignement;
-  vector<vector<int>> matrice;
+	//vector<vector<int>> rootAlignement;
+  //vector<vector<int>> matrice;
   vector<int> tempv;
   tempv.assign(len2+1,0);
   matrice.assign(len1+1,tempv);
@@ -318,14 +321,12 @@ int matching(vector<int> seq1, vector<int> seq2, int len1){
 	//matrix->print();
 	//string res = findPath(maxPos, prot1, prot2, blosum);
 	//cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
-	if(bitscore > 2000){
-		cout <<"plus de 2000"<< endl;
-	}
-	traceback(rootAlignement, maxX,maxY, len1+1, len2+1);
+
+	traceback(maxX,maxY, len1+1, len2+1);
 	return bitscore;
 }
 
-void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
+int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
   int dbSize = filePIN->getNumSeq();
   clock_t begin = clock();
 	setupBlosumMatrix("blosum62");
@@ -344,12 +345,12 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
   for(int i=0; i <dbSize ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
 		indexList.push_back(i);
-		scoreList.push_back(matching(vquery, filePSQ->getSequenceINT(i), len1));
+		scoreList.push_back(matching(vquery, filePSQ->getSequence(i), len1));
 		if (i%(dbSize/100) == 0 && i != 0){
 			inter = clock();
 			pcent++;
 		 	interTime = double(inter - begin)/CLOCKS_PER_SEC;
-			estimatedTime = interTime*(100-pcent);
+			estimatedTime = interTime*(100-pcent)/pcent;
 
 			cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
 
@@ -358,6 +359,7 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 
 		cout << "best score" << scoreList[scoreList.size()-1] << endl;
+		cout << "random score" << scoreList[8000] << endl;
 		cout << "best score" << scoreList[findMax(scoreList, scoreList.size())] << endl;
 	ofstream output("res.txt");
 	for (int i = 0; i < alignementList[indexList[indexList.size()-1]].size(); i++){
@@ -368,5 +370,22 @@ void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
   clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;
   cout << "The time of matching is : " << time << endl;
+	return indexList[indexList.size()-1];
 
+}
+
+void dbAlignmentTest(string query, string dbSeq){
+  setupBlosumMatrix("blosum62");
+	int len1 = query.size();
+	vector<int> vquery;
+	for (int i = 0; i < len1; i++){
+		vquery.push_back(charToInt[query.at(i)]);
+	}
+	vector<int> vdbSeq;
+	for (int i = 0; i < dbSeq.size(); i++){
+		vdbSeq.push_back(charToInt[dbSeq.at(i)]);
+	}
+
+	int score = matching(vquery, dbSeq,len1);
+	cout << "Score " << score << endl;
 }
