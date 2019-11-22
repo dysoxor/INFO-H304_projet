@@ -42,6 +42,7 @@ int main( int argc, char **argv ){
     }
     delete seq2;
     delete seq1;
+
   }*/
   int state;
 
@@ -57,7 +58,14 @@ int main( int argc, char **argv ){
     //cout << "The name is : " << listProtein->getHead()->getName() << endl;
     //cout << "The sequence is " << listProtein->getHead()->getSeqence() << endl;
   }
+  if (argc == 4){
+    cout << "On fait la sequence avec elle meme" << endl;
+      dbAlignmentTest(content, content);
 
+
+      return EXIT_SUCCESS;
+
+  }
   // create an object PIN wich read the file *.pin
   PIN *filePIN = new PIN();
   cout << "Reading PIN ..."<< endl;
@@ -80,19 +88,23 @@ int main( int argc, char **argv ){
     PHR *filePHR = new PHR();
     state = filePHR->read(filePIN,index, dataFileName);
     cout << "PHR done"<<endl;
-    delete filePHR;
   }
   if(index == EXIT_FAILURE){
     cerr << "the blast data file (.psq) in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }
-  if(state == EXIT_FAILURE){
+  /*if(state == EXIT_FAILURE){
     cerr << "the blast data file (.phr) in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
-  }
+  }*/
   cout << "Algorithm in process ..."<< endl;
-  dbAlignment(dataFileName, content, filePIN, filePSQ);
+  int indexOfBestSequence = dbAlignment(dataFileName, content, filePIN, filePSQ);
+  cout <<"Reading PHR ..."<< endl;
+  PHR *filePHR = new PHR();
+  state = filePHR->read(filePIN,indexOfBestSequence, dataFileName);
+  cout << "PHR done"<<endl;
   cout << "Done"<<endl;
+
   delete filePIN;
   delete filePSQ;
   //delete listProtein;

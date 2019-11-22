@@ -48,8 +48,8 @@ private:
 public:
   int read(PIN* filePIN, string query, string dataFileName);
   string read(PIN* filePIN, string dataFileName, int target);
-  string getSequence(int i);
-  vector<int> getSequenceINT(int i);
+  string& getSequence(int i);
+  vector<int>& getSequenceINT(int i);
   vector<int> queryToInt(string query);
   char intToString(int residue);
 };

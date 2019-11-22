@@ -21,12 +21,12 @@
 
 using namespace std;
 
-int matching(vector<int> seq1, vector<int> seq2, int len1);
+int matching(vector<int> seq1, string& seq2, int len1);
 int findMax(int tableau[], int size);
 int findMax(vector<int> tableau, int size);
-
+void dbAlignmentTest(string s1, string s2);
 void setupBlosumMatrix(string pathToBlosumMatrix);
-void dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ);
+int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ);
 void merge(vector<int> &scorev, vector<int> &indexv, int left, int mid, int right);
 void insertion_sortmerge(vector<int> & scorev, vector<int> &indexv,int left, int right);
 void merge_sort(vector<int> &scorev, vector<int> &indexv, int left, int right);

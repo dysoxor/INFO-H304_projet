@@ -35,7 +35,7 @@ void matching_SIMD(int* residues, int* sum, int* toAdd){
   __m128* addPtr = (__m128*)toAdd;
 
   //_mm_store_ps(sum, _mm_add_ps(*residuePtr,*addPtr));
-  _mm_store_ps1(sum[0], _mm_add_ps(*residuePtr[0],*addPtr[0]));
+  _mm_store_ps1(sum, _mm_add_ps(*residuePtr,*addPtr));
 
 
 }
