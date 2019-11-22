@@ -208,7 +208,6 @@ int PHR::read(PIN* filePIN, int index, string dataFileName){
   int byteForSize=0;
 
   filePHR.seekg(seqOffset);
-  cout << filePIN->getNumSeq() << endl;
 
   for(int i=0; i<size ; i++){
     filePHR.read( (char*)&binary, 1);//read byte by byte the file

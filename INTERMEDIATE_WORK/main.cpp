@@ -4,7 +4,7 @@ SMEESTERS.
 The purpose of this code is to find correspondance between a query sequence and
 a protein from datafile which should be given in parameter such as the query.
 
-execution in terminal: ./main query.fasta database.fasta
+execution in terminal: ./main -q query.fasta [-d database.fasta]
 */
 
 #include "fasta.h"
@@ -15,14 +15,34 @@ execution in terminal: ./main query.fasta database.fasta
 
 int main( int argc, char **argv ){
   // It verify if the query file and the data file is given in parameter
-  if( argc != 3 ){
+  if( argc > 5 ){ //Problem because we allow maximum 2 parameter (+2flags)
       cerr << "need 2 parameter" << endl;
       return EXIT_FAILURE;
   }
+
+  //Read arguments
+
+  string queryFileName;
+  string dataFileName = "uniprot_sprot.fasta"; //default value
+  bool queryGiven = false; //We absolutely need the query
+  for (int i = 1; i < argc-1; i++){
+    if ((string)argv[i] == "-d"){
+      dataFileName = argv[i+1];
+    }
+    else if ((string)argv[i] == "-q"){
+      queryFileName = argv[i+1];
+      queryGiven = true;
+    }
+  }
+
+  if(!queryGiven){
+    cerr << "No query file given" << endl;
+    return EXIT_FAILURE;
+  }
+
+
   //it read the name and the content of query sequence
   string name, content = "";
-  string queryFileName = argv[1];
-  string dataFileName = argv[2];
   int state;
 
   List *listProtein = readFasta(queryFileName);
@@ -30,11 +50,9 @@ int main( int argc, char **argv ){
     cerr << "the query file in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }
-  else{
-    //following commented lines print the query name and sequence
-    //cout << "The name is : " << listProtein->getHead()->getName() << endl;
-    //cout << "The sequence is " << listProtein->getHead()->getSeqence() << endl;
-  }
+  //following commented lines print the query name and sequence
+  //cout << "The name is : " << listProtein->getHead()->getName() << endl;
+  //cout << "The sequence is " << listProtein->getHead()->getSequence() << endl;
 
   // create an object PIN wich read the file *.pin
   PIN *filePIN = new PIN();
