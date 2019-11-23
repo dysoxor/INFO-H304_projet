@@ -4,7 +4,7 @@ SMEESTERS.
 The purpose of this code is to find correspondance between a query sequence and
 a protein from datafile which should be given in parameter such as the query.
 
-Usage : ./main [OPTIONS]
+Usage : ./find [OPTIONS]
 Usage
 -q      name of query file (required)
 -d      name of data file (uniprot_sprot.fasta)
@@ -129,6 +129,7 @@ int main( int argc, char **argv ){
   PSQ *filePSQ = new PSQ();
   // get the index of the corresponding sequence in datafile
   int index = filePSQ->read(filePIN, content, dataFileName);
+  cout << index << endl;
   if (index != -1){
     // if index exists, it reads the info about the query sequence from *.phr
     PHR *filePHR = new PHR();
