@@ -164,7 +164,7 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
 
   cout << "0% ..." << endl;
   for (int i = 1; i < filePIN->getNumSeq(); i++){
-    if (i%(filePIN->getNumSeq()/10) == 0){
+    if (i%(filePIN->getNumSeq()/10) == 0 && i != 0){
       inter = clock();
       pcent+=10;
       interTime = double(inter - begin)/CLOCKS_PER_SEC;
@@ -186,40 +186,19 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
     //dbSeqInt.clear();
     //dbSeqIS = "";
     //j = 0;
+    /*while(sequence!=0){
+      filePSQ.read((char*)&sequence, sizeof(uint8_t));
+      dbSeq += conversionTable[sequence];
+
+    }*/
     do{
       filePSQ.read((char*)&sequence, sizeof(uint8_t));
       //while the seperator '0' is not read it compare each letter of the
       //sequence
       if(sequence != 0){
         dbSeq += conversionTable[sequence];
-        /*if(sequence < 10)
-          dbSeq += "a1";
-        if(sequence >= 10)
-          dbSeq += "a2";*/
-        //dbSeq+=to_string(sequence);
-        //dbSeqInt.push_back(sequence);
-        //dbSeqIS += sequence;
       }
-      /*if (sequence != 0){
-        if (!finded && isCorresponding){
-            //break; //there is not a perfect match
-            if(table_query[j] != sequence || sizeOfSq != table_query.size()){
-              if(sequence != 0)
-                isCorresponding = false;
-            }
-        }
-        if(sequence != 0)
-          dbSeq += intToString(sequence);
-          j++;
-      }
-      else {
-        if(isCorresponding){
-          finded = true;//if the separator is reach without break means that
-          //this is a perfect matching
-          index = i;
-          //break;
-        }
-      }*/
+
     }while(sequence!=0);
     //vectorSequencesINT.push_back(dbSeqInt);
     vectorSequences.push_back(dbSeq);
@@ -287,6 +266,7 @@ unsigned long PHR::toInt(std::string const &s) {
 }
 
 int PHR::read(PIN* filePIN, int index, string dataFileName){
+  index--;
   ifstream filePHR;
   filePHR.open(dataFileName+".phr", ios::binary | ios::in);
   //check if the file is correct

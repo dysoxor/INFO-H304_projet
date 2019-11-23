@@ -104,7 +104,6 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
   if(fileSize == -1){
     return EXIT_FAILURE;
   }
-
   //boolean which knows if the sequence was found in the .psq
   bool finded = false;
   int sizeOfSq;

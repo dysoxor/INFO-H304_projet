@@ -4,7 +4,7 @@ SMEESTERS.
 The purpose of this code is to find correspondance between a query sequence and
 a protein from datafile which should be given in parameter such as the query.
 
-Usage : ./main [OPTIONS]
+Usage : ./find [OPTIONS]
 Usage
 -q      name of query file (required)
 -d      name of data file (uniprot_sprot.fasta)
@@ -39,15 +39,19 @@ pair<string, string> readFasta(string file){
   return pair<string,string> (name,content);
 }
 
-void writeOutputInfo(string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, double timeElapsed){
+void writeOutputInfo(string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, double timeElapsed, int nbSequences){
   ofstream output(outputFile);
   if (!output){
     cerr<<"Output file is not readable or accessible"<<endl;
   }
   //We write the date of execution
   time_t actualTime = time(nullptr);
+  output << "FIND 1.0.0" << endl;
+  output << "Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS" << endl;
+  output << endl;
   output << "Date : " << asctime(localtime(&actualTime)) << endl;
-  output << "Database : "<<dataBaseFileName<<endl;
+  output << "Database : "<< dataBaseFileName <<endl;
+  output << "Number of sequences in database : " << nbSequences<<endl;
   output << "Query file : " << queryFileName << endl;
   output << "Elapsed time : " << timeElapsed <<"s" << endl;
   output << "Query length : " << querySequence.size() << endl;
@@ -118,11 +122,14 @@ int main( int argc, char **argv ){
     cerr << "Blast data file (.pin) in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }
+  int nbSequences = filePIN->getNumSeq();
+
+
   // create an object PSQ which reads the file *.psq
   PSQ *filePSQ = new PSQ();
   // get the index of the corresponding sequence in datafile
   int index = filePSQ->read(filePIN, content, dataFileName);
-
+  cout << index << endl;
   if (index != -1){
     // if index exists, it reads the info about the query sequence from *.phr
     PHR *filePHR = new PHR();
@@ -148,7 +155,7 @@ int main( int argc, char **argv ){
 
   //Write the results in the outPutFile
   if (outputResult){
-    writeOutputInfo(outputFile, queryFileName, dataFileName, name, content, time);
+    writeOutputInfo(outputFile, queryFileName, dataFileName, name, content, time, nbSequences);
   }
   return EXIT_SUCCESS;
 }

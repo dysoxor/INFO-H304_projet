@@ -4,67 +4,109 @@ SMEESTERS.
 The purpose of this code is to find correspondance between a query sequence and
 a protein from datafile which should be given in parameter such as the query.
 
-execution in terminal: ./main query.fasta database.fasta
+Usage : ./main [OPTIONS]
+Usage
+-q      name of query file (required)
+-d      name of data file (uniprot_sprot.fasta)
+-o      name of output file (result.txt)
 */
 
-#include "fasta.h"
 #include "smith.h"
 
+pair<string, string> readFasta(string file){
+  ifstream input(file);
+  string line = "";
+  string name = "";
+  string content = "";
+  //If it is not able to open the file it returns error and in the main it exits
+  // on failure
+  if(!input){
+    return pair<string,string> ("","");
+  }
+  //while it is not in end of file it read the line
+  while(getline( input, line )){
+      //in fasta the symbol '>' precedes the name and nexts lines are the sequences
+      // of it
+      if( line[0] == '>' ){
+        name += line.substr(1);
+      } else if (!line.empty()){
+        content+=line;
+      }
+  }
+  input.close();
+  return pair<string,string> (name,content);
+}
+
+void writeOutputInfo(string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, double timeElapsed, int nbSequences){
+  ofstream output(outputFile);
+  if (!output){
+    cerr<<"Output file is not readable or accessible"<<endl;
+  }
+  //We write the date of execution
+  time_t actualTime = time(nullptr);
+  output << "FIND 1.0.0" << endl;
+  output << "Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS" << endl;
+  output << endl;
+  output << "Date : " << asctime(localtime(&actualTime)) << endl;
+  output << "Database : "<< dataBaseFileName <<endl;
+  output << "Number of sequences in database : " << nbSequences<<endl;
+  output << "Query file : " << queryFileName << endl;
+  output << "Elapsed time : " << timeElapsed <<"s" << endl;
+  output << "Query length : " << querySequence.size() << endl;
+  output << "Query full name : " << queryName << endl;
+  output << "Query sequence : " << querySequence << endl;
+  output.close();
+}
 
 
 int main( int argc, char **argv ){
-  // It verify if the query file and the data file is given in parameter
-  if( argc < 3 ){
-      cerr << "need 2 parameter" << endl;
+  // It verifies if the query file and the data file are given in parameters
+  if( argc > 7 ){ //Problem because we allow maximum 3 parameters (+ 3 flags)
+      cerr << "Program need 3 parameters maximum" << endl;
       return EXIT_FAILURE;
   }
-  //it read the name and the content of query sequence
-  string name, content = "";
-  string queryFileName = argv[1];
-  string dataFileName = argv[2];
-  string sequence1 = "";
-  string sequence2 = "";
-  /*if( argc == 5){
-    List *seq1 = readFasta(argv[3]);
-    if ( seq1->getNumOfProtein() == 0){
-      sequence1 = argv[3];
-    }
-    else{
-      sequence1 = seq1->getHead()->getSequence();
-    }
 
-    List *seq2 = readFasta(argv[4]);
-    if(seq2->getNumOfProtein() == 0){
-      sequence2 = argv[4];
-    }
-    else{
-      sequence2 = seq2->getHead()->getSequence();
-    }
-    delete seq2;
-    delete seq1;
+  //Read arguments
 
-  }*/
-  int state;
+  string queryFileName;
+  string dataFileName = "uniprot_sprot.fasta"; //default value
+  string outputFile = "result.txt";
+  bool outputResult = true;
+  bool queryGiven = false; //We absolutely need the query
+  for (int i = 1; i < argc-1; i++){
+    if ((string)argv[i] == "-q"){
+      queryFileName = argv[i+1];
+      queryGiven = true;
+    }
+    else if ((string)argv[i] == "-d"){
+      dataFileName = argv[i+1];
+    }
+    else if ((string)argv[i] == "-o"){
+      if ((string)argv[i+1] == "false"){
+        outputResult = false;
+      }
+      else {
+        outputFile = argv[i+1];
+      }
+    }
+  }
 
-  //List *listProtein = readFasta(queryFileName);
-  content = readFasta2(queryFileName);
-  //if ( listProtein->getNumOfProtein() == 0){
-  if (content == ""){
-    cerr << "the query file in parameter is empty or inaccessible" << endl;
+  if(!queryGiven){
+    cerr << "No query file given" << endl;
     return EXIT_FAILURE;
   }
-  else{
-    //following commented lines print the query name and sequence
-    //cout << "The name is : " << listProtein->getHead()->getName() << endl;
-    //cout << "The sequence is " << listProtein->getHead()->getSeqence() << endl;
-  }
-  if (argc == 4){
-    cout << "On fait la sequence avec elle meme" << endl;
-      dbAlignmentTest(content, content);
 
+  //Let's start the timer
+  clock_t begin = clock();
 
-      return EXIT_SUCCESS;
+  //it reads the name and the content of query sequence
+  string name, content = "";
+  int state;
 
+  tie(name,content) = readFasta(queryFileName);
+  if (name == "" && content == ""){
+    cerr<< "Unable to read the query file (.fasta)" << endl;
+    return EXIT_FAILURE;
   }
   // create an object PIN wich read the file *.pin
   PIN *filePIN = new PIN();
@@ -97,8 +139,11 @@ int main( int argc, char **argv ){
     cerr << "the blast data file (.phr) in parameter is empty or inaccessible" << endl;
     return EXIT_FAILURE;
   }*/
+
+  //index de P00533 = 116939
   cout << "Algorithm in process ..."<< endl;
   int indexOfBestSequence = dbAlignment(dataFileName, content, filePIN, filePSQ);
+  cout << "Algorithm done" << endl;
   cout <<"Reading PHR ..."<< endl;
   PHR *filePHR = new PHR();
   state = filePHR->read(filePIN,indexOfBestSequence, dataFileName);
@@ -107,9 +152,12 @@ int main( int argc, char **argv ){
 
   delete filePIN;
   delete filePSQ;
-  //delete listProtein;
+  //Calculate the elapsed time
+  clock_t end = clock();
+  double time = double(end - begin)/CLOCKS_PER_SEC;
+  cout << "Time elapsed : " << time << "s" << endl;
 
-  //int score = matching(sequence1, sequence2);
+  //writeOutputInfo(outputFile, queryFileName, dataFileName, name, content, time, nbSequences);
 
   return 0;
 }

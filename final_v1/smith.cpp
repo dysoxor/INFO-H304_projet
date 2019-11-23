@@ -326,8 +326,11 @@ int matching(vector<int> seq1, string& prot2, int len1){
 	return bitscore;
 }
 
-int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
+int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ, int beginIndex, int endIndex){
   int dbSize = filePIN->getNumSeq();
+	if (endIndex == -1){
+		endIndex = dbSize;
+	}
   clock_t begin = clock();
 	setupBlosumMatrix("blosum62");
 	int len1 = query.size();
@@ -341,29 +344,29 @@ int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ){
 	clock_t inter;
 	double interTime;
 	double estimatedTime;
+	int nbSqTraveled = endIndex-beginIndex;
+	int tempScore;
 	cout << "0% ..."<< endl;
-  for(int i=0; i <dbSize ; i++){
+  for(int i=beginIndex; i <endIndex ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
 		indexList.push_back(i);
-		scoreList.push_back(matching(vquery, filePSQ->getSequence(i), len1));
-		if (i%(dbSize/100) == 0 && i != 0){
+		tempScore = matching(vquery, filePSQ->getSequence(i), len1);
+		scoreList.push_back(tempScore);
+		if (i%(nbSqTraveled/100) == 0 && i != beginIndex){
 			inter = clock();
 			pcent++;
 		 	interTime = double(inter - begin)/CLOCKS_PER_SEC;
 			estimatedTime = interTime*(100-pcent)/pcent;
-
 			cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
-
 		}
   }
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 
-		cout << "best score" << scoreList[scoreList.size()-1] << endl;
-		cout << "random score" << scoreList[8000] << endl;
-		cout << "best score" << scoreList[findMax(scoreList, scoreList.size())] << endl;
+		cout << "Best bitscore " << scoreList[scoreList.size()-1] << endl;
+		//cout << "best score" << scoreList[findMax(scoreList, scoreList.size())] << endl;
 	ofstream output("res.txt");
-	for (int i = 0; i < alignementList[indexList[indexList.size()-1]].size(); i++){
-		output << alignementList[indexList[indexList.size()-1]][i];
+	for (int i = 0; i < alignementList[indexList[indexList.size()-1]-beginIndex].size(); i++){
+		output << alignementList[indexList[indexList.size()-1]-beginIndex][i];
 	}
 	output<< endl;
 	output.close();
