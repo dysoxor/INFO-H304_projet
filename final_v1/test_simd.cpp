@@ -14,7 +14,22 @@ using namespace std;
   cout << p[0] << endl;
   return EXIT_SUCCESS;
 }*/
-void matching_SIMD(int* residues, int* sum, int* toAdd){
+union {
+    __m128i m128;
+    int8_t i8[16];
+} residuePtr;
+union {
+    __m128i m128;
+    int8_t i8[16];
+} toAddPtr;
+union {
+    __m128i m128;
+    __m128i* m128s;
+    int8_t i8[16];
+} sumPtr;
+
+
+void matching_SIMD(int8_t* residues, int8_t* sum, int8_t* toAdd){
 
   /*--------------------------------------------------------------------------
   paddsb P[q], H // H = H + P[q]
@@ -28,15 +43,22 @@ void matching_SIMD(int* residues, int* sum, int* toAdd){
   pmaxub H, E // E = max(H, E)
   pmaxub H, F // F = max(H, F)
   ----------------------------------------------------------------------------*/
+  //__m128i Xi;
+  residuePtr.m128 = _mm_load_si128((__m128i*) residues);
+  toAddPtr.m128 = _mm_load_si128((__m128i*) toAdd);
+  sumPtr.m128 = _mm_load_si128((__m128i*) sum);
 
-
-  __m128* residuePtr = (__m128*)residues;
-  __m128* sumPtr = (__m128*)sum;
-  __m128* addPtr = (__m128*)toAdd;
+  // show content of Xi and Ai
+  for(int j = 0; j < 16; j++) {
+      printf("residuePtr[%d] = %d\t residue[%d] = %d\n", j, residuePtr.i8[j], j, residues[j]);
+  }
 
   //_mm_store_ps(sum, _mm_add_ps(*residuePtr,*addPtr));
-  _mm_store_ps1(sum, _mm_add_ps(*residuePtr,*addPtr));
-
+  _mm_store_si128((__m128i*)sum, _mm_add_epi8(residuePtr.m128,toAddPtr.m128));
+  sumPtr.m128 = _mm_load_si128((__m128i*) sum);
+  for(int j = 0; j < 16; j++) {
+      printf("sumPtr[%d] = %d\t residue[%d] = %d\n", j, sumPtr.i8[j], j, static_cast<int16_t>(sum[j]));
+  }
 
 }
 void sse(float* a, int N)
@@ -49,9 +71,11 @@ void sse(float* a, int N)
     _mm_store_ps(a, _mm_sqrt_ps(*ptr));
 }
 
+
+
 int main(int argc, char** argv)
 {
-  int sequence[][] = {12, 1, 8, 7, 5, 18,
+  int sequence[16][6] = {12, 1, 8, 7, 5, 18,
                 5, 7, 9, 1, 13, 8,
                 14, 13, 11, 7, 9, 8,
                 12, 4, 13, 7, 12, 1,
@@ -67,23 +91,29 @@ int main(int argc, char** argv)
                 12, 4, 13, 7, 12, 1,
                 19, 18, 15, 1, 13, 10,
                 16, 7, 17, 18, 8, 9
-                }
-  int* residue;
-  posix_memalign((void**)&residue, 8,  16 * sizeof(int));
+              };
+  /*int residue[16]__attribute__ ((aligned (8)));
+
   for(int i = 0; i<16; i++){
     residue[i] = sequence[i][0];
+    cout << residue[i] << " ";
   }
-  int* sum;
-  posix_memalign((void**)&sum, 8,  16 * sizeof(int));
-  int* toAdd;
-  posix_memalign((void**)&toAdd, 8,  16 * sizeof(int));
-  for(int i = 0; i<16; i++){
-    toAdd[i] = 2;
+  cout << endl;*/
+  __attribute__((aligned (8))) int8_t residue [16];
+  //int32_t residue[16];
+
+  for(int i = 0; i < 16; i++) {
+      residue[i] = (int8_t)sequence[i][0];
   }
+
+
+  int8_t sum[16]__attribute__ ((aligned (8)));
+  int8_t toAdd[16]__attribute__ ((aligned (8)));
+
+
   matching_SIMD(residue, sum, toAdd);
-  for(int i = 0; i<16; i++){
-    cout << sum[i] << endl;
-  }
+
+  cout << endl;
 
   /*if (argc != 2)
     return 1;
