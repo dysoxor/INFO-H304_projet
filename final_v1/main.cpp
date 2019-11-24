@@ -9,10 +9,26 @@ Usage
 -q      name of query file (required)
 -d      name of data file (uniprot_sprot.fasta)
 -o      name of output file (result.txt)
--n      number of results showed (10);
+-n      number of results showed (10)
+-m      scoring matrix used for Smith-Waterman(blosum62)
+-gpo    gap penality opening (11)
+-gpe    gap penality expansion (1)
 */
 
 #include "smith.h"
+
+/*map<int,char> conversionTable {
+  {0,'-'},{1,'A'},{2,'B'},{3,'C'},{4,'D'},
+  {5,'E'},{6,'F'},{7,'G'},{8,'H'},{9,'I'},
+  {10,'K'},{11,'L'},{12,'M'},{13,'N'},{14,'P'},
+  {15,'Q'},{16,'R'},{17,'S'},{18,'T'},{19,'V'},
+  {20,'W'},{21,'X'},{22,'Y'},{23,'Z'},{24,'U'},
+  {25,'*'},{26,'O'},{27,'J'}
+};*/
+char conversionTable[28] ={
+  '-','A','B','C','D','E','F','G','H','I',
+  'K','L','M','N','P','Q','R','S','T','V',
+  'W','X','Y','Z','U','*','O','J'};
 
 pair<string, string> readFasta(string file){
   ifstream input(file);
@@ -69,7 +85,13 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     name = name.substr(maxLine);
   }
   res +=(name+"\n");
-  string dbSeq = filePSQ->getSequence(index);
+  //string dbSeq = filePSQ->getSequence(index);
+
+  vector<int> dbSeqV = filePSQ->getSequenceINT(index);
+  string dbSeq = "";
+  for (int i = 0; i <dbSeqV.size(); i++){
+    dbSeq+=conversionTable[dbSeqV[i]];
+  }
   res += ("Length = " + to_string(dbSeq.size())+"\n");
   res +=("Bitscore = " + to_string(score)+"\n");
   string alignement;
@@ -220,6 +242,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
 void writeOutput(vector<vector<int>> results, string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, clock_t begin, PIN* filePIN, PSQ* filePSQ){
   string res = "";
   string temp = "";
+  cout << "Writing results in output file ..." << endl;
   PHR* filePHR = new PHR();
 
   int maxLine = 60;
@@ -291,12 +314,13 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   }
   output << temp << querySequence << endl;
   output<< endl << res<< endl;
+  cout << "Output done" << endl;
   output.close();
 }
 int main( int argc, char **argv ){
   // It verifies if the query file and the data file are given in parameters
-  if( argc > 9 ){ //Problem because we allow maximum 4 parameters (+ 4 flags)
-      cerr << "Program need 4 parameters maximum" << endl;
+  if( argc > 15 ){ //Problem because we allow maximum 7 parameters (+ 7 flags)
+      cerr << "Program need 7 parameters maximum" << endl;
       return EXIT_FAILURE;
   }
 
@@ -306,6 +330,9 @@ int main( int argc, char **argv ){
   string dataFileName = "uniprot_sprot.fasta"; //default value
   string outputFile = "result.txt";
   int numberOfResults = 10;
+  string smMatrix = "blosum62";
+  int gapPenalityOpening = 11;
+  int gapPenalityExpansion = 1;
   bool outputResult = true;
   bool queryGiven = false; //We absolutely need the query
   for (int i = 1; i < argc-1; i++){
@@ -326,6 +353,15 @@ int main( int argc, char **argv ){
     }
     else if ((string)argv[i] == "-n"){
       numberOfResults = atoi(argv[i+1]);
+    }
+    else if((string)argv[i] == "-m"){
+      smMatrix = argv[i+1];
+    }
+    else if((string)argv[i] == "-gpo"){
+      gapPenalityOpening = atoi(argv[i+1]);
+    }
+    else if((string)argv[i] == "-gpe"){
+      gapPenalityExpansion = atoi(argv[i+1]);
     }
   }
 
@@ -381,7 +417,7 @@ int main( int argc, char **argv ){
   //index de P00533 = 116939
   cout << "Algorithm in process ..."<< endl;
   vector<vector<int>> results;
-  results = dbAlignment(dataFileName, content, filePIN, filePSQ, numberOfResults, 116000,117000);
+  results = dbAlignment(dataFileName, content, filePIN, filePSQ, smMatrix, gapPenalityOpening, gapPenalityExpansion,numberOfResults, 116000,117000);
   cout << "Algorithm done" << endl;
   writeOutput(results, outputFile, queryFileName, dataFileName, name, content, begin,filePIN,filePSQ);
 
@@ -393,9 +429,10 @@ int main( int argc, char **argv ){
   state = filePHR->read(filePIN,indexOfBestSequence, dataFileName);
   cout << "PHR done"<<endl;
   cout << "Done"<<endl;*/
-
+  cout << "Freeing up space ..." << endl;
   delete filePIN;
   delete filePSQ;
+  cout << "Space freed" << endl;
   //Calculate the elapsed time
   /*clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;

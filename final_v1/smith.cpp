@@ -7,8 +7,10 @@ map<char,int> charToInt;
 vector<int> indexList;
 vector<int> scoreList;
 vector<vector<int>> alignementList;
-vector<vector<int>> matrice;
+vector<vector<int>> matrix;
 vector<vector<int>> rootAlignement;
+int gap_op;
+int gap_ex;
 
 
 int findMax(int tableau[], int size){
@@ -142,6 +144,38 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 			}
 		}
 		file.close();
+		/*map<int,char> conversionTable {
+			{'A',1},{'B',2},{'C',3},{'D',4},
+	    {'E',5},{'F',6},{'G',7},{'H',8},{'I',9},
+	    {'K',10},{'L',11},{'M',12},{'N',13},{'P',14},
+	    {'Q',15},{'R',16},{'S',17},{'T',18},{'V',19},
+	    {'W',20},{'X',21},{'Y',22},{'Z',23},{'U',24},
+	    {'*',25},{'O',26},{'J',27}
+	  };*/
+		/*map<int,char> conversionTable {
+	    {0,'-'},{1,'A'},{2,'B'},{3,'C'},{4,'D'},
+	    {5,'E'},{6,'F'},{7,'G'},{8,'H'},{9,'I'},
+	    {10,'K'},{11,'L'},{12,'M'},{13,'N'},{14,'P'},
+	    {15,'Q'},{16,'R'},{17,'S'},{18,'T'},{19,'V'},
+	    {20,'W'},{21,'X'},{22,'Y'},{23,'Z'},{24,'U'},
+	    {25,'*'},{26,'O'},{27,'J'}
+	  };*/
+		char conversionTable[28] ={
+		  '-','A','B','C','D','E','F','G','H','I',
+		  'K','L','M','N','P','Q','R','S','T','V',
+		  'W','X','Y','Z','U','*','O','J'};
+		vector<vector<int>> otherBlosumMatrix;
+		vector<int> tempv;
+		tempv.assign(28,0);
+		otherBlosumMatrix.assign(28,tempv);
+		for (int i = 1; i < 28; i++){
+			for (int j = 1; j <28; j++){
+				otherBlosumMatrix[i][j] = blosumMatrix[charToInt[conversionTable[i]]][charToInt[conversionTable[j]]];
+			}
+		}
+		blosumMatrix = otherBlosumMatrix;
+
+
 	} else {
 		cout << "Problem while opening the blosum file" << endl;
 	}
@@ -169,37 +203,38 @@ void traceback(int maxX, int maxY, int sizeX, int sizeY){
 
 	alignementList.push_back(alignement);
 }
-int matching(vector<int> seq1, string& prot2, int len1){
+int matching(vector<int> seq1, vector<int> seq2, int len1){
   //clock_t begin = clock();
 	//cout << seq1.size() << " "<< prot2.size() << endl;
 	//int len2 = seq2.size();
 	/*//creation of the blosum matrix
 	BlosumMatrix* blosum = new BlosumMatrix("blosum62");*/
 
-	matrice.clear();
+	matrix.clear();
 	rootAlignement.clear();
 
 	//Initialization of the ScoringMatrix
 	//ScoringMatrix* matrix = new ScoringMatrix();
 
 
-  clock_t begin = clock();
+  //clock_t begin = clock();
   //setupBlosumMatrix("blosum62");
   //cout <<"here" << endl;
   //define the 2 constants : gap opening and gap expansion
-  const int gap_op = 11;
-  const int gap_ex = 1;
+  /*const int gap_op = 11;
+  const int gap_ex = 1;*/
 
   //Define the 2 sequence and place them into 2 variables prot1 and prot2
 
   /*int len1 = prot1.size();*/
-  int len2 = prot2.size();
+  /*int len2 = prot2.size();
 
   vector<int> seq2;
   for (int i = 0; i < len2; i++){
     //seq1.push_back(blosum->charToIntConversion(prot1.at(i)));
     seq2.push_back(charToInt[prot2.at(i)]);
-  }
+  }*/
+	int len2 = seq2.size();
   //vector<int> seq2;
 	//int len2 = prot2.size();
 	/*bool isSize = false;
@@ -238,10 +273,10 @@ int matching(vector<int> seq1, string& prot2, int len1){
 	int maxX = 0;
 	int maxY = 0;
 	//vector<vector<int>> rootAlignement;
-  //vector<vector<int>> matrice;
+  //vector<vector<int>> matrix;
   vector<int> tempv;
   tempv.assign(len2+1,0);
-  matrice.assign(len1+1,tempv);
+  matrix.assign(len1+1,tempv);
 	vector<int> tempv2;
 	tempv2.assign(len2+1,0);
 
@@ -253,13 +288,13 @@ int matching(vector<int> seq1, string& prot2, int len1){
   for (int i = 0; i < len1+1; i++){
     posYmaxColumn[i] = 0;
     maxColumn[i] = 0;
-    matrice[i][0] = 0;
+    matrix[i][0] = 0;
 		rootAlignement[i][0] = 0;
   }
   for (int j = 0; j < len2+1; j++){
     posXmaxLine[j] = 0;
     maxLine[j] = 0;
-    matrice[0][j] = 0;
+    matrix[0][j] = 0;
 		rootAlignement[0][j] = 0;
   }
   int temp[4];
@@ -276,11 +311,11 @@ int matching(vector<int> seq1, string& prot2, int len1){
 			aa1=seq1[i-1];
 			aa2=seq2[j-1];
 			blosumGet = blosumMatrix[aa1][aa2];
-      temp[3] = matrice[i-1][j-1] + blosumGet;
+      temp[3] = matrix[i-1][j-1] + blosumGet;
 			tempIndex = findMax(temp,4);
 
 			tempVal = temp[tempIndex];
-			matrice[i][j] = tempVal;
+			matrix[i][j] = tempVal;
 			/*if(tempVal>10)
 				cout<<tempVal << " "<<tempIndex << endl;*/
 			if (tempIndex == 3){ //si on a match negatif, on laisse 3
@@ -301,15 +336,15 @@ int matching(vector<int> seq1, string& prot2, int len1){
         posXmaxLine[j] = i;
       }
       if (tempVal > maxValue){
-        maxValue = matrice[i][j];
+        maxValue = matrix[i][j];
 				maxX = i;
 				maxY = j;
       }
     }
   }
 
-  clock_t end = clock();
-  double time = double(end - begin)/CLOCKS_PER_SEC;
+  /*clock_t end = clock();
+  double time = double(end - begin)/CLOCKS_PER_SEC;*/
   double lambda = 0.267;
   double k = 0.041;
   double bitscore = double(maxValue);
@@ -326,17 +361,27 @@ int matching(vector<int> seq1, string& prot2, int len1){
 	return bitscore;
 }
 
-vector<vector<int>> dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ, int nbResults, int beginIndex, int endIndex){
-  int dbSize = filePIN->getNumSeq();
+vector<vector<int>> dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ, string smMatrix, int gpo, int gpe, int nbResults, int beginIndex, int endIndex){
+	gap_op = gpo;
+	gap_ex = gpe;
+	int dbSize = filePIN->getNumSeq();
 	if (endIndex == -1){
 		endIndex = dbSize;
 	}
   clock_t begin = clock();
-	setupBlosumMatrix("blosum62");
+	setupBlosumMatrix(smMatrix);
 	int len1 = query.size();
+	map<int,char> conversionTable {
+		{'A',1},{'B',2},{'C',3},{'D',4},
+		{'E',5},{'F',6},{'G',7},{'H',8},{'I',9},
+		{'K',10},{'L',11},{'M',12},{'N',13},{'P',14},
+		{'Q',15},{'R',16},{'S',17},{'T',18},{'V',19},
+		{'W',20},{'X',21},{'Y',22},{'Z',23},{'U',24},
+		{'*',25},{'O',26},{'J',27}
+	};
 	vector<int> vquery;
 	for (int i = 0; i < len1; i++){
-		vquery.push_back(charToInt[query.at(i)]);
+		vquery.push_back(conversionTable[query.at(i)]);
 	}
 
 	int score;
@@ -351,7 +396,7 @@ vector<vector<int>> dbAlignment(string db, string query, PIN* filePIN, PSQ* file
 		//score = matching(vquery, filePSQ->getSequence(i));
 
 		indexList.push_back(i);
-		tempScore = matching(vquery, filePSQ->getSequence(i), len1);
+		tempScore = matching(vquery, filePSQ->getSequenceINT(i), len1);
 		scoreList.push_back(tempScore);
 		if (i%(nbSqTraveled/100) == 0 && i != beginIndex){
 			inter = clock();
