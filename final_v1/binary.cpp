@@ -127,14 +127,14 @@ void PSQ::clearSequences(){
 
 int PSQ::read(PIN* filePIN, string query, string dataFileName){
 
-  map<int,char> conversionTable {
+  /*map<int,char> conversionTable {
     {0,'-'},{1,'A'},{2,'B'},{3,'C'},{4,'D'},
     {5,'E'},{6,'F'},{7,'G'},{8,'H'},{9,'I'},
     {10,'K'},{11,'L'},{12,'M'},{13,'N'},{14,'P'},
     {15,'Q'},{16,'R'},{17,'S'},{18,'T'},{19,'V'},
     {20,'W'},{21,'X'},{22,'Y'},{23,'Z'},{24,'U'},
     {25,'*'},{26,'O'},{27,'J'}
-  };
+  };*/
 
   //convert query's sequence into a vector of integer to compare it faster with
   // sequences from data file
@@ -190,8 +190,8 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
     //the sequence from the data file has the same size as the query
     //filePSQ.seekg(filePIN->getSqOffset(i));
     //isCorresponding = true;
-    dbSeq = "";
-    //dbSeqInt.clear();
+    //dbSeq = "";
+    dbSeqInt.clear();
     //dbSeqIS = "";
     //j = 0;
     /*while(sequence!=0){
@@ -204,13 +204,13 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
       //while the seperator '0' is not read it compare each letter of the
       //sequence
       if(sequence != 0){
-        dbSeq += conversionTable[sequence];
-        //dbSeqInt.push_back(sequence);
+        //dbSeq += conversionTable[sequence];
+        dbSeqInt.push_back(sequence);
       }
 
     }while(sequence!=0);
-    //vectorSequencesINT.push_back(dbSeqInt);
-    vectorSequences.push_back(dbSeq);
+    vectorSequencesINT.push_back(dbSeqInt);
+    //vectorSequences.push_back(dbSeq);
   }
   clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;
