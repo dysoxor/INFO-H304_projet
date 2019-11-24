@@ -70,7 +70,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   }
   res +=(name+"\n");
   string dbSeq = filePSQ->getSequence(index);
-  res += ("Longueur = " + to_string(dbSeq.size()));
+  res += ("Length = " + to_string(dbSeq.size())+"\n");
   res +=("Bitscore = " + to_string(score)+"\n");
   string alignement;
   int indexX;
@@ -129,11 +129,11 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   double posRatio = (double)posScore/sizeAlignement;
   double gapRatio = (double) gapScore/sizeAlignement;
   double idRatio = (double)idScore/sizeAlignement;
-  if ((int)idRatio > 0)
+  if ((int)(idRatio*100) > 0)
     res += ("Identities : "+to_string(idScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(idRatio*100))+"%), ");
-  if ((int)posRatio > 0)
+  if ((int)(posRatio*100) > 0)
     res += ("Positives : "+to_string(posScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(posRatio*100))+"%), ");
-  if ((int)gapRatio > 0)
+  if ((int)(gapRatio*100) > 0)
     res += ("Gaps : "+to_string(gapScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(gapRatio*100))+"%), ");
   res+="\n";
 
@@ -181,7 +181,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
 
     allLine+="\n";
   }
-  int restLineLenght = max(line1.size(), max(line2.size(), line3.size()));
+  int restLineLength = max(line1.size(), max(line2.size(), line3.size()));
   //query
 
   allLine += "Query : ";
@@ -189,8 +189,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     allLine+=" ";
   }
   allLine+=to_string(x);
-  allLine+= (" " +line1.substr(0,restLineLenght-1) + " ");
-  x+=restLineLenght;
+  allLine+= (" " +line1.substr(0,restLineLength-1) + " ");
+  x+=restLineLength;
   allLine+= (to_string(x) + "\n");
 
   //alignement
@@ -198,7 +198,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   for (int i = 0; i < 10 + maxLenNumber; i++){
     allLine+=" ";
   }
-  allLine+= (" "+line2.substr(0, restLineLenght-1)+"\n");
+  allLine+= (" "+line2.substr(0, restLineLength-1)+"\n");
 
   //subject
 
@@ -207,8 +207,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     allLine+=" ";
   }
   allLine+=to_string(y);
-  allLine+= (" " +line3.substr(0,restLineLenght-1) + " ");
-  y+=restLineLenght;
+  allLine+= (" " +line3.substr(0,restLineLength-1) + " ");
+  y+=restLineLength;
   allLine+= (to_string(y) + "\n");
 
 
@@ -261,8 +261,35 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   double timeElapsed= double(end - begin)/CLOCKS_PER_SEC;
   output << "Elapsed time : " << timeElapsed <<"s" << endl;
   output << "Query length : " << querySequence.size() << endl;
-  output << "Query full name : " << queryName << endl;
-  output << "Query sequence : " << querySequence << endl;
+
+  int tempSize;
+  temp ="Query full name : ";
+  if(queryName.size() > maxLine-temp.size()){
+    tempSize = maxLine-temp.size();
+    temp+=queryName.substr(0,tempSize-1);
+    temp+="\n";
+    queryName = queryName.substr(tempSize);
+  }
+  while (queryName.size() > maxLine){
+    temp+=queryName.substr(0,maxLine-1);
+    temp+="\n";
+    queryName = queryName.substr(maxLine);
+  }
+  output << temp << queryName << endl;
+
+  temp ="Query sequence : ";
+  if(querySequence.size() > maxLine-temp.size()){
+    tempSize = maxLine-temp.size();
+    temp+=querySequence.substr(0,tempSize-1);
+    temp+="\n";
+    querySequence = querySequence.substr(tempSize);
+  }
+  while (querySequence.size() > maxLine){
+    temp+=querySequence.substr(0,maxLine-1);
+    temp+="\n";
+    querySequence = querySequence.substr(maxLine);
+  }
+  output << temp << querySequence << endl;
   output<< endl << res<< endl;
   output.close();
 }
