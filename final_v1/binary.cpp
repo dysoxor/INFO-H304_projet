@@ -171,7 +171,7 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
 
 
   cout << "0% ..." << endl;
-  for (int i = 1; i < filePIN->getNumSeq(); i++){
+  for (int i = 0; i < filePIN->getNumSeq(); i++){
     if (i%(filePIN->getNumSeq()/10) == 0 && i != 0){
       inter = clock();
       pcent+=10;
@@ -274,8 +274,14 @@ unsigned long PHR::toInt(std::string const &s) {
     return bits.to_ulong();
 }
 
-int PHR::read(PIN* filePIN, int index, string dataFileName){
+string PHR::read(PIN* filePIN, int index, string dataFileName){
   index--;
+  string seqTitle = "";
+  int binary = 0;
+  string hexadecimal = "";
+  string string_length_bits = "";
+  bool significantBitOn;
+  unsigned long int string_length;
   ifstream filePHR;
   filePHR.open(dataFileName+".phr", ios::binary | ios::in);
   //check if the file is correct
@@ -283,7 +289,7 @@ int PHR::read(PIN* filePIN, int index, string dataFileName){
   int fileSize = filePHR.tellg();
   filePHR.seekg(0, ios::beg);
   if(fileSize == -1){
-    return EXIT_FAILURE;
+    return "";
   }
 
   int seqOffset = filePIN->getHrOffset(index);//position in .psq file of the found sequence
@@ -292,7 +298,6 @@ int PHR::read(PIN* filePIN, int index, string dataFileName){
   int byteForSize=0;
 
   filePHR.seekg(seqOffset);
-  cout << filePIN->getNumSeq() << endl;
 
   for(int i=0; i<size ; i++){
     filePHR.read( (char*)&binary, 1);//read byte by byte the file
@@ -325,6 +330,6 @@ int PHR::read(PIN* filePIN, int index, string dataFileName){
     }
 
   }
-  cout << "The title is : " << seqTitle << endl;
-  return EXIT_SUCCESS;
+  //cout << "The title is : " << seqTitle << endl;
+  return seqTitle;
 }
