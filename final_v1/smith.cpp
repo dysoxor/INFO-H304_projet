@@ -362,12 +362,12 @@ vector<vector<int>> dbAlignment(string db, string query, PIN* filePIN, PSQ* file
 		}
   }
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
-	ofstream output("res.txt");
+	/*ofstream output("res.txt");
 	for (int i = 0; i < alignementList[indexList[indexList.size()-1]-beginIndex].size(); i++){
 		output << alignementList[indexList[indexList.size()-1]-beginIndex][i];
 	}
 	output<< endl;
-	output.close();
+	output.close();*/
   clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;
   cout << "The time of matching is : " << time << endl;
@@ -384,7 +384,7 @@ vector<vector<int>> dbAlignment(string db, string query, PIN* filePIN, PSQ* file
 
 }
 
-void dbAlignmentTest(string query, string dbSeq){
+/*void dbAlignmentTest(string query, string dbSeq){
   setupBlosumMatrix("blosum62");
 	int len1 = query.size();
 	vector<int> vquery;
@@ -398,7 +398,7 @@ void dbAlignmentTest(string query, string dbSeq){
 
 	int score = matching(vquery, dbSeq,len1);
 	cout << "Score " << score << endl;
-}
+}*/
 
 
 /*
