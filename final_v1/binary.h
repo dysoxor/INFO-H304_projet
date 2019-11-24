@@ -50,7 +50,7 @@ public:
   string read(PIN* filePIN, string dataFileName, int target);
   string& getSequence(int i);
   vector<int>& getSequenceINT(int i);
-  vector<vector<int>> getAllSequences();
+  vector<vector<int>>& getAllSequences();
   void clearSequences();
   vector<int> queryToInt(string query);
   char intToString(int residue);
