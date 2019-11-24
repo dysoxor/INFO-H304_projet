@@ -23,7 +23,6 @@
 using namespace std;
 
 int matching(vector<int> seq1, string& seq2, int len1);
-int matching_SIMD(vector<int> seq1, vector<int> residue, int len1)
 int findMax(int tableau[], int size);
 int findMax(vector<int> tableau, int size);
 void dbAlignmentTest(string s1, string s2);
