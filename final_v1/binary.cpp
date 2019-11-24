@@ -116,6 +116,14 @@ vector<int>& PSQ::getSequenceINT(int i){
   return vectorSequencesINT[i];
 }
 
+vector<vector<int>>& PSQ::getAllSequences(){
+  return vectorSequencesINT;
+}
+
+void PSQ::clearSequences(){
+  vectorSequencesINT.clear();
+}
+
 
 int PSQ::read(PIN* filePIN, string query, string dataFileName){
 
@@ -182,8 +190,8 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
     //the sequence from the data file has the same size as the query
     //filePSQ.seekg(filePIN->getSqOffset(i));
     //isCorresponding = true;
-    dbSeq = "";
-    //dbSeqInt.clear();
+    //dbSeq = "";
+    dbSeqInt.clear();
     //dbSeqIS = "";
     //j = 0;
     /*while(sequence!=0){
@@ -196,7 +204,8 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
       //while the seperator '0' is not read it compare each letter of the
       //sequence
       if(sequence != 0){
-        dbSeq += conversionTable[sequence];
+        //dbSeq += conversionTable[sequence];
+        dbSeqInt.push_back(sequence);
       }
 
     }while(sequence!=0);

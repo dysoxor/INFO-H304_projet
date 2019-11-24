@@ -349,6 +349,7 @@ int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ, int beginIn
 	cout << "0% ..."<< endl;
   for(int i=beginIndex; i <endIndex ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
+
 		indexList.push_back(i);
 		tempScore = matching(vquery, filePSQ->getSequence(i), len1);
 		scoreList.push_back(tempScore);
@@ -392,3 +393,109 @@ void dbAlignmentTest(string query, string dbSeq){
 	int score = matching(vquery, dbSeq,len1);
 	cout << "Score " << score << endl;
 }
+
+
+/*
+*---------------------------------- SIMD ----------------------------------*
+*/
+/*
+int dbAlignmentSIMD(string query, PIN* filePIN, PSQ* filePSQ){
+
+	int dbSize = filePIN->getNumSeq();
+
+  clock_t begin = clock();
+
+	setupBlosumMatrix("blosum62");
+
+	int len1 = query.size();
+	vector<int> vquery;
+	for (int i = 0; i < len1; i++){
+		vquery.push_back(charToInt[query.at(i)]);
+	}
+
+	int score;
+
+	int pcent = 0;
+	clock_t inter;
+	double interTime;
+	double estimatedTime;
+
+	vector<vector<int>> sequences = filePSQ->getAllSequences();
+	filePSQ->clearSequences();
+	int tempScore;
+	int maxSeq = filePIN->getmaxSeq();
+
+	__attribute__((aligned (8))) int8_t analysedSequences[16][maxSeq+1];
+	int len[16];
+	int analysedSeqIndex[16];
+	int freePosition = 0;
+
+	__attribute__((aligned (8))) int8_t residue [16];
+
+
+	__attribute__((aligned (8))) int8_t dGap [len1];
+	__attribute__((aligned (8))) int8_t lGap [len1];
+
+	__attribute__((aligned (8))) int8_t scoresRow [len1+1];
+
+	int maxScoreX;
+	int maxScoreY;
+	int maxScoreVal;
+
+
+	for(int i = 1; i < dbSize; i++){
+		if(freePosition != -1){
+			analysedSequences[freePosition] = sequences[i];
+			len[freePosition] = sequence[i].size();
+			analysedSeqIndex[freePosition] = 0;
+			freePosition = -1;
+			for(int k = 0; k<16; k++){
+				residue[k] = analysedSequences[analysedSeqIndex[k]];
+				if(residue[k] == 0)
+					freePosition = k;
+			}
+		}
+
+		while(freePosition == -1){
+			matching_SIMD(vquery, len1, residue, scoresRow, maxScoreX, maxScoreY, maxScoreVal);
+			for(int k = 0; k<16; k++){
+				analysedSeqIndex[k]++;
+				residue[k] = analysedSequences[analysedSeqIndex[k]];
+				if(residue[k] == 0)
+					freePosition = k;
+			}
+		}
+	}
+
+
+}
+
+union {
+    __m128i m128;
+    int8_t i8[16];
+} left;
+const int gap_op = 11;
+const int gap_ex = 1;
+void matching_SIMD(vector<int> vquery, int len1, int8_t* residue, int8_t* scoresRow,
+	 									int maxScoreX,int maxScoreY, int maxScoreVal){
+	__attribute__((aligned (8))) int8_t diag [len1+1];
+	for(int i = 0; i < len1 ; i++){
+		diag[i+1] = blosumMatrix[vquery[i]][residue];
+	}
+	diag[0] = 0;
+
+	__m128i  = _mm_set1_epi8(gap_ex);
+	for(int i = 1; i < len1+1; i+=16){
+		left.m128 = _mm_load_si128(scoresRow[i]);
+		vsum = _mm_add_epi32(vsum, v);
+	}
+
+	residuePtr.m128 = _mm_load_si128((__m128i*) residues);
+	_mm_store_si128((__m128i*)sum, _mm_add_epi8(residuePtr.m128,toAddPtr.m128));
+  sumPtr.m128 = _mm_load_si128((__m128i*) sum);
+
+}
+*/
+/*
+*--------------------------------------------------------------------------*
+*/
