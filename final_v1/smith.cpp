@@ -326,7 +326,7 @@ int matching(vector<int> seq1, string& prot2, int len1){
 	return bitscore;
 }
 
-int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ, int beginIndex, int endIndex){
+vector<vector<int>> dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ, int nbResults, int beginIndex, int endIndex){
   int dbSize = filePIN->getNumSeq();
 	if (endIndex == -1){
 		endIndex = dbSize;
@@ -361,9 +361,6 @@ int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ, int beginIn
 		}
   }
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
-
-		cout << "Best bitscore " << scoreList[scoreList.size()-1] << endl;
-		//cout << "best score" << scoreList[findMax(scoreList, scoreList.size())] << endl;
 	ofstream output("res.txt");
 	for (int i = 0; i < alignementList[indexList[indexList.size()-1]-beginIndex].size(); i++){
 		output << alignementList[indexList[indexList.size()-1]-beginIndex][i];
@@ -373,7 +370,16 @@ int dbAlignment(string db, string query, PIN* filePIN, PSQ* filePSQ, int beginIn
   clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;
   cout << "The time of matching is : " << time << endl;
-	return indexList[indexList.size()-1];
+	vector<vector<int>> results;
+	vector<int> tempRes;
+	for (int i = indexList.size()-1; i > indexList.size()-1 -nbResults; i--){
+			tempRes.clear();
+			tempRes.push_back(indexList[i]);
+			tempRes.push_back(scoreList[i]);
+			tempRes.insert(tempRes.end(), alignementList[indexList[i]-beginIndex].begin(), alignementList[indexList[i]-beginIndex].end());
+			results.push_back(tempRes);
+	}
+	return results;
 
 }
 

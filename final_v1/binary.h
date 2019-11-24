@@ -56,14 +56,14 @@ public:
 
 class PHR{
 private:
-  int binary;
+  /*int binary;
   string hexadecimal;
   string string_length_bits;
   bool significantBitOn;
-  unsigned long int string_length;
-  string seqTitle;
+  unsigned long int string_length;*/
+  //string seqTitle;
 public:
-  int read(PIN* filePIN, int index, string dataFileName);
+  string read(PIN* filePIN, int index, string dataFileName);
   string int_to_hex( int i );
   string hex_to_string(const string& in);
   string byteToBits(unsigned int u);
