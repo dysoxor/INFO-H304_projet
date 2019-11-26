@@ -51,6 +51,7 @@ public:
   int charge(PIN* fPIN, string dataFileName);
   int* getSequence(int index);
   void end();
+  char* getDatabase();
   PIN* getPIN();
   /*int read(PIN* filePIN, string query, string dataFileName);
   string read(PIN* filePIN, string dataFileName, int target);

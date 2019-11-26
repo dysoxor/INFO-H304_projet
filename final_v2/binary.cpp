@@ -152,6 +152,10 @@ int* PSQ::getSequence(int index){
   return sequence;
 }
 
+char* PSQ::getDatabase(){
+  return database;
+}
+
 void PSQ::end(){
   delete database;
 }

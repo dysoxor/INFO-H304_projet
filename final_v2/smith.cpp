@@ -204,67 +204,12 @@ void traceback(int maxX, int maxY, int sizeX, int sizeY){
 	alignementList.push_back(alignement);
 }
 //int matching(vector<int> seq1, vector<int> seq2, int len1){
-int matching(int seq1[], int seq2[], int len1, int len2){
-  //clock_t begin = clock();
-	//cout << seq1.size() << " "<< prot2.size() << endl;
-	//int len2 = seq2.size();
-	/*//creation of the blosum matrix
-	BlosumMatrix* blosum = new BlosumMatrix("blosum62");*/
+int matching(int seq1[], int index, char db[], int len1, int len2){
 
+	clock_t begin = clock();
 	matrix.clear();
 	rootAlignement.clear();
-
-	//Initialization of the ScoringMatrix
-	//ScoringMatrix* matrix = new ScoringMatrix();
-
-
-  //clock_t begin = clock();
-  //setupBlosumMatrix("blosum62");
-  //cout <<"here" << endl;
-  //define the 2 constants : gap opening and gap expansion
-  /*const int gap_op = 11;
-  const int gap_ex = 1;*/
-
-  //Define the 2 sequence and place them into 2 variables prot1 and prot2
-
-  /*int len1 = prot1.size();*/
-  /*int len2 = prot2.size();
-
-  vector<int> seq2;
-  for (int i = 0; i < len2; i++){
-    //seq1.push_back(blosum->charToIntConversion(prot1.at(i)));
-    seq2.push_back(charToInt[prot2.at(i)]);
-  }*/
-	//int len2 = sizeof(seq2)/sizeof(seq2[0]);//.size();
-  //vector<int> seq2;
-	//int len2 = prot2.size();
-	/*bool isSize = false;
-	int size = 0;
-	int item;
-  for (int i = 0; i < len2; i++){
-		if(isSize){
-			size = prot2.at(i);
-			isSize = false;
-		}
-		else if(size == 2){
-			size--;
-			item = prot2.at(i)*10;
-		}
-		else if(size == 1){
-			size--;
-			item += prot2.at(i);
-			seq2.push_back(item);
-
-		}
-		else if(prot2.at(i) == 'a')
-			isSize = true;
-
-    //seq2.push_back(blosum->charToIntConversion(prot2.at(i)));
-    //seq2.push_back(charToInt[prot2.at(i)]);
-  }
-	*/
-  /*string prot1 = argv[1];
-  string prot2 = argv[2];*/
+	clock_t bal1 = clock();
 
   //Define variables used in order to fill the ScoringMatrix
   int up = 0;
@@ -282,6 +227,8 @@ int matching(int seq1[], int seq2[], int len1, int len2){
 	tempv2.assign(len2+1,0);
 
 	rootAlignement.assign(len1+1,tempv2);
+	clock_t bal2 = clock();
+
   int maxLine[len2+1];
   int maxColumn[len1+1];
   int posXmaxLine[len2+1];
@@ -289,15 +236,17 @@ int matching(int seq1[], int seq2[], int len1, int len2){
   for (int i = 0; i < len1+1; i++){
     posYmaxColumn[i] = 0;
     maxColumn[i] = 0;
-    matrix[i][0] = 0;
-		rootAlignement[i][0] = 0;
+    /*matrix[i][0] = 0;
+		rootAlignement[i][0] = 0;*/
   }
   for (int j = 0; j < len2+1; j++){
     posXmaxLine[j] = 0;
     maxLine[j] = 0;
-    matrix[0][j] = 0;
-		rootAlignement[0][j] = 0;
+    /*matrix[0][j] = 0;
+		rootAlignement[0][j] = 0;*/
   }
+	clock_t bal3 = clock();
+
   int temp[4];
   temp[0] = 0;
   int tempVal;
@@ -305,18 +254,40 @@ int matching(int seq1[], int seq2[], int len1, int len2){
 	int blosumGet;
 	int aa1;
 	int aa2;
+	//clock_t beg = clock();
+	clock_t bal4 = clock();
+
   for (int i = 1; i < len1+1; i++){
     for (int j = 1; j < len2+1; j++){
+			clock_t fortime1 = clock();
       temp[1] = maxColumn[i] - gap_op - gap_ex*(j - posYmaxColumn[i]);
+			//clock_t fortime2 = clock();
+
       temp[2] = maxLine[j] - gap_op - gap_ex*(i - posXmaxLine[j]);
+			//clock_t fortime3 = clock();
+
 			aa1=seq1[i-1];
-			aa2=seq2[j-1];
+			//clock_t fortime4 = clock();
+
+			aa2=db[index+j-1];//seq2[j-1];
+			//clock_t fortime5 = clock();
+
 			blosumGet = blosumMatrix[aa1][aa2];
+			//clock_t fortime6 = clock();
+
       temp[3] = matrix[i-1][j-1] + blosumGet;
+			//clock_t fortime7 = clock();
+
 			tempIndex = findMax(temp,4);
+			//clock_t fortime8 = clock();
+
 
 			tempVal = temp[tempIndex];
+			//clock_t fortime9 = clock();
+
 			matrix[i][j] = tempVal;
+			//clock_t fortime10 = clock();
+
 			/*if(tempVal>10)
 				cout<<tempVal << " "<<tempIndex << endl;*/
 			if (tempIndex == 3){ //si on a match negatif, on laisse 3
@@ -327,7 +298,11 @@ int matching(int seq1[], int seq2[], int len1, int len2){
 					tempIndex=5;
 				}
 			}
+			//clock_t fortime11 = clock();
+
 			rootAlignement[i][j] = tempIndex;
+			//clock_t fortime12 = clock();
+
       if (tempVal >= maxColumn[i]-gap_ex*(j-posYmaxColumn[i])){
         maxColumn[i] = tempVal;
         posYmaxColumn[i] = j;
@@ -341,8 +316,44 @@ int matching(int seq1[], int seq2[], int len1, int len2){
 				maxX = i;
 				maxY = j;
       }
+			clock_t fortimeend = clock();
+			double time_length = (double)(fortimeend-fortime1);
+			/*double time1 = (double)(fortime2-fortime1);
+			double time2 = (double)(fortime3-fortime2);
+			double time3 = (double)(fortime4-fortime3);
+			double time4 = (double)(fortime5-fortime4);
+			double time5 = (double)(fortime6-fortime5);
+			double time6 = (double)(fortime7-fortime6);
+			double time7 = (double)(fortime8-fortime7);
+			double time8 = (double)(fortime9-fortime8);
+			double time9 = (double)(fortime10-fortime9);
+			double time10 = (double)(fortime11-fortime10);
+			double time11 = (double)(fortime12-fortime11);
+			double time12 = (double)(fortimeend-fortime12);
+			cout << "1 " << time1 << endl;
+			cout << "2 " << time2 << endl;
+			cout << "3 " << time3 << endl;
+			cout << "4 " << time4 << endl;
+			cout << "5 " << time5 << endl;
+			cout << "6 " << time6 << endl;
+			cout << "7 " << time7 << endl;
+			cout << "8 " << time8 << endl;
+			cout << "9 " << time9 << endl;
+			cout << "10 " << time10 << endl;
+			cout << "11 " << time11 << endl;
+			cout << "12 " << time12 << endl;
+			cout << "time_length " << time_length << endl;*/
+			cout << "clocks  " << time_length << endl;
+			cout << "clock estimated if 1 clock per for for " << len1*len2 << endl;
+			cout << "clock estimated " << len1*len2*time_length << endl;
+			while(true){
+
+			}
+
+
     }
   }
+	clock_t bal5 = clock();
 
   /*clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;*/
@@ -357,8 +368,22 @@ int matching(int seq1[], int seq2[], int len1, int len2){
 	//matrix->print();
 	//string res = findPath(maxPos, prot1, prot2, blosum);
 	//cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
+	clock_t bal6 = clock();
+
 
 	traceback(maxX,maxY, len1+1, len2+1);
+	clock_t end = clock();
+
+	int length = (int)(end-begin);
+	cout << "0 " << (int)(bal1-begin) << endl;
+	cout << "1 " << (int)(bal2-bal1) << endl;
+	cout << "2 " << (int)(bal3-bal2) << endl;
+	cout << "3 " << (int)(bal4-bal3) << endl;
+	cout << "4 " << (int)(bal5-bal4) << endl;
+	cout << "5 " << (int)(bal6-bal5) << endl;
+	cout << "6 " << (int)(end-bal6) << endl;
+	cout << "all time" << (double)(end-begin) << endl;
+	while (true);
 	return bitscore;
 }
 
@@ -397,14 +422,18 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 	cout << "0% ..."<< endl;
   for(int i=beginIndex; i <endIndex ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
-
+		clock_t inter1 = clock();
 		indexList.push_back(i);
 		int seqOffset = filePIN->getSqOffset(i);//position in .psq file of the found sequence
 	  int size = filePIN->getSqOffset(i+1)-seqOffset;//size of the sequence's header
-		tempScore = matching(vquery, filePSQ->getSequence(i), len1, size);
+		tempScore = matching(vquery, seqOffset, filePSQ->getDatabase(), len1, size);
 		scoreList.push_back(tempScore);
+		inter = clock();
+		cout <<"inter " << (double)(inter-inter1)/CLOCKS_PER_SEC << endl;
+
 		if (i%(nbSqTraveled/100) == 0 && i != beginIndex){
 			inter = clock();
+			//cout <<"inter " << (double)(inter-beg)/CLOCKS_PER_SEC << endl;
 			pcent++;
 		 	interTime = double(inter - begin)/CLOCKS_PER_SEC;
 			estimatedTime = interTime*(100-pcent)/pcent;
@@ -430,6 +459,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 			tempRes.insert(tempRes.end(), alignementList[indexList[i]-beginIndex].begin(), alignementList[indexList[i]-beginIndex].end());
 			results.push_back(tempRes);
 	}
+	filePSQ->end();
 	return results;
 
 }
