@@ -9,6 +9,7 @@ int PIN::read(string dataFileName){
   filePIN.seekg(0, ios::end);
   int fileSize=filePIN.tellg();
   filePIN.seekg(0, ios::beg);
+
   if(fileSize == -1){
     return EXIT_FAILURE;
   }
@@ -107,6 +108,7 @@ int PSQ::read(PIN* filePIN, string query, string dataFileName){
   //boolean which knows if the sequence was found in the .psq
   bool finded = false;
   int sizeOfSq;
+
   //need the index to find the offset of sequence in the header which is the same
   // as this
   int index = -1;
@@ -167,15 +169,13 @@ string PHR::hex_to_string(const string& in) {
     if ((in.length() % 2) != 0) {//an hexadecimal should be pair
         throw runtime_error("String is not valid length ...");
     }
-    size_t cnt = in.length() / 2;
-    for (size_t i = 0; cnt > i; ++i) {
-        uint32_t s = 0;
-        stringstream ss;
+    uint32_t s = 0;
+    stringstream ss;
 
-        ss << hex << in.substr(i * 2, 2);//convert input string to hexadecimal format stocked into ss
-        ss >> s;//convert hexadecimal to uint32_t
-        output.push_back(static_cast<unsigned char>(s));//add it to output string with conversion of uint32_t to char
-    }
+    ss << hex << in;//convert input string to hexadecimal format stocked into ss
+    ss >> s;//convert hexadecimal to uint32_t
+    output.push_back(static_cast<unsigned char>(s));//add it to output string with conversion of uint32_t to char
+
     return output;
 }
 
