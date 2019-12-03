@@ -206,10 +206,10 @@ void traceback(int maxX, int maxY, int sizeX, int sizeY){
 //int matching(vector<int> seq1, vector<int> seq2, int len1){
 int matching(int seq1[], int index, char db[], int len1, int len2){
 
-	clock_t begin = clock();
+	//clock_t begin = clock();
 	matrix.clear();
 	rootAlignement.clear();
-	clock_t bal1 = clock();
+	//clock_t bal1 = clock();
 
   //Define variables used in order to fill the ScoringMatrix
   int up = 0;
@@ -227,7 +227,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	tempv2.assign(len2+1,0);
 
 	rootAlignement.assign(len1+1,tempv2);
-	clock_t bal2 = clock();
+	//clock_t bal2 = clock();
 
   int maxLine[len2+1];
   int maxColumn[len1+1];
@@ -245,7 +245,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
     /*matrix[0][j] = 0;
 		rootAlignement[0][j] = 0;*/
   }
-	clock_t bal3 = clock();
+	//clock_t bal3 = clock();
 
   int temp[4];
   temp[0] = 0;
@@ -255,11 +255,11 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	int aa1;
 	int aa2;
 	//clock_t beg = clock();
-	clock_t bal4 = clock();
+	//clock_t bal4 = clock();
 
   for (int i = 1; i < len1+1; i++){
     for (int j = 1; j < len2+1; j++){
-			clock_t fortime1 = clock();
+			//clock_t fortime1 = clock();
       temp[1] = maxColumn[i] - gap_op - gap_ex*(j - posYmaxColumn[i]);
 			//clock_t fortime2 = clock();
 
@@ -316,7 +316,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 				maxX = i;
 				maxY = j;
       }
-			clock_t fortimeend = clock();
+			/*clock_t fortimeend = clock();
 			double time_length = (double)(fortimeend-fortime1);
 			/*double time1 = (double)(fortime2-fortime1);
 			double time2 = (double)(fortime3-fortime2);
@@ -343,17 +343,17 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 			cout << "11 " << time11 << endl;
 			cout << "12 " << time12 << endl;
 			cout << "time_length " << time_length << endl;*/
-			cout << "clocks  " << time_length << endl;
+			/*cout << "clocks  " << time_length << endl;
 			cout << "clock estimated if 1 clock per for for " << len1*len2 << endl;
 			cout << "clock estimated " << len1*len2*time_length << endl;
 			while(true){
 
-			}
+			}*/
 
 
     }
   }
-	clock_t bal5 = clock();
+	//clock_t bal5 = clock();
 
   /*clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;*/
@@ -361,18 +361,22 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
   double k = 0.041;
   double bitscore = double(maxValue);
   bitscore = (lambda*bitscore - log(k))/log(2);
-  //cout << "Score donne : "<< maxValue << "("<<bitscore<<" bitscore) en " << time << " secondes"<< endl;
+	if(bitscore > 2000){
+
+		cout << bitscore << " " << index << endl;
+	}
+	//cout << "Score donne : "<< maxValue << "("<<bitscore<<" bitscore) en " << time << " secondes"<< endl;
 	//free(allPos);
 	//Pas oublier de delete !!!!
 
 	//matrix->print();
 	//string res = findPath(maxPos, prot1, prot2, blosum);
 	//cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
-	clock_t bal6 = clock();
+	//clock_t bal6 = clock();
 
 
 	traceback(maxX,maxY, len1+1, len2+1);
-	clock_t end = clock();
+	/*clock_t end = clock();
 
 	int length = (int)(end-begin);
 	cout << "0 " << (int)(bal1-begin) << endl;
@@ -383,7 +387,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	cout << "5 " << (int)(bal6-bal5) << endl;
 	cout << "6 " << (int)(end-bal6) << endl;
 	cout << "all time" << (double)(end-begin) << endl;
-	while (true);
+	while (true);*/
 	return bitscore;
 }
 
@@ -422,14 +426,14 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 	cout << "0% ..."<< endl;
   for(int i=beginIndex; i <endIndex ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
-		clock_t inter1 = clock();
+		//clock_t inter1 = clock();
 		indexList.push_back(i);
 		int seqOffset = filePIN->getSqOffset(i);//position in .psq file of the found sequence
 	  int size = filePIN->getSqOffset(i+1)-seqOffset;//size of the sequence's header
 		tempScore = matching(vquery, seqOffset, filePSQ->getDatabase(), len1, size);
 		scoreList.push_back(tempScore);
-		inter = clock();
-		cout <<"inter " << (double)(inter-inter1)/CLOCKS_PER_SEC << endl;
+		//inter = clock();
+		//cout <<"inter " << (double)(inter-inter1)/CLOCKS_PER_SEC << endl;
 
 		if (i%(nbSqTraveled/100) == 0 && i != beginIndex){
 			inter = clock();
@@ -459,7 +463,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 			tempRes.insert(tempRes.end(), alignementList[indexList[i]-beginIndex].begin(), alignementList[indexList[i]-beginIndex].end());
 			results.push_back(tempRes);
 	}
-	filePSQ->end();
+	//filePSQ->end();
 	return results;
 
 }

@@ -4,24 +4,23 @@
 
 using namespace std;
 int main (int argc, char** argv){
+  time_t actualTime = time(nullptr);
+  cout << "Début : " << asctime(localtime(&actualTime)) << endl;
   clock_t begin = clock();
-  //int alpha = 0;
+
+
   for (int i = 0; i < 550000; i++){
     for (int j = 0; j < 5000; j++){
-      for (int k = 0; k < 1000; k++){
-        //alpha++;
+      for (int k = 0; k < 400; k++){
       }
-      //while (true);
-    }
-    //clock_t inter = clock();
-    //cout << "estimated remaining time : " << (double)(inter-beg)*(550000-i)/(i)/CLOCKS_PER_SEC << endl;
-    if (i == 300){
-      clock_t inter = clock();
-      cout << (double)(inter-begin)*(550000-300)/(300*CLOCKS_PER_SEC) << endl;
-      while(true);
     }
   }
+
+  
+  time_t endTime = time(nullptr);
+  cout << "Fin : " << asctime(localtime(&endTime)) << endl;
   clock_t end = clock();
+  cout << "#clocks par sec : " << (double)CLOCKS_PER_SEC << endl;
   cout << "Elapsed time : " << (double)(end-begin)/CLOCKS_PER_SEC << endl;
   cout << "# clocks : " << end-begin << endl;
 }

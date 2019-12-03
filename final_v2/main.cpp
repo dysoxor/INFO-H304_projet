@@ -72,7 +72,7 @@ string scoreString(int index, int score, string db, PIN* filePIN, PHR* filePHR, 
   return res;
 }
 
-string alignementString(vector<int> result ,string query,string db, PIN* filePIN, PHR* filePHR, PSQ* filePSQ, int maxLine){
+string alignementString(vector<int> result ,string query,string db, PIN* filePIN, PHR* filePHR, char dataBase[] , int maxLine){
   string res = "";
   int index = result[0];
   int score = result[1];
@@ -84,16 +84,21 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     res+=(name.substr(0, maxLine)+"\n");
     name = name.substr(maxLine);
   }
+
   res +=(name+"\n");
   //string dbSeq = filePSQ->getSequence(index);
   int seqOffset = filePIN->getSqOffset(index);//position in .psq file of the found sequence
+  //cout << seqOffset << endl;
+  //cout << *dataBase << endl;
   int size = filePIN->getSqOffset(index+1)-seqOffset;//size of the sequence's header
 
-  int* dbSeqV = filePSQ->getSequence(index);
+  //int* dbSeqV = filePSQ->getSequence(index);
   string dbSeq = "";
+  //int temppp;
   for (int i = 0; i <size; i++){
-    dbSeq+=conversionTable[*(dbSeqV+i)];
+    dbSeq+=conversionTable[dataBase[i+seqOffset]];
   }
+
   res += ("Length = " + to_string(dbSeq.size())+"\n");
   res +=("Bitscore = " + to_string(score)+"\n");
   string alignement;
@@ -262,12 +267,16 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
     res+=temp;
     res+="\n";
   }
+
   res+="\n-------------\n\n";
   for (int i = 0; i < results.size(); i++){
-    temp = alignementString(results[i], querySequence, dataBaseFileName, filePIN, filePHR, filePSQ, maxLine);
+    //string alignementString(vector<int> result ,string query,string db, PIN* filePIN, PHR* filePHR, char db[] , int maxLine){
+
+    temp = alignementString(results[i], querySequence, dataBaseFileName, filePIN, filePHR, filePSQ->getDatabase(), maxLine);
     res+=temp;
     res+= "\n";
   }
+
   delete filePHR;
   ofstream output(outputFile);
   if (!output){
@@ -433,6 +442,7 @@ int main( int argc, char **argv ){
   cout << "PHR done"<<endl;
   cout << "Done"<<endl;*/
   cout << "Freeing up space ..." << endl;
+  filePSQ->end();
   delete filePIN;
   delete filePSQ;
   cout << "Space freed" << endl;
