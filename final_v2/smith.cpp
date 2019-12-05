@@ -361,7 +361,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
   double k = 0.041;
   double bitscore = double(maxValue);
   bitscore = (lambda*bitscore - log(k))/log(2);
-	if(bitscore > 2000){
+	/*if(bitscore > 2000){
 
 		cout << bitscore << " " << index << endl;
 	}
@@ -372,7 +372,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	//matrix->print();
 	//string res = findPath(maxPos, prot1, prot2, blosum);
 	//cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
-	//clock_t bal6 = clock();
+	//clock_t bal6 = clock();*/
 
 
 	traceback(maxX,maxY, len1+1, len2+1);
@@ -418,27 +418,30 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 
 	int score;
 	int pcent = 0;
+
+	int nbSqTraveled = endIndex-beginIndex;
+	int tempScore;
+	int seqOffset;
+	int size;
+	cout << "0% ..."<< endl;
 	clock_t inter;
 	double interTime;
 	double estimatedTime;
-	int nbSqTraveled = endIndex-beginIndex;
-	int tempScore;
-	cout << "0% ..."<< endl;
   for(int i=beginIndex; i <endIndex ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
 		//clock_t inter1 = clock();
 		indexList.push_back(i);
-		int seqOffset = filePIN->getSqOffset(i);//position in .psq file of the found sequence
-	  int size = filePIN->getSqOffset(i+1)-seqOffset;//size of the sequence's header
+		seqOffset = filePIN->getSqOffset(i);//position in .psq file of the found sequence
+	  size = filePIN->getSqOffset(i+1)-seqOffset;//size of the sequence's header
 		tempScore = matching(vquery, seqOffset, filePSQ->getDatabase(), len1, size);
 		scoreList.push_back(tempScore);
 		//inter = clock();
 		//cout <<"inter " << (double)(inter-inter1)/CLOCKS_PER_SEC << endl;
 
-		if (i%(nbSqTraveled/100) == 0 && i != beginIndex){
+		if (i%(nbSqTraveled/20) == 0 && i != beginIndex){
 			inter = clock();
 			//cout <<"inter " << (double)(inter-beg)/CLOCKS_PER_SEC << endl;
-			pcent++;
+			pcent+=5;
 		 	interTime = double(inter - begin)/CLOCKS_PER_SEC;
 			estimatedTime = interTime*(100-pcent)/pcent;
 			cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
@@ -451,9 +454,9 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 	}
 	output<< endl;
 	output.close();*/
-  clock_t end = clock();
+  /*clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;
-  cout << "The time of matching is : " << time << endl;
+  cout << "The time of matching is : " << time << endl;*/
 	vector<vector<int>> results;
 	vector<int> tempRes;
 	for (int i = indexList.size()-1; i > indexList.size()-1 -nbResults; i--){

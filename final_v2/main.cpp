@@ -429,7 +429,7 @@ int main( int argc, char **argv ){
   //index de P00533 = 116939
   cout << "Algorithm in process ..."<< endl;
   vector<vector<int>> results;
-  results = dbAlignment(dataFileName, content, filePSQ, smMatrix, gapPenalityOpening, gapPenalityExpansion,numberOfResults, 116000,117000);
+  results = dbAlignment(dataFileName, content, filePSQ, smMatrix, gapPenalityOpening, gapPenalityExpansion,numberOfResults);
   cout << "Algorithm done" << endl;
   writeOutput(results, outputFile, queryFileName, dataFileName, name, content, begin,filePIN,filePSQ);
 

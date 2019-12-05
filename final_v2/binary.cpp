@@ -219,7 +219,7 @@ unsigned long PHR::toInt(std::string const &s) {
 }
 
 string PHR::read(PIN* filePIN, int index, string dataFileName){
-  index--;
+  //index--;
   string seqTitle = "";
   int binary = 0;
   string hexadecimal = "";
