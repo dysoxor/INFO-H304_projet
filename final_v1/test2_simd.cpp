@@ -45,7 +45,8 @@ union {
 int selfMadeBlosum[12][20];
 bool firstResidu = true;
 
-void matching_SIMD(int16_t* maxScore, int* residue, int16_t* diagGap, int16_t* Score, int16_t* upGap, int16_t* HScore, int part){
+void matching_SIMD(int16_t* score, int* residue, int16_t* diagGap, int16_t* upGap,
+  int16_t* HScore, int16_t* leftScore, int16_t* leftGap, int16_t* diagonalScore, int16_t* maxScore){
 
   /*--------------------------------------------------------------------------
   paddsb P[q], H // H = H + P[q]
@@ -60,62 +61,36 @@ void matching_SIMD(int16_t* maxScore, int* residue, int16_t* diagGap, int16_t* S
   pmaxub H, F // F = max(H, F)
   ----------------------------------------------------------------------------*/
 
-  /*__attribute__((aligned (8))) int8_t leftGap [16];
-  __attribute__((aligned (8))) int8_t upGap [16];
-  __attribute__((aligned (8))) int8_t gapExtension [16];
-  __attribute__((aligned (8))) int8_t gapOpen [16];*/
+  for(int i = 0; i < 2; i++){
 
+    __m128i S = _mm_load_si128((__m128i*) &score[i*8]);
 
-  //__m128i P = _mm_load_si128((__m128i*) diagGap);
-  __m128i S = _mm_load_si128((__m128i*) &maxScore[part*8]);
+    __m128i R = _mm_load_si128((__m128i*) &upGap[i*8]);
+    __m128i F = _mm_load_si128((__m128i*) &HScore[i*8]);
 
-  __m128i R = _mm_load_si128((__m128i*) &upGap[part*8]);
-  __m128i F = _mm_load_si128((__m128i*) &HScore[part*8]);
+    __m128i E = _mm_load_si128((__m128i*) &leftScore[i*8]);
+    __m128i GL = _mm_load_si128((__m128i*) &leftGap[i*8]);
 
-  __m128i P = _mm_load_si128((__m128i*) &diagGap[part*8]);
-  F = _mm_add_epi16(F,R);
+    __m128i D = _mm_load_si128((__m128i*) &diagonalScore[i*8]);
+    __m128i P = _mm_load_si128((__m128i*) &diagGap[i*8]);
 
-  _mm_store_si128((__m128i*)&maxScore[part*8], _mm_max_epi16(S,F));
-  _mm_store_si128((__m128i*)&HScore[part*8], _mm_max_epi16(S,F));
+    __m128i M = _mm_load_si128((__m128i*) &maxScore[i*8]);
 
+    F = _mm_add_epi16(F,R);
+    E = _mm_add_epi16(E,GL);
+    S = _mm_add_epi16(D,P);
 
+    S = _mm_max_epi16(S,F);
+    S = _mm_max_epi16(S,E);
 
+    _mm_store_si128((__m128i*)&score[i*8], S);
+    _mm_store_si128((__m128i*)&leftScore[i*8], S);
+    _mm_store_si128((__m128i*)&HScore[i*8], S);
+    _mm_store_si128((__m128i*)&maxScore[i*8], M = _mm_max_epi16(S,M));
 
-
-  /*
-  __m128i E = _mm_load_si128((__m128i*) leftGap);
-  __m128i F = _mm_load_si128((__m128i*) upGap);
-  __m128i R = _mm_load_si128((__m128i*) gapExtension);
-  __m128i Q = _mm_load_si128((__m128i*) gapOpen);
-  __m128i N = _mm_load_si128((__m128i*) saveScore);*/
-
-
-  /*H = _mm_add_epi8(H,P);
-  H = _mm_max_epu8(H,F);
-  H = _mm_max_epu8(H,E);
-  S = _mm_max_epu8(S,H);
-  F = _mm_sub_epi8(F,R);
-  E = _mm_sub_epi8(E,R);
-  N = H;
-  H = _mm_sub_epi8(H,Q);
-  E = _mm_max_epu8(H,E);
-  F = _mm_max_epu8(H,F);*/
-  /*
-  residuePtr.m128 = _mm_load_si128((__m128i*) residues);
-  toAddPtr.m128 = _mm_load_si128((__m128i*) toAdd);
-  sumPtr.m128 = _mm_load_si128((__m128i*) sum);
-
-  // show content of Xi and Ai
-  for(int j = 0; j < 16; j++) {
-      printf("residuePtr[%d] = %d\t residue[%d] = %d\n", j, residuePtr.i8[j], j, residues[j]);
   }
 
-  //_mm_store_ps(sum, _mm_add_ps(*residuePtr,*addPtr));
-  _mm_store_si128((__m128i*)sum, _mm_add_epi8(residuePtr.m128,toAddPtr.m128));
-  sumPtr.m128 = _mm_load_si128((__m128i*) sum);
-  for(int j = 0; j < 16; j++) {
-      printf("sumPtr[%d] = %d\t residue[%d] = %d\n", j, sumPtr.i8[j], j, static_cast<int16_t>(sum[j]));
-  }*/
+
 
 }
 
@@ -130,6 +105,8 @@ int main(int argc, char** argv)
     for(int j = 0; j < 20; j++){
       selfMadeBlosum[i][j] = incrementor;
       incrementor++;
+      if((i+j)%3 == 0)
+        incrementor*=-1;
       if(incrementor == 11)
         incrementor = 0;
     }
@@ -138,7 +115,9 @@ int main(int argc, char** argv)
   cout << "The blosum : \n";
   for(int i = 0 ; i < 12; i ++){
     for(int j = 0; j < 20; j++){
-      if(selfMadeBlosum[i][j] < 10)
+      if(selfMadeBlosum[i][j] < 10 && selfMadeBlosum[i][j]>= 0)
+        cout << "  ";
+      else if((selfMadeBlosum[i][j] > -10 && selfMadeBlosum[i][j]< 0) || selfMadeBlosum[i][j] >= 10)
         cout << " ";
       cout << selfMadeBlosum[i][j] <<" | ";
 
@@ -168,7 +147,7 @@ int main(int argc, char** argv)
     seq.clear();
   }
 
-  __attribute__((aligned (16))) int16_t maxScore [16];
+  __attribute__((aligned (16))) int16_t score [16];
   //int8_t saveScore[16];
   //int maxScore[16];
   int maxScoreX[16];
@@ -177,9 +156,9 @@ int main(int argc, char** argv)
   __attribute__((aligned (16))) int16_t diagGap[16];
   __attribute__((aligned (16))) int16_t upGap[16];
   __attribute__((aligned (16))) int16_t HScore [16];
-  __attribute__((aligned (16))) int16_t leftScore[16];
+  __attribute__((aligned (16))) int16_t leftScore[21][16];
   __attribute__((aligned (16))) int16_t leftGap[16];
-  __attribute__((aligned (16))) int16_t Score[16];
+  __attribute__((aligned (16))) int16_t maxScore[16];
 
 
   vector<vector<int>> analysedSequences(16);
@@ -198,6 +177,7 @@ int main(int argc, char** argv)
       analysedSequences[freePosition] = seqContainer[i];
       len[freePosition] = seqContainer[i].size();
       analysedSeqIndex[freePosition] = 0;
+
       freePosition = -1;
 
       for(int t = 0; t < 16; t++){
@@ -216,37 +196,48 @@ int main(int argc, char** argv)
     while(!done && (freePosition == -1 || i == seqContainer.size()-1)){
       done = true;
 
-      for(int p = 0; p < 2; p++){
-        for(int l = 0; l < 20; l++){
-          for(int j = p*8; j < (p*8+8); j++){
-            if(l == 0){
-              HScore[j] = 0;
-              upGap[j] = -1;
+      for(int l = 0; l < 20; l++){
+        for(int j = 0; j < 16; j++){
+          if(l == 0){
+            if(analysedSeqIndex[j] == 0){
+              for(int i = 0; i < 21; i++){
+                leftScore[i][j] = 0;
+              }
+              leftGap[j] = -1;
+              maxScore[j] = 0;
             }
-            else if(l == 1){
-              upGap[j] = -11;
+            else{
+              leftGap[j] = -11;
             }
-            if(l == 0){
-              firstQuery = true;
-            }
-            diagGap[j] = selfMadeBlosum[query[l]][residue[j]];
-            if(firstResidu && firstQuery){
-              cout << "diagGap " << j << " = " << static_cast<int16_t>(diagGap[j]) << " blosum[" << query[l] << "," << residue[j] << "] = "<< selfMadeBlosum[query[l]][residue[j]] <<endl;
-            }
+            HScore[j] = 0;
+            upGap[j] = -1;
+          }
+          else if(l == 1){
+            upGap[j] = -11;
+          }
+          if(l == 0){
+            firstQuery = true;
+          }
 
-          }
-          matching_SIMD(maxScore,residue, diagGap, Score, upGap, HScore, p);
+          diagGap[j] = selfMadeBlosum[query[l]][residue[j]];
           if(firstResidu && firstQuery){
-            //printf("[i:%d] maxScore ", i);
-            for(int j = 0; j < 16; j++) {
-                //printf("[j:%d]%d ", j, static_cast<int16_t>(saveScore[j]));
-                printf("maxScore[%d] = %d HScore[%d] = %d upGap[%d] = %d\n", j, static_cast<int16_t>(maxScore[j]), j, static_cast<int16_t>(HScore[j]), j, static_cast<int16_t>(upGap[j]));
-            }
-            printf("\n");
+            cout << "diagGap " << j << " = " << static_cast<int16_t>(diagGap[j]) << " blosum[" << query[l] << "," << residue[j] << "] = "<< selfMadeBlosum[query[l]][residue[j]];
+            printf(" leftScore[%d,%d] = %d leftScore[%d,%d] = %d\n", l+1, j, static_cast<int16_t>(leftScore[l+1][j]), l, j, static_cast<int16_t>(leftScore[l][j]));
           }
-          firstQuery = false;
+
         }
+        matching_SIMD(score,residue, diagGap, upGap, HScore, leftScore[l+1], leftGap, leftScore[l], maxScore);
+        if(firstResidu && firstQuery){
+          //printf("[i:%d] maxScore ", i);
+          for(int j = 0; j < 16; j++) {
+              //printf("[j:%d]%d ", j, static_cast<int16_t>(saveScore[j]));
+              printf("maxScore[%d] = %d score[%d] = %d HScore[%d] = %d upGap[%d] = %d leftScore[%d,%d] = %d leftScore[%d,%d] = %d\n", j, static_cast<int16_t>(maxScore[j]), j, static_cast<int16_t>(score[j]), j, static_cast<int16_t>(HScore[j]), j, static_cast<int16_t>(upGap[j]), l+1, j, static_cast<int16_t>(leftScore[l+1][j]), l, j, static_cast<int16_t>(leftScore[l][j]));
+          }
+          printf("\n");
+        }
+        firstQuery = false;
       }
+
 
       if(firstResidu){
         cout << "residue : ";
