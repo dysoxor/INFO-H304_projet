@@ -358,9 +358,9 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
   /*clock_t end = clock();
   double time = double(end - begin)/CLOCKS_PER_SEC;*/
   double lambda = 0.267;
-  double k = 0.041;
+  double logk = -3.34;
   double bitscore = double(maxValue);
-  bitscore = (lambda*bitscore - log(k))/log(2);
+  bitscore = (lambda*bitscore - logk)/log(2);
 	if(bitscore > 2000){
 
 		cout << bitscore << " " << index << endl;
