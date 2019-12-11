@@ -2,13 +2,16 @@
 
 
 
-vector<vector<int>> blosumMatrix;
+//vector<vector<int>> blosumMatrix;
+int *blosumMatrix;
 map<char,int> charToInt;
 vector<int> indexList;
 vector<int> scoreList;
 vector<vector<int>> alignementList;
-vector<vector<int>> matrix;
-vector<vector<int>> rootAlignement;
+//vector<vector<int>> matrix;
+//int *matrix;
+//vector<vector<int>> rootAlignement;
+//int *rootAlignement;
 int gap_op;
 int gap_ex;
 
@@ -109,6 +112,7 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 	int value;
 	int n_line = 0;
 	int n_column = 0;
+	int *otherBlosumMatrix;
 	if (file.is_open()){
 		while(getline(file,line)){ //We check every line
 			if (line.at(0) != '#'){ //We don't do anything we the comments of the file
@@ -123,7 +127,9 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 							n_column++;
 						}
 					}
-					blosumMatrix.assign(charToInt.size(), vector<int> (charToInt.size(),0));
+					otherBlosumMatrix = new int[charToInt.size()*charToInt.size()];
+					//otherBlosumMatrix =
+					//blosumMatrix.assign(charToInt.size(), vector<int> (charToInt.size(),0));
 					//We initialize the matrix with full 0
 				} else {
 					line.erase(0,1);//remove the letter of the line
@@ -134,7 +140,7 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 								//If there is a '-' before the int, we have a negative value
 								value = -value;
 							}
-							blosumMatrix[n_line][n_column] = value; //Set the value
+							otherBlosumMatrix[n_line*charToInt.size()+n_column] = value; //Set the value
 							n_column++;
 						}
 					}
@@ -148,27 +154,29 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 		  '-','A','B','C','D','E','F','G','H','I',
 		  'K','L','M','N','P','Q','R','S','T','V',
 		  'W','X','Y','Z','U','*','O','J'};
-		vector<vector<int>> otherBlosumMatrix;
+		blosumMatrix = new int[28*28];
+		/*vector<vector<int>> otherBlosumMatrix;
 		vector<int> tempv;
 		tempv.assign(28,0);
-		otherBlosumMatrix.assign(28,tempv);
+		otherBlosumMatrix.assign(28,tempv);*/
 		for (int i = 1; i < 28; i++){
 			for (int j = 1; j <28; j++){
-				otherBlosumMatrix[i][j] = blosumMatrix[charToInt[conversionTable[i]]][charToInt[conversionTable[j]]];
+				blosumMatrix[i+28*j] = otherBlosumMatrix[charToInt[conversionTable[i]]+charToInt.size()*charToInt[conversionTable[j]]];
 			}
 		}
-		blosumMatrix = otherBlosumMatrix;
+		//blosumMatrix = otherBlosumMatrix;
+		delete otherBlosumMatrix;
 
 
 	} else {
 		cout << "Problem while opening the blosum file" << endl;
 	}
 };
-void traceback(int maxX, int maxY, int sizeX, int sizeY){
+void traceback(int maxX, int maxY, int sizeX, int sizeY, int rootAlignement[]){
 	int x = maxX;
 	int y = maxY;
 	vector<int> alignement;//on part de la fin
-	int value = rootAlignement[x][y];
+	int value = rootAlignement[x+sizeX*y];
 	while (value != 0){ //temp[0] = 0
 		alignement.push_back(value);
 		switch(value){
@@ -178,7 +186,7 @@ void traceback(int maxX, int maxY, int sizeX, int sizeY){
 			case 4	: x--; y--;break;//match parfait
 			case 5	: x--; y--; break; //match positif
 		}
-		value = rootAlignement[x][y];
+		value = rootAlignement[x+sizeX*y];
 	}
 	//offset par rapport au debut
 	//d abord la db puis la query
@@ -191,9 +199,12 @@ void traceback(int maxX, int maxY, int sizeX, int sizeY){
 int matching(int seq1[], int index, char db[], int len1, int len2){
 
 	//clock_t begin = clock();
-	matrix.clear();
-	rootAlignement.clear();
+	//matrix.clear();
+	//rootAlignement.clear();
+	int *matrix = new int[(len1+1)*(len2+1)];
+	int *rootAlignement = new int[(len1+1)*(len2+1)];
 	//clock_t bal1 = clock();
+
 
   //Define variables used in order to fill the ScoringMatrix
   int up = 0;
@@ -204,14 +215,14 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	int maxY = 0;
 	//vector<vector<int>> rootAlignement;
   //vector<vector<int>> matrix;
-  vector<int> tempv;
+  /*vector<int> tempv;
   tempv.assign(len2+1,0);
   matrix.assign(len1+1,tempv);
 	vector<int> tempv2;
 	tempv2.assign(len2+1,0);
 
 	rootAlignement.assign(len1+1,tempv2);
-
+*/
 	//clock_t bal2 = clock();
 
   int maxLine[len2+1];
@@ -221,14 +232,16 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
   for (int i = 0; i < len1+1; i++){
     posYmaxColumn[i] = 0;
     maxColumn[i] = 0;
-    /*matrix[i][0] = 0;
-		rootAlignement[i][0] = 0;*/
+
+    matrix[i+0] = 0;
+		rootAlignement[i+0] = 0;
   }
+
   for (int j = 0; j < len2+1; j++){
     posXmaxLine[j] = 0;
     maxLine[j] = 0;
-    /*matrix[0][j] = 0;
-		rootAlignement[0][j] = 0;*/
+    matrix[0+j*(len1+1)] = 0;
+		rootAlignement[0+j*(len1+1)] = 0;
   }
 	//clock_t bal3 = clock();
 
@@ -257,10 +270,10 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 			aa2=db[index+j-1];//seq2[j-1];
 			//clock_t fortime5 = clock();
 
-			blosumGet = blosumMatrix[aa1][aa2];
+			blosumGet = blosumMatrix[aa1+28*aa2];
 			//clock_t fortime6 = clock();
 
-      temp[3] = matrix[i-1][j-1] + blosumGet;
+      temp[3] = matrix[(i-1)+(len1+1)*(j-1)] + blosumGet;
 			//clock_t fortime7 = clock();
 
 
@@ -271,7 +284,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 			tempVal = temp[tempIndex];
 			//clock_t fortime9 = clock();
 
-			matrix[i][j] = tempVal;
+			matrix[i+(len1+1)*j] = tempVal;
 			//clock_t fortime10 = clock();
 
 			/*if(tempVal>10)
@@ -286,7 +299,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 			}
 			//clock_t fortime11 = clock();
 
-			rootAlignement[i][j] = tempIndex;
+			rootAlignement[i+(len1+1)*j] = tempIndex;
 
 			//clock_t fortime12 = clock();
 
@@ -299,7 +312,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
         posXmaxLine[j] = i;
       }
       if (tempVal > maxValue){
-        maxValue = matrix[i][j];
+        maxValue = matrix[i+(len1+1)*j];
 				maxX = i;
 				maxY = j;
       }
@@ -311,7 +324,9 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
   double logk = -3.34;
   double bitscore = double(maxValue);
   bitscore = (lambda*bitscore - logk)/log(2);
-	traceback(maxX,maxY, len1+1, len2+1);
+	traceback(maxX,maxY, len1+1, len2+1, rootAlignement);
+	delete matrix;
+	delete rootAlignement;
 	return bitscore;
 }
 
@@ -371,6 +386,11 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 			cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
 		}
   }
+	cout << "test" << endl;
+
+	delete blosumMatrix;
+	cout << "test2" << endl;
+
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 	/*ofstream output("res.txt");
 	for (int i = 0; i < alignementList[indexList[indexList.size()-1]-beginIndex].size(); i++){
