@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <stdio.h>
+#include <immintrin.h>
 
 using namespace std;
 
@@ -58,8 +59,11 @@ void offset(int16_t* leftScore, int16_t* diagonalScore, int16_t* zero, bool firs
   }
 }
 
-void matching_SIMD(int16_t* score, int* residue, int16_t* diagGap, int16_t* upGap,
-  int16_t* HScore, int16_t* leftScore, int16_t* leftGap, int16_t* diagonalScore, int16_t* maxScore, int16_t* zero){
+void matching_SIMD(int16_t* score, int16_t* diagGap, int16_t* opGap,
+  int16_t* maxColVal, int16_t* maxPosCol, int16_t* maxLineVal,
+  int16_t* maxPosLine, int16_t* exGap, int16_t* diagonalScore,
+  int16_t* maxScore, int16_t* zero, int16_t* PosCol, int16_t* PosLine,
+  int16_t* colScore, int16_t* lineScore, int16_t* unit){
 
   /*--------------------------------------------------------------------------
   paddsb P[q], H // H = H + P[q]
@@ -74,39 +78,64 @@ void matching_SIMD(int16_t* score, int* residue, int16_t* diagGap, int16_t* upGa
   pmaxub H, F // F = max(H, F)
   ----------------------------------------------------------------------------*/
 
+
   for(int i = 0; i < 2; i++){
 
     __m128i Z = _mm_load_si128((__m128i*) &zero[i*8]);
+    __m128i RESC = _mm_load_si128((__m128i*) &colScore[i*8]);
+    __m128i RESL = _mm_load_si128((__m128i*) &lineScore[i*8]);
     __m128i S = _mm_load_si128((__m128i*) &score[i*8]);
 
-    __m128i R = _mm_load_si128((__m128i*) &upGap[i*8]);
-    __m128i F = _mm_load_si128((__m128i*) &HScore[i*8]);
+    __m128i OP = _mm_load_si128((__m128i*) &opGap[i*8]);
+    __m128i COL = _mm_load_si128((__m128i*) &maxColVal[i*8]);
+    __m128i PMCOL = _mm_load_si128((__m128i*) &maxPosCol[i*8]);
+    __m128i PCOL = _mm_load_si128((__m128i*) &PosCol[i*8]);
 
-    __m128i E = _mm_load_si128((__m128i*) &leftScore[i*8]);
-    __m128i GL = _mm_load_si128((__m128i*) &leftGap[i*8]);
+    __m128i EX = _mm_load_si128((__m128i*) &exGap[i*8]);
+    __m128i LIN = _mm_load_si128((__m128i*) &maxLineVal[i*8]);
+    __m128i PMLIN = _mm_load_si128((__m128i*) &maxPosLine[i*8]);
+    __m128i PLIN = _mm_load_si128((__m128i*) &PosLine[i*8]);
 
     __m128i D = _mm_load_si128((__m128i*) &diagonalScore[i*8]);
     __m128i P = _mm_load_si128((__m128i*) &diagGap[i*8]);
 
     __m128i M = _mm_load_si128((__m128i*) &maxScore[i*8]);
+    __m128i UNIT = _mm_load_si128((__m128i*) &unit[i*8]);
 
-    F = _mm_sub_epi16(F,R);
-    E = _mm_sub_epi16(E,GL);
+
+    __m128i SUBC1 = _mm_sub_epi16(COL, OP);
+    __m128i SUBC2 = _mm_sub_epi16(PCOL,PMCOL);
+    __m128i MULTC = _mm_mullo_epi16(EX,SUBC2);
+    RESC = _mm_sub_epi16(SUBC1,MULTC);
+    __m128i SUBL1 = _mm_sub_epi16(COL, OP);
+    __m128i SUBL2 = _mm_sub_epi16(PCOL,PMCOL);
+    __m128i MULTL = _mm_mullo_epi16(EX,SUBL2);
+    RESL = _mm_sub_epi16(SUBL1,MULTL);
+
     S = _mm_add_epi16(D,P);
 
-    S = _mm_max_epi16(S,F);
-    S = _mm_max_epi16(S,E);
+    S = _mm_max_epi16(S,RESC);
+    S = _mm_max_epi16(S,RESL);
     S = _mm_max_epi16(S,Z);
+
+    __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(RESC, S));
+    __m128i MULTC2 = _mm_mullo_epi16(PCOL,CMPLTC);
+    __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);
+
+    __m128i CMPLTL = _mm_add_epi16(UNIT,_mm_cmplt_epi16(RESL, S));
+    __m128i MULTL2 = _mm_mullo_epi16(PLIN,CMPLTL);
+    __m128i NEWMPL = _mm_max_epi16(PMLIN, MULTL2);
 
     _mm_store_si128((__m128i*)&score[i*8], S);
     _mm_store_si128((__m128i*)&diagonalScore[i*8], S);
-    _mm_store_si128((__m128i*)&HScore[i*8], S);
+    _mm_store_si128((__m128i*)&maxPosCol[i*8], NEWMPC);
+    _mm_store_si128((__m128i*)&maxColVal[i*8], _mm_max_epi16(COL, S));
+    _mm_store_si128((__m128i*)&maxPosLine[i*8], NEWMPL);
+    _mm_store_si128((__m128i*)&maxLineVal[i*8], _mm_max_epi16(LIN, S));
     _mm_store_si128((__m128i*)&maxScore[i*8], M = _mm_max_epi16(S,M));
-
+    _mm_store_si128((__m128i*)&colScore[i*8], RESC);
+    _mm_store_si128((__m128i*)&lineScore[i*8], RESL);
   }
-
-
-
 }
 
 
@@ -130,11 +159,8 @@ int main(int argc, char** argv)
   cout << "The blosum : \n";
   for(int i = 0 ; i < 12; i ++){
     for(int j = 0; j < 20; j++){
-      if(selfMadeBlosum[i][j] < 10 && selfMadeBlosum[i][j]>= 0)
-        cout << "  ";
-      else if((selfMadeBlosum[i][j] > -10 && selfMadeBlosum[i][j]< 0) || selfMadeBlosum[i][j] >= 10)
-        cout << " ";
-      cout << selfMadeBlosum[i][j] <<" | ";
+      cout << "[" << i << "-" << j << "]";
+      cout << selfMadeBlosum[i][j];
 
     }
     cout << endl;
@@ -181,15 +207,26 @@ int main(int argc, char** argv)
   int maxScoreY[16];
 
   __attribute__((aligned (16))) int16_t diagGap[16];
-  __attribute__((aligned (16))) int16_t upGap[16];
+  __attribute__((aligned (16))) int16_t opGap[16];
   __attribute__((aligned (16))) int16_t HScore [16];
   __attribute__((aligned (16))) int16_t leftScore[21][16];
-  __attribute__((aligned (16))) int16_t leftGap[16];
+  __attribute__((aligned (16))) int16_t exGap[16];
   __attribute__((aligned (16))) int16_t maxScore[16];
   __attribute__((aligned (16))) int16_t zero[16];
 
+  __attribute__((aligned (16))) int16_t maxPosLine[20][16];
+  __attribute__((aligned (16))) int16_t maxPosCol[16];
+  __attribute__((aligned (16))) int16_t maxColVal[16];
+  __attribute__((aligned (16))) int16_t maxLineVal[20][16];
+  __attribute__((aligned (16))) int16_t ColPos[16];
+  __attribute__((aligned (16))) int16_t LinePos[16];
+  __attribute__((aligned (16))) int16_t colScore[16];
+  __attribute__((aligned (16))) int16_t lineScore[16];
+  __attribute__((aligned (16))) int16_t unit[16];
+
   for(int i = 0; i < 16; i++){
     zero[i] = 0;
+    unit[i] = 1;
   }
 
 
@@ -240,42 +277,52 @@ int main(int argc, char** argv)
             if(analysedSeqIndex[j] == 0){
               for(int i = 0; i < 21; i++){
                 leftScore[i][j] = 0;
+                if(i != 20){
+                  maxPosLine[i][j] = 0;
+                  maxLineVal[i][j] = 0;
+                }
               }
-              leftGap[j] = 11;
+              opGap[j] = 0;
+              exGap[j] = 1;
               maxScore[j] = 0;
             }
-            else{
-              leftGap[j] = 1;
-            }
-            HScore[j] = 0;
-            upGap[j] = 11;
+            maxPosCol[j] = 0;
+            maxColVal[j] = 0;
           }
-          else if(l == 1){
-            upGap[j] = 1;
-          }
-          if(l == 1){
-            firstQuery = true;
-          }
+          ColPos[j] = l;
+          LinePos[j] = analysedSeqIndex[j];
 
+          colScore[j] = 0;
+          lineScore[j] = 0;
           diagGap[j] = selfMadeBlosum[query[l]][residue[j]];
-          /*if(firstResidu && firstQuery){
-            cout << "diagGap " << j << " = " << static_cast<int16_t>(diagGap[j]) << " blosum[" << query[l] << "," << residue[j] << "] = "<< selfMadeBlosum[query[l]][residue[j]];
-            printf(" leftScore[%d,%d] = %d leftScore[%d,%d] = %d\n", l+1, j, static_cast<int16_t>(leftScore[l+1][j]), l, j, static_cast<int16_t>(leftScore[l][j]));
-          }*/
+
 
         }
-        matching_SIMD(score,residue, diagGap, upGap, HScore, leftScore[l+1], leftGap, leftScore[l], maxScore, zero);
+        if(WantSeq && analysedSeqIndex[0] == 0){
+          cout << "-------------------- AVANT[" << l << "]-------------------------------------------" << endl;
+          cout << "score: " << score[0] << " diagap: " << diagGap[0] << " opGap: " << opGap[0]
+          << " maxColVal: " << maxColVal[0] << " maxPosCol: " << maxPosCol[0] << " maxLineVal: "
+          << maxLineVal[l][0] << "\nmaxPosLine: " << maxPosLine[l][0] << " exGap: " << exGap[0]
+          << " leftScore: " << leftScore[l][0] << " maxScore: " << maxScore[0] << " zero: " << zero[0]
+          << " ColPos: " << ColPos[0] << "\nLinePos: " << LinePos[0] << " colScore: " << colScore[0]
+          << " lineScore: " << lineScore[0] << " unit: " << unit[0] << endl;
+        }
+        matching_SIMD(score, diagGap, opGap, maxColVal, maxPosCol, maxLineVal[l],
+          maxPosLine[l], exGap, leftScore[l], maxScore, zero, ColPos, LinePos, colScore, lineScore, unit);
         if(analysedSeqIndex[0] < 30 && WantSeq)
           matriceScore[l][analysedSeqIndex[0]] = score[0];
-        if(WantSeq && analysedSeqIndex[0] == 29){
+        if(WantSeq && analysedSeqIndex[0] == 0){
           maxS = maxScore[0];
-          //cout << "Blosum[" << query[l] << "-" << residue[0] << "] " << selfMadeBlosum[query[l]][residue[0]]
-          //<< " Diagonal[" << l << "] " << leftScore[l][0] << " Hscore : " << HScore[0] << endl;
-          cout << "Query[" << l << "] "<< query[l]<< " data[" << analysedSeqIndex[0] << "] " << residue[0] << " score : " << score[0]
-          << " maxScore : " << maxScore[0] << " left : " << leftScore[l+1][0] << " diagonal : " << leftScore[l][0] <<  endl;
+          cout << "-------------------- APRES[" << l << "]-------------------------------------------" << endl;
+          cout << "score: " << score[0] << " diagap: " << diagGap[0] << " opGap: " << opGap[0]
+          << " maxColVal: " << maxColVal[0] << " maxPosCol: " << maxPosCol[0] << " maxLineVal: "
+          << maxLineVal[l][0] << "\nmaxPosLine: " << maxPosLine[l][0] << " exGap: " << exGap[0]
+          << " leftScore: " << leftScore[l][0] << " maxScore: " << maxScore[0] << " zero: " << zero[0]
+          << " ColPos: " << ColPos[0] << "\nLinePos: " << LinePos[0] << " colScore: " << colScore[0]
+          << " lineScore: " << lineScore[0] << " unit: " << unit[0] << endl << endl;
         }
         if(l == 19){
-          if(WantSeq && analysedSeqIndex[0] == 28)
+          if(WantSeq && analysedSeqIndex[0] == 0)
             cout << "Décalage de LEFT" << endl;
           for(int f = 19; f >= 0; f--){
             if(f == 0)

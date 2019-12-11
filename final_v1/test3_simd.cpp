@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 #include <stdio.h>
+#include <immintrin.h>
 
 using namespace std;
 
@@ -58,8 +59,11 @@ void offset(int16_t* leftScore, int16_t* diagonalScore, int16_t* zero, bool firs
   }
 }
 
-void matching_SIMD(int16_t* score, int* residue, int16_t* diagGap, int16_t* upGap,
-  int16_t* HScore, int16_t* leftScore, int16_t* leftGap, int16_t* diagonalScore, int16_t* maxScore, int16_t* zero){
+void matching_SIMD(int16_t* score, int16_t* diagGap, int16_t* opGap,
+  int16_t* maxColVal, int16_t* maxPosCol, int16_t* maxLineVal,
+  int16_t* maxPosLine, int16_t* exGap, int16_t* diagonalScore,
+  int16_t* maxScore, int16_t* zero, int16_t* PosCol, int16_t* PosLine,
+  int16_t* colScore, int16_t* lineScore){
 
   /*--------------------------------------------------------------------------
   paddsb P[q], H // H = H + P[q]
@@ -74,34 +78,47 @@ void matching_SIMD(int16_t* score, int* residue, int16_t* diagGap, int16_t* upGa
   pmaxub H, F // F = max(H, F)
   ----------------------------------------------------------------------------*/
 
+
   for(int i = 0; i < 2; i++){
 
     __m128i Z = _mm_load_si128((__m128i*) &zero[i*8]);
+    __m128i RESC = _mm_load_si128((__m128i*) &colScore[i*8]);
+    __m128i RESL = _mm_load_si128((__m128i*) &lineScore[i*8]);
     __m128i S = _mm_load_si128((__m128i*) &score[i*8]);
 
-    __m128i R = _mm_load_si128((__m128i*) &upGap[i*8]);
-    __m128i F = _mm_load_si128((__m128i*) &HScore[i*8]);
+    __m128i OP = _mm_load_si128((__m128i*) &opGap[i*8]);
+    __m128i COL = _mm_load_si128((__m128i*) &maxColVal[i*8]);
+    __m128i PMCOL = _mm_load_si128((__m128i*) &maxPosCol[i*8]);
+    __m128i PCOL = _mm_load_si128((__m128i*) &PosCol[i*8]);
 
-    __m128i E = _mm_load_si128((__m128i*) &leftScore[i*8]);
-    __m128i GL = _mm_load_si128((__m128i*) &leftGap[i*8]);
+    __m128i EX = _mm_load_si128((__m128i*) &exGap[i*8]);
+    __m128i LIN = _mm_load_si128((__m128i*) &maxLineVal[i*8]);
+    __m128i PMLIN = _mm_load_si128((__m128i*) &maxPosLine[i*8]);
+    __m128i PLIN = _mm_load_si128((__m128i*) &PosLine[i*8]);
 
     __m128i D = _mm_load_si128((__m128i*) &diagonalScore[i*8]);
     __m128i P = _mm_load_si128((__m128i*) &diagGap[i*8]);
 
     __m128i M = _mm_load_si128((__m128i*) &maxScore[i*8]);
 
-    F = _mm_sub_epi16(F,R);
-    E = _mm_sub_epi16(E,GL);
+
+    RESC = _mm_sub_epi16(_mm_sub_epi16(COL, OP),_mm_mulhi_epi16(EX,_mm_sub_epi16(PCOL,PMCOL)));
+    RESL = _mm_sub_epi16(_mm_sub_epi16(LIN, OP),_mm_mulhi_epi16(EX,_mm_sub_epi16(PLIN,PMLIN)));
     S = _mm_add_epi16(D,P);
 
-    S = _mm_max_epi16(S,F);
-    S = _mm_max_epi16(S,E);
+    S = _mm_max_epi16(S,RESC);
+    S = _mm_max_epi16(S,RESL);
     S = _mm_max_epi16(S,Z);
 
     _mm_store_si128((__m128i*)&score[i*8], S);
     _mm_store_si128((__m128i*)&diagonalScore[i*8], S);
-    _mm_store_si128((__m128i*)&HScore[i*8], S);
+    _mm_store_si128((__m128i*)&maxPosCol[i*8], _mm_mulhi_epi16(PCOL,_mm_cmplt_epi16(COL, S)));
+    _mm_store_si128((__m128i*)&maxColVal[i*8], _mm_max_epi16(COL, S));
+    _mm_store_si128((__m128i*)&maxPosLine[i*8], _mm_mulhi_epi16(PLIN,_mm_cmplt_epi16(LIN, S)));
+    _mm_store_si128((__m128i*)&maxLineVal[i*8], _mm_max_epi16(LIN, S));
     _mm_store_si128((__m128i*)&maxScore[i*8], M = _mm_max_epi16(S,M));
+    _mm_store_si128((__m128i*)&colScore[i*8], RESC);
+    _mm_store_si128((__m128i*)&lineScore[i*8], RESL);
 
   }
 
@@ -130,11 +147,8 @@ int main(int argc, char** argv)
   cout << "The blosum : \n";
   for(int i = 0 ; i < 12; i ++){
     for(int j = 0; j < 20; j++){
-      if(selfMadeBlosum[i][j] < 10 && selfMadeBlosum[i][j]>= 0)
-        cout << "  ";
-      else if((selfMadeBlosum[i][j] > -10 && selfMadeBlosum[i][j]< 0) || selfMadeBlosum[i][j] >= 10)
-        cout << " ";
-      cout << selfMadeBlosum[i][j] <<" | ";
+      cout << "[" << i << "-" << j << "]";
+      cout << selfMadeBlosum[i][j];
 
     }
     cout << endl;
@@ -155,7 +169,7 @@ int main(int argc, char** argv)
   for(int i = 0; i < 17; i++){
     for(int j = 0; j < lenSeq[i]; j++){
       seq.push_back(incrementor);
-      if(i == 0){
+      if(i == 1){
         if(j == 0)
           cout << " ";
         cout<< " " << incrementor;
@@ -180,13 +194,27 @@ int main(int argc, char** argv)
   int maxScoreX[16];
   int maxScoreY[16];
 
+  int indSearchSeq = 1;
+  int lenSearchSeq = lenSeq[indSearchSeq];
+
   __attribute__((aligned (16))) int16_t diagGap[16];
-  __attribute__((aligned (16))) int16_t upGap[16];
+  __attribute__((aligned (16))) int16_t opGap[16];
   __attribute__((aligned (16))) int16_t HScore [16];
   __attribute__((aligned (16))) int16_t leftScore[21][16];
-  __attribute__((aligned (16))) int16_t leftGap[16];
+  __attribute__((aligned (16))) int16_t exGap[16];
   __attribute__((aligned (16))) int16_t maxScore[16];
   __attribute__((aligned (16))) int16_t zero[16];
+
+  __attribute__((aligned (16))) int16_t maxPosLine[20][16];
+  __attribute__((aligned (16))) int16_t maxPosCol[16];
+  __attribute__((aligned (16))) int16_t maxColVal[16];
+  __attribute__((aligned (16))) int16_t maxLineVal[20][16];
+  __attribute__((aligned (16))) int16_t ColPos[16];
+  __attribute__((aligned (16))) int16_t LinePos[16];
+  __attribute__((aligned (16))) int16_t colScore[16];
+  __attribute__((aligned (16))) int16_t lineScore[16];
+
+
 
   for(int i = 0; i < 16; i++){
     zero[i] = 0;
@@ -203,7 +231,7 @@ int main(int argc, char** argv)
   bool done = false;
   bool firstQuery = false;
 
-  int matriceScore[20][30];
+  int matriceScore[20][lenSearchSeq];
   bool WantSeq = true;
   bool firstLine = false;
 
@@ -232,7 +260,7 @@ int main(int argc, char** argv)
     }
     while(!done && (freePosition == -1 || i == seqContainer.size()-1)){
       done = true;
-      if(analysedSeqIndex[0] > 29)
+      if(analysedSeqIndex[indSearchSeq] > lenSearchSeq)
         WantSeq = false;
       for(int l = 0; l < 20; l++){
         for(int j = 0; j < 16; j++){
@@ -240,23 +268,21 @@ int main(int argc, char** argv)
             if(analysedSeqIndex[j] == 0){
               for(int i = 0; i < 21; i++){
                 leftScore[i][j] = 0;
+                maxLineVal[i][j] = 0;
+                maxLineVal[i][j] = 0;
               }
-              leftGap[j] = 11;
+              opGap[j] = 0;
+              exGap[j] = 1;
               maxScore[j] = 0;
             }
-            else{
-              leftGap[j] = 1;
-            }
             HScore[j] = 0;
-            upGap[j] = 11;
+            maxColVal[j] = 0;
+            maxPosCol[j] = 0;
+            colScore[j] = 0;
+            lineScore[j] = 0;
           }
-          else if(l == 1){
-            upGap[j] = 1;
-          }
-          if(l == 1){
-            firstQuery = true;
-          }
-
+          ColPos[j] = l;
+          LinePos[j] = analysedSeqIndex[j];
           diagGap[j] = selfMadeBlosum[query[l]][residue[j]];
           /*if(firstResidu && firstQuery){
             cout << "diagGap " << j << " = " << static_cast<int16_t>(diagGap[j]) << " blosum[" << query[l] << "," << residue[j] << "] = "<< selfMadeBlosum[query[l]][residue[j]];
@@ -264,18 +290,26 @@ int main(int argc, char** argv)
           }*/
 
         }
-        matching_SIMD(score,residue, diagGap, upGap, HScore, leftScore[l+1], leftGap, leftScore[l], maxScore, zero);
-        if(analysedSeqIndex[0] < 30 && WantSeq)
-          matriceScore[l][analysedSeqIndex[0]] = score[0];
-        if(WantSeq && analysedSeqIndex[0] == 29){
-          maxS = maxScore[0];
+        if(WantSeq && analysedSeqIndex[indSearchSeq] == 0){
+          cout << "blosum[" << query[l] << "," << residue[indSearchSeq]
+          << "]" << diagGap[indSearchSeq] << " maxY : "  << maxColVal[indSearchSeq]
+          << " maxPosY : " << maxPosCol[indSearchSeq] << " PosY : " <<
+          ColPos[indSearchSeq] << " colScore : " << colScore[indSearchSeq] << endl;
+        }
+        matching_SIMD(score, diagGap, opGap, maxColVal, maxPosCol, maxLineVal[l],
+          maxPosLine[l], exGap, leftScore[l], maxScore, zero, ColPos, LinePos, colScore, lineScore);
+        if(analysedSeqIndex[indSearchSeq] < lenSearchSeq && WantSeq)
+          matriceScore[l][analysedSeqIndex[indSearchSeq]] = score[indSearchSeq];
+        if(WantSeq && analysedSeqIndex[indSearchSeq] == 0){
+          maxS = maxScore[indSearchSeq];
           //cout << "Blosum[" << query[l] << "-" << residue[0] << "] " << selfMadeBlosum[query[l]][residue[0]]
           //<< " Diagonal[" << l << "] " << leftScore[l][0] << " Hscore : " << HScore[0] << endl;
-          cout << "Query[" << l << "] "<< query[l]<< " data[" << analysedSeqIndex[0] << "] " << residue[0] << " score : " << score[0]
-          << " maxScore : " << maxScore[0] << " left : " << leftScore[l+1][0] << " diagonal : " << leftScore[l][0] <<  endl;
+          cout << "Query[" << l << "] "<< query[l]<< " seq[" << analysedSeqIndex[indSearchSeq] << "] "
+          << residue[indSearchSeq] << " score : " << score[indSearchSeq] << " maxScore : " << maxScore[indSearchSeq]
+          << " left : " << leftScore[l+1][indSearchSeq] << " diagonal : " << leftScore[l][indSearchSeq] <<  endl << endl;
         }
         if(l == 19){
-          if(WantSeq && analysedSeqIndex[0] == 28)
+          if(WantSeq && analysedSeqIndex[indSearchSeq] == lenSearchSeq -1)
             cout << "Décalage de LEFT" << endl;
           for(int f = 19; f >= 0; f--){
             if(f == 0)
@@ -283,9 +317,9 @@ int main(int argc, char** argv)
             offset(leftScore[f+1], leftScore[f], zero, firstLine);
             firstLine = false;
           }
-          if(WantSeq && analysedSeqIndex[0] == 0){
+          if(WantSeq && analysedSeqIndex[indSearchSeq] == 0){
             for(int f = 0; f < 20; f++){
-              cout << "L : " << leftScore[f+1][0] << " D : " << leftScore[f][0] << endl;
+              cout << "L : " << leftScore[f+1][indSearchSeq] << " D : " << leftScore[f][indSearchSeq] << endl;
             }
           }
         }
@@ -328,7 +362,7 @@ int main(int argc, char** argv)
 
   cout << "matrice score : \n";
   for(int i = 0; i < 20; i++){
-    for(int j=0; j < 30; j++){
+    for(int j=0; j < lenSearchSeq; j++){
       if(matriceScore[i][j] == maxS)
        cout << "#";
       cout << matriceScore[i][j] << " ";
