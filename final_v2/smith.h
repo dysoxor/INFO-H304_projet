@@ -28,7 +28,7 @@ int findMax(int tableau[], int size);
 int findMax(vector<int> tableau, int size);
 void dbAlignmentTest(string s1, string s2);
 void setupBlosumMatrix(string pathToBlosumMatrix);
-vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string smMatrix, int gpo, int gpe, int nbResults, int begin = 0, int end = -1);
+vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string smMatrix, int gpo, int gpe, int nbResults);
 void merge(vector<int> &scorev, vector<int> &indexv, int left, int mid, int right);
 void insertion_sortmerge(vector<int> & scorev, vector<int> &indexv,int left, int right);
 void merge_sort(vector<int> &scorev, vector<int> &indexv, int left, int right);

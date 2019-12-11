@@ -20,13 +20,12 @@ int main(int argc, char** argv){
 
     while(getline(file, line)){
       if(line[0] == '>'){
-
         if(line.at(1+line.find_last_of('|')) == first_letter.at(0)){
             outputString+=line;
-            cout << line << endl;
             outputString+='\n';
             while(getline(file,line)){
               if (line.at(0) == '>'){
+                //outputString+='\n';
                 break;
               }
               outputString+=line;

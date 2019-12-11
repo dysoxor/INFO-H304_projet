@@ -144,22 +144,6 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 			}
 		}
 		file.close();
-		/*map<int,char> conversionTable {
-			{'A',1},{'B',2},{'C',3},{'D',4},
-	    {'E',5},{'F',6},{'G',7},{'H',8},{'I',9},
-	    {'K',10},{'L',11},{'M',12},{'N',13},{'P',14},
-	    {'Q',15},{'R',16},{'S',17},{'T',18},{'V',19},
-	    {'W',20},{'X',21},{'Y',22},{'Z',23},{'U',24},
-	    {'*',25},{'O',26},{'J',27}
-	  };*/
-		/*map<int,char> conversionTable {
-	    {0,'-'},{1,'A'},{2,'B'},{3,'C'},{4,'D'},
-	    {5,'E'},{6,'F'},{7,'G'},{8,'H'},{9,'I'},
-	    {10,'K'},{11,'L'},{12,'M'},{13,'N'},{14,'P'},
-	    {15,'Q'},{16,'R'},{17,'S'},{18,'T'},{19,'V'},
-	    {20,'W'},{21,'X'},{22,'Y'},{23,'Z'},{24,'U'},
-	    {25,'*'},{26,'O'},{27,'J'}
-	  };*/
 		char conversionTable[28] ={
 		  '-','A','B','C','D','E','F','G','H','I',
 		  'K','L','M','N','P','Q','R','S','T','V',
@@ -227,6 +211,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	tempv2.assign(len2+1,0);
 
 	rootAlignement.assign(len1+1,tempv2);
+
 	//clock_t bal2 = clock();
 
   int maxLine[len2+1];
@@ -278,6 +263,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
       temp[3] = matrix[i-1][j-1] + blosumGet;
 			//clock_t fortime7 = clock();
 
+
 			tempIndex = findMax(temp,4);
 			//clock_t fortime8 = clock();
 
@@ -301,6 +287,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 			//clock_t fortime11 = clock();
 
 			rootAlignement[i][j] = tempIndex;
+
 			//clock_t fortime12 = clock();
 
       if (tempVal >= maxColumn[i]-gap_ex*(j-posYmaxColumn[i])){
@@ -316,39 +303,6 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 				maxX = i;
 				maxY = j;
       }
-			/*clock_t fortimeend = clock();
-			double time_length = (double)(fortimeend-fortime1);
-			/*double time1 = (double)(fortime2-fortime1);
-			double time2 = (double)(fortime3-fortime2);
-			double time3 = (double)(fortime4-fortime3);
-			double time4 = (double)(fortime5-fortime4);
-			double time5 = (double)(fortime6-fortime5);
-			double time6 = (double)(fortime7-fortime6);
-			double time7 = (double)(fortime8-fortime7);
-			double time8 = (double)(fortime9-fortime8);
-			double time9 = (double)(fortime10-fortime9);
-			double time10 = (double)(fortime11-fortime10);
-			double time11 = (double)(fortime12-fortime11);
-			double time12 = (double)(fortimeend-fortime12);
-			cout << "1 " << time1 << endl;
-			cout << "2 " << time2 << endl;
-			cout << "3 " << time3 << endl;
-			cout << "4 " << time4 << endl;
-			cout << "5 " << time5 << endl;
-			cout << "6 " << time6 << endl;
-			cout << "7 " << time7 << endl;
-			cout << "8 " << time8 << endl;
-			cout << "9 " << time9 << endl;
-			cout << "10 " << time10 << endl;
-			cout << "11 " << time11 << endl;
-			cout << "12 " << time12 << endl;
-			cout << "time_length " << time_length << endl;*/
-			/*cout << "clocks  " << time_length << endl;
-			cout << "clock estimated if 1 clock per for for " << len1*len2 << endl;
-			cout << "clock estimated " << len1*len2*time_length << endl;
-			while(true){
-
-			}*/
 
 
     }
@@ -374,7 +328,6 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	//cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
 	//clock_t bal6 = clock();*/
 
-
 	traceback(maxX,maxY, len1+1, len2+1);
 	/*clock_t end = clock();
 
@@ -391,14 +344,14 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	return bitscore;
 }
 
-vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string smMatrix, int gpo, int gpe, int nbResults, int beginIndex, int endIndex){
+vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string smMatrix, int gpo, int gpe, int nbResults){
 	gap_op = gpo;
 	gap_ex = gpe;
 	PIN* filePIN = filePSQ->getPIN();
 	int dbSize = filePIN->getNumSeq();
-	if (endIndex == -1){
+	/*if (endIndex == -1){
 		endIndex = dbSize;
-	}
+	}*/
   clock_t begin = clock();
 	setupBlosumMatrix(smMatrix);
 	int len1 = query.size();
@@ -419,7 +372,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 	int score;
 	int pcent = 0;
 
-	int nbSqTraveled = endIndex-beginIndex;
+	//int nbSqTraveled = endIndex-beginIndex;
 	int tempScore;
 	int seqOffset;
 	int size;
@@ -427,7 +380,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 	clock_t inter;
 	double interTime;
 	double estimatedTime;
-  for(int i=beginIndex; i <endIndex ; i++){
+  for(int i=0; i <dbSize ; i++){
 		//score = matching(vquery, filePSQ->getSequence(i));
 		//clock_t inter1 = clock();
 		indexList.push_back(i);
@@ -438,7 +391,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 		//inter = clock();
 		//cout <<"inter " << (double)(inter-inter1)/CLOCKS_PER_SEC << endl;
 
-		if (i%(nbSqTraveled/20) == 0 && i != beginIndex){
+		if (i%(dbSize/20) == 0 && i != 0){
 			inter = clock();
 			//cout <<"inter " << (double)(inter-beg)/CLOCKS_PER_SEC << endl;
 			pcent+=5;
@@ -463,7 +416,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 			tempRes.clear();
 			tempRes.push_back(indexList[i]);
 			tempRes.push_back(scoreList[i]);
-			tempRes.insert(tempRes.end(), alignementList[indexList[i]-beginIndex].begin(), alignementList[indexList[i]-beginIndex].end());
+			tempRes.insert(tempRes.end(), alignementList[indexList[i]].begin(), alignementList[indexList[i]].end());
 			results.push_back(tempRes);
 	}
 	//filePSQ->end();

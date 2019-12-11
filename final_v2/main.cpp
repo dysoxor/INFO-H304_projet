@@ -213,7 +213,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   int restLineLength = max(line1.size(), max(line2.size(), line3.size()));
   //query
 
-  allLine += "Query : ";
+  allLine += "Query :";
   for (int i = 0; i <= maxLenNumber-to_string(x).size()+2; i++){
     allLine+=" ";
   }
@@ -231,7 +231,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
 
   //subject
 
-  allLine+= "Subject : ";
+  allLine+= "Subject :";
   for (int i = 0; i <= maxLenNumber-to_string(y).size(); i++){
     allLine+=" ";
   }
@@ -271,11 +271,11 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   res+="\n-------------\n\n";
   for (int i = 0; i < results.size(); i++){
     //string alignementString(vector<int> result ,string query,string db, PIN* filePIN, PHR* filePHR, char db[] , int maxLine){
-
     temp = alignementString(results[i], querySequence, dataBaseFileName, filePIN, filePHR, filePSQ->getDatabase(), maxLine);
     res+=temp;
     res+= "\n";
   }
+
 
   delete filePHR;
   ofstream output(outputFile);
@@ -345,6 +345,7 @@ int main( int argc, char **argv ){
   int gapPenalityOpening = 11;
   int gapPenalityExpansion = 1;
   bool outputResult = true;
+
   bool queryGiven = false; //We absolutely need the query
   for (int i = 1; i < argc-1; i++){
     if ((string)argv[i] == "-q"){
