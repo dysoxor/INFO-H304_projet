@@ -307,40 +307,11 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 
     }
   }
-	//clock_t bal5 = clock();
-
-  /*clock_t end = clock();
-  double time = double(end - begin)/CLOCKS_PER_SEC;*/
   double lambda = 0.267;
   double logk = -3.34;
   double bitscore = double(maxValue);
-  bitscore = (lambda*bitscore - log(k))/log(2);
-	/*if(bitscore > 2000){
-
-		cout << bitscore << " " << index << endl;
-	}
-	//cout << "Score donne : "<< maxValue << "("<<bitscore<<" bitscore) en " << time << " secondes"<< endl;
-	//free(allPos);
-	//Pas oublier de delete !!!!
-
-	//matrix->print();
-	//string res = findPath(maxPos, prot1, prot2, blosum);
-	//cout << "The alignement of " << argv[1] << " and " << argv[2] << " gives " << res << " and gets a score of "<< maxPos->getValue() << endl;
-	//clock_t bal6 = clock();*/
-
+  bitscore = (lambda*bitscore - logk)/log(2);
 	traceback(maxX,maxY, len1+1, len2+1);
-	/*clock_t end = clock();
-
-	int length = (int)(end-begin);
-	cout << "0 " << (int)(bal1-begin) << endl;
-	cout << "1 " << (int)(bal2-bal1) << endl;
-	cout << "2 " << (int)(bal3-bal2) << endl;
-	cout << "3 " << (int)(bal4-bal3) << endl;
-	cout << "4 " << (int)(bal5-bal4) << endl;
-	cout << "5 " << (int)(bal6-bal5) << endl;
-	cout << "6 " << (int)(end-bal6) << endl;
-	cout << "all time" << (double)(end-begin) << endl;
-	while (true);*/
 	return bitscore;
 }
 

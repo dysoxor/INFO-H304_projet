@@ -314,7 +314,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
   double lambda = 0.267;
   double logk = -3.34;
   double bitscore = double(maxValue);
-  bitscore = (lambda*bitscore - log(k))/log(2);
+  bitscore = (lambda*bitscore - logk)/log(2);
 	/*if(bitscore > 2000){
 
 		cout << bitscore << " " << index << endl;
