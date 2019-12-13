@@ -400,6 +400,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 			cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
 		}
   }
+	delete vquery;
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 	/*ofstream output("res.txt");
 	for (int i = 0; i < alignementList[indexList[indexList.size()-1]-beginIndex].size(); i++){
@@ -420,6 +421,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 			results.push_back(tempRes);
 	}
 	//filePSQ->end();
+
 	return results;
 
 }

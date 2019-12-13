@@ -22,7 +22,8 @@
 
 using namespace std;
 
-int matching(int seq1[], int seq2[], int len1, int len2);
+int matching1(int seq1[], int seq2[], int len1, int len2);
+int matching2(int seq1[], int seq2[], int len1, int len2);
 int matching_SIMD(vector<int> seq1, vector<int> residue, int len1);
 int findMax(int tableau[], int size);
 int findMax(vector<int> tableau, int size);

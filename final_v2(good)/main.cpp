@@ -86,10 +86,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   }
 
   res +=(name+"\n");
-  //string dbSeq = filePSQ->getSequence(index);
   int seqOffset = filePIN->getSqOffset(index);//position in .psq file of the found sequence
-  //cout << seqOffset << endl;
-  //cout << *dataBase << endl;
   int size = filePIN->getSqOffset(index+1)-seqOffset;//size of the sequence's header
 
   //int* dbSeqV = filePSQ->getSequence(index);
@@ -104,8 +101,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   string alignement;
   int indexX;
   int indexY;
-  int x = startX;
-  int y = startY;
+  int x = startX+1;
+  int y = startY+1;
   string line1 = "";//query
   string line2 = "";//alignement
   string line3 = "";//dbSeq
@@ -174,6 +171,9 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   int maxLenY = to_string(endY).size();
   int maxLenNumber = max(maxLenX, maxLenY);
   string allLine = "";
+  int gapX;
+  int gapY;
+  string tempString;
   while (line1.size() > maxLine && line2.size() > maxLine && line3.size() > maxLine){
 
     //Query
@@ -182,9 +182,11 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
       allLine+=" ";
     }
     allLine+=to_string(x);
-    allLine+= (" " +line1.substr(0,maxLine) + " ");
+    tempString = line1.substr(0,maxLine);
+    allLine+= (" " +tempString + " ");
+    gapX = count(tempString.begin(), tempString.end(), '-');
     line1 = line1.substr(maxLine);
-    x+=maxLine;
+    x+=(maxLine-gapX);
     allLine+= (to_string(x-1) + "\n");
 
     //alignement
@@ -202,9 +204,12 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
       allLine+=" ";
     }
     allLine+=to_string(y);
-    allLine+= (" " +line3.substr(0,maxLine) + " ");
+    tempString = line3.substr(0,maxLine);
+    allLine+= (" " +tempString + " ");
+    gapY = count(tempString.begin(), tempString.end(), '-');
+
     line3 = line3.substr(maxLine);
-    y+=(maxLine);
+    y+=(maxLine-gapY);
     allLine+= (to_string(y-1) + "\n");
 
 
@@ -218,8 +223,10 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     allLine+=" ";
   }
   allLine+=to_string(x);
-  allLine+= (" " +line1.substr(0,restLineLength) + " ");
-  x+=restLineLength;
+  tempString = line1.substr(0,restLineLength);
+  allLine+= (" " +tempString + " ");
+  gapX = count(tempString.begin(), tempString.end(), '-');
+  x+=(restLineLength-gapX);
   allLine+= (to_string(x) + "\n");
 
   //alignement
@@ -236,8 +243,11 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     allLine+=" ";
   }
   allLine+=to_string(y);
-  allLine+= (" " +line3.substr(0,restLineLength) + " ");
-  y+=restLineLength;
+  tempString = line3.substr(0,restLineLength);
+  allLine+= (" " +tempString + " ");
+  gapY = count(tempString.begin(), tempString.end(), '-');
+
+  y+=(restLineLength-gapY);
   allLine+= (to_string(y) + "\n");
 
 
