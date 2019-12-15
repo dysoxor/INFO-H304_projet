@@ -16,21 +16,23 @@ int main(int argc, char** argv){
   string line;
   string outputString = "";
   ifstream file(db);
+  bool detected = false;
   if (file.is_open()){
-
     while(getline(file, line)){
       if(line[0] == '>'){
         if(line.at(1+line.find_last_of('|')) == first_letter.at(0)){
             outputString+=line;
             outputString+='\n';
-            while(getline(file,line)){
-              if (line.at(0) == '>'){
-                //outputString+='\n';
-                break;
-              }
-              outputString+=line;
-              outputString+='\n';
-            }
+            detected = true;
+        }
+        else {
+          detected = false;
+        }
+      }
+      else{
+        if(detected){
+          outputString+=line;
+          outputString+='\n';
         }
       }
     }

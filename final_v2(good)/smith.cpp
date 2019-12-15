@@ -390,7 +390,9 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 		scoreList.push_back(tempScore);
 		//inter = clock();
 		//cout <<"inter " << (double)(inter-inter1)/CLOCKS_PER_SEC << endl;
-
+		if (i == 100){
+			break;
+		}
 		if (i%(dbSize/20) == 0 && i != 0){
 			inter = clock();
 			//cout <<"inter " << (double)(inter-beg)/CLOCKS_PER_SEC << endl;
