@@ -142,7 +142,7 @@ int PSQ::charge(PIN* fPIN, string dataFileName){
   return EXIT_SUCCESS;
 }
 
-int* PSQ::getSequence(int index){
+/*int* PSQ::getSequence(int index){
   int seqOffset = filePIN->getSqOffset(index);//position in .psq file of the found sequence
   int size = filePIN->getSqOffset(index+1)-seqOffset;//size of the sequence's header
   int* sequence = new int[size];
@@ -150,7 +150,7 @@ int* PSQ::getSequence(int index){
     *(sequence+i) = *(database+i+seqOffset);
   }
   return sequence;
-}
+}*/
 
 char* PSQ::getDatabase(){
   return database;
@@ -219,7 +219,6 @@ unsigned long PHR::toInt(std::string const &s) {
 }
 
 string PHR::read(PIN* filePIN, int index, string dataFileName){
-  //index--;
   string seqTitle = "";
   int binary = 0;
   string hexadecimal = "";

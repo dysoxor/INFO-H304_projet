@@ -49,7 +49,7 @@ private:
   vector<vector<int>> vectorSequencesINT;*/
 public:
   int charge(PIN* fPIN, string dataFileName);
-  int* getSequence(int index);
+  //int* getSequence(int index);
   void end();
   char* getDatabase();
   PIN* getPIN();
