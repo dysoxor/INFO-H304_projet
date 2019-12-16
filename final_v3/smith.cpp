@@ -180,11 +180,11 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 		cout << "Problem while opening the blosum file" << endl;
 	}
 };
-void traceback(int maxX, int maxY, int sizeX, int sizeY){
+void traceback(int maxX, int maxY, vector<vector<int>> r){
 	int x = maxX;
 	int y = maxY;
 	vector<int> alignement;//on part de la fin
-	int value = rootAlignement[x][y];
+	int value = r[x][y];
 	while (value != 0){ //temp[0] = 0
 		alignement.push_back(value);
 		switch(value){
@@ -194,7 +194,7 @@ void traceback(int maxX, int maxY, int sizeX, int sizeY){
 			case 4	: x--; y--;break;//match parfait
 			case 5	: x--; y--; break; //match positif
 		}
-		value = rootAlignement[x][y];
+		value = r[x][y];
 	}
 	//offset par rapport au debut
 	//d abord la db puis la query
@@ -375,7 +375,7 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	//clock_t bal6 = clock();*/
 
 
-	traceback(maxX,maxY, len1+1, len2+1);
+	//traceback(maxX,maxY, len1+1, len2+1);
 	/*clock_t end = clock();
 
 	int length = (int)(end-begin);
@@ -391,7 +391,9 @@ int matching(int seq1[], int index, char db[], int len1, int len2){
 	return bitscore;
 }
 
-vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string smMatrix, int gpo, int gpe, int nbResults, int beginIndex, int endIndex){
+vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ,
+	string smMatrix, int gpo, int gpe, int nbResults, int beginIndex,
+	int endIndex){
 	gap_op = gpo;
 	gap_ex = gpe;
 	PIN* filePIN = filePSQ->getPIN();
@@ -416,8 +418,6 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 		vquery[i] = conversionTable[query.at(i)];//.push_back(conversionTable[query.at(i)]);
 	}
 
-	int score;
-	int pcent = 0;
 
 	int nbSqTraveled = endIndex-beginIndex;
 	int tempScore;
@@ -427,26 +427,214 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 	clock_t inter;
 	double interTime;
 	double estimatedTime;
-  for(int i=beginIndex; i <endIndex ; i++){
-		//score = matching(vquery, filePSQ->getSequence(i));
-		//clock_t inter1 = clock();
+	__attribute__((aligned (16))) int16_t score [16];
+  __attribute__((aligned (16))) int16_t diagGap[16];
+  __attribute__((aligned (16))) int16_t opGap[16];
+  __attribute__((aligned (16))) int16_t HScore [16];
+  __attribute__((aligned (16))) int16_t leftScore[21][16];
+  __attribute__((aligned (16))) int16_t exGap[16];
+  __attribute__((aligned (16))) int16_t maxScore[16];
+  __attribute__((aligned (16))) int16_t zero[16];
+
+  __attribute__((aligned (16))) int16_t maxPosLine[len1][16];
+  __attribute__((aligned (16))) int16_t maxPosCol[16];
+  __attribute__((aligned (16))) int16_t maxColVal[16];
+  __attribute__((aligned (16))) int16_t maxLineVal[len1][16];
+  __attribute__((aligned (16))) int16_t ColPos[16];
+  __attribute__((aligned (16))) int16_t LinePos[16];
+  __attribute__((aligned (16))) int16_t colScore[16];
+  __attribute__((aligned (16))) int16_t lineScore[16];
+  __attribute__((aligned (16))) int16_t unit[16];
+  __attribute__((aligned (16))) int16_t match[16];
+
+	int maxX[16];
+	int maxY[16];
+
+	vector<int> initial(len1,0);
+
+
+  for(int i = 0; i < 16; i++){
+    zero[i] = 0;
+    unit[i] = 1;
+    match[i] = 0;
+  }
+
+
+  vector<int> analysedSequences(16);
+  int analysedSeqIndex[16];
+  int len[16];
+  fill_n(len, 16, 0);
+  int freePosition = 0;
+  char residue[16];
+
+  bool done = false;
+  bool firstQuery = false;
+
+  vector<vector<vector<int>>> tracebacks(16, vector<vector<int>>(len1, vector<int>(filePIN->getmaxSeq(),0)));
+  bool WantSeq = true;
+  bool firstLine = false;
+
+  int maxS[16];
+
+	char* seqContainer = filePSQ->getDatabase();
+
+
+  for(int i = beginIndex; i < endIndex; i++){
 		indexList.push_back(i);
 		seqOffset = filePIN->getSqOffset(i);//position in .psq file of the found sequence
 	  size = filePIN->getSqOffset(i+1)-seqOffset;//size of the sequence's header
-		tempScore = matching(vquery, seqOffset, filePSQ->getDatabase(), len1, size);
-		scoreList.push_back(tempScore);
-		//inter = clock();
-		//cout <<"inter " << (double)(inter-inter1)/CLOCKS_PER_SEC << endl;
+    if(freePosition != -1){
+			if(i>=16)
+				traceback(maxX[freePosition], maxY[freePosition], tracebacks[freePosition]);
+      analysedSequences[freePosition] = i;
+      len[freePosition] = size;
+      analysedSeqIndex[freePosition] = 0;
+      freePosition = -1;
 
-		if (i%(nbSqTraveled/20) == 0 && i != beginIndex){
-			inter = clock();
-			//cout <<"inter " << (double)(inter-beg)/CLOCKS_PER_SEC << endl;
-			pcent+=5;
-		 	interTime = double(inter - begin)/CLOCKS_PER_SEC;
-			estimatedTime = interTime*(100-pcent)/pcent;
-			cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
-		}
-  }
+      for(int t = 0; t < 16; t++){
+
+        if(len[t] > 0){
+          residue[t] = seqContainer[analysedSequences[t]+analysedSeqIndex[t]];
+        }
+        else{
+          residue[t] = '#';
+          if(freePosition == -1)
+            freePosition = t;
+        }
+      }
+
+    }
+    while(!done && (freePosition == -1 || i == endIndex-1)){
+      done = true;
+      if(analysedSeqIndex[0] > len[0]-1)
+        WantSeq = false;
+      for(int l = 0; l < len1; l++){
+        for(int j = 0; j < 16; j++){
+          if(l == 0){
+            if(analysedSeqIndex[j] == 0){
+              for(int i = 0; i < 21; i++){
+                leftScore[i][j] = 0;
+                if(i != 20){
+                  maxPosLine[i][j] = 0;
+                  maxLineVal[i][j] = 0;
+                }
+              }
+              opGap[j] = 0;
+              exGap[j] = 1;
+              maxScore[j] = 0;
+            }
+            maxPosCol[j] = 0;
+            maxColVal[j] = 0;
+          }
+          ColPos[j] = l;
+          LinePos[j] = analysedSeqIndex[j];
+
+          colScore[j] = 0;
+          lineScore[j] = 0;
+          diagGap[j] = blosumMatrix[query[l]][residue[j]];
+          if(query[l] == residue[j])
+            match[j] = 4;
+          else if(diagGap[j] > 0)
+            match[j] = 5;
+          else
+            match[j] = 3;
+
+
+        }
+        if(WantSeq && analysedSeqIndex[0] == 0){
+          cout << "-------------------- AVANT[" << l << "]-------"<< query[l] <<"---" << residue[0] <<"-------------" << endl;
+          cout << "score: " << score[0] << " diagap: " << diagGap[0] << " opGap: " << opGap[0]
+          << " maxColVal: " << maxColVal[0] << " maxPosCol: " << maxPosCol[0] << " maxLineVal: "
+          << maxLineVal[l][0] << "\nmaxPosLine: " << maxPosLine[l][0] << " exGap: " << exGap[0]
+          << " leftScore: " << leftScore[l][0] << " maxScore: " << maxScore[0] << " zero: " << zero[0]
+          << " ColPos: " << ColPos[0] << "\nLinePos: " << LinePos[0] << " colScore: " << colScore[0]
+          << " lineScore: " << lineScore[0] << " unit: " << unit[0] << endl;
+        }
+        matching_SIMD(score, diagGap, opGap, maxColVal, maxPosCol, maxLineVal[l],
+          maxPosLine[l], exGap, leftScore[l], maxScore, zero, ColPos, LinePos, colScore, lineScore, unit);
+        for(int x = 0; x < 16; x++){
+          if(score[x] == colScore[x])
+            match[x] = 1;
+          else if (score[x] == lineScore[x])
+            match[x] = 2;
+					tracebacks[x][l][analysedSeqIndex[x]] = match[x];
+        }
+        /*vector<int> root;
+        fo(int d = 0; d < 16; d++){
+          if(score[d] != diagGap[d]){
+            if(score[d] == colScore[d])
+              match[d] = 1;
+            else
+              match[d] = 2;
+          }
+          root
+        }*/
+        if(WantSeq && analysedSeqIndex[0] == 0){
+          cout << "-------------------- APRES[" << l << "]-------"<< query[l] <<"---" << residue[0] <<"-------------" << endl;
+          cout << "score: " << score[0] << " diagap: " << diagGap[0] << " opGap: " << opGap[0]
+          << " maxColVal: " << maxColVal[0] << " maxPosCol: " << maxPosCol[0] << " maxLineVal: "
+          << maxLineVal[l][0] << "\nmaxPosLine: " << maxPosLine[l][0] << " exGap: " << exGap[0]
+          << " leftScore: " << leftScore[l][0] << " maxScore: " << maxScore[0] << " zero: " << zero[0]
+          << " ColPos: " << ColPos[0] << "\nLinePos: " << LinePos[0] << " colScore: " << colScore[0]
+          << " lineScore: " << lineScore[0] << " unit: " << unit[0] << " match: " << match[0] << endl << endl;
+        }
+        for(int h = 0; h < 16; h++){
+					if(maxS[h] > maxScore[h]){
+						maxS[h] = maxScore[h];
+						maxX[h] = l;
+						maxY[h] = analysedSeqIndex[h];
+					}
+				}
+        if(l == len1-1){
+          if(WantSeq && analysedSeqIndex[0] == 0)
+            cout << "Décalage de LEFT" << endl;
+          for(int f = 19; f >= 0; f--){
+            if(f == 0)
+              firstLine = true;
+            offset(leftScore[f+1], leftScore[f], zero, firstLine);
+            firstLine = false;
+          }
+          if(WantSeq && analysedSeqIndex[0] == 0){
+            for(int f = 0; f < 20; f++){
+              cout << "L : " << leftScore[f+1][0] << " D : " << leftScore[f][0] << endl;
+            }
+          }
+        }
+        /*if(firstResidu && firstQuery){
+          //printf("[i:%d] maxScore ", i);
+          for(int j = 0; j < 16; j++) {
+              //printf("[j:%d]%d ", j, static_cast<int16_t>(saveScore[j]));
+              printf("maxScore[%d] = %d score[%d] = %d HScore[%d] = %d upGap[%d] = %d leftScore[%d,%d] = %d leftScore[%d,%d] = %d\n", j, static_cast<int16_t>(maxScore[j]), j, static_cast<int16_t>(score[j]), j, static_cast<int16_t>(HScore[j]), j, static_cast<int16_t>(upGap[j]), l+1, j, static_cast<int16_t>(leftScore[l+1][j]), l, j, static_cast<int16_t>(leftScore[l][j]));
+          }
+          printf("\n");
+        }*/
+        //firstQuery = false;
+      }
+
+
+      /*if(firstResidu){
+        cout << "residue : ";
+        for(int m = 0; m< 16; m++){
+          cout << residue[m] << " ";
+        }
+        cout << endl;
+      }*/
+      //firstResidu = false;
+      for(int k = 0 ; k < 16; k++){
+        analysedSeqIndex[k]++;
+        if(len[k] > analysedSeqIndex[k]){
+          residue[k] = seqContainer[analysedSequences[k]+analysedSeqIndex[k]];
+          done = false;
+        }
+        else{
+          residue[k] = '#';
+          if(freePosition == -1 && i != endIndex - 1)
+            freePosition = k;
+        }
+      }
+
+    }
+	}
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 	/*ofstream output("res.txt");
 	for (int i = 0; i < alignementList[indexList[indexList.size()-1]-beginIndex].size(); i++){
@@ -471,124 +659,95 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 
 }
 
-/*void dbAlignmentTest(string query, string dbSeq){
-  setupBlosumMatrix("blosum62");
-	int len1 = query.size();
-	vector<int> vquery;
-	for (int i = 0; i < len1; i++){
-		vquery.push_back(charToInt[query.at(i)]);
-	}
-	vector<int> vdbSeq;
-	for (int i = 0; i < dbSeq.size(); i++){
-		vdbSeq.push_back(charToInt[dbSeq.at(i)]);
-	}
+void offset(int16_t* leftScore, int16_t* diagonalScore, int16_t* zero, bool firstLine){
+  for(int i = 0; i < 2; i++){
 
-	int score = matching(vquery, dbSeq,len1);
-	cout << "Score " << score << endl;
-}*/
-
-
-/*
-*---------------------------------- SIMD ----------------------------------*
-*/
-/*
-int dbAlignmentSIMD(string query, PIN* filePIN, PSQ* filePSQ){
-
-	int dbSize = filePIN->getNumSeq();
-
-  clock_t begin = clock();
-
-	setupBlosumMatrix("blosum62");
-
-	int len1 = query.size();
-	vector<int> vquery;
-	for (int i = 0; i < len1; i++){
-		vquery.push_back(charToInt[query.at(i)]);
-	}
-
-	int score;
-
-	int pcent = 0;
-	clock_t inter;
-	double interTime;
-	double estimatedTime;
-
-	vector<vector<int>> sequences = filePSQ->getAllSequences();
-	filePSQ->clearSequences();
-	int tempScore;
-	int maxSeq = filePIN->getmaxSeq();
-
-	__attribute__((aligned (8))) int8_t analysedSequences[16][maxSeq+1];
-	int len[16];
-	int analysedSeqIndex[16];
-	int freePosition = 0;
-
-	__attribute__((aligned (8))) int8_t residue [16];
-
-
-	__attribute__((aligned (8))) int8_t dGap [len1];
-	__attribute__((aligned (8))) int8_t lGap [len1];
-
-	__attribute__((aligned (8))) int8_t scoresRow [len1+1];
-
-	int maxScoreX;
-	int maxScoreY;
-	int maxScoreVal;
-
-
-	for(int i = 1; i < dbSize; i++){
-		if(freePosition != -1){
-			analysedSequences[freePosition] = sequences[i];
-			len[freePosition] = sequence[i].size();
-			analysedSeqIndex[freePosition] = 0;
-			freePosition = -1;
-			for(int k = 0; k<16; k++){
-				residue[k] = analysedSequences[analysedSeqIndex[k]];
-				if(residue[k] == 0)
-					freePosition = k;
-			}
-		}
-
-		while(freePosition == -1){
-			matching_SIMD(vquery, len1, residue, scoresRow, maxScoreX, maxScoreY, maxScoreVal);
-			for(int k = 0; k<16; k++){
-				analysedSeqIndex[k]++;
-				residue[k] = analysedSequences[analysedSeqIndex[k]];
-				if(residue[k] == 0)
-					freePosition = k;
-			}
-		}
-	}
-
-
+    __m128i L = _mm_load_si128((__m128i*) &leftScore[i*8]);
+    __m128i D = _mm_load_si128((__m128i*) &diagonalScore[i*8]);
+    _mm_store_si128((__m128i*)&leftScore[i*8], D);
+    if(firstLine){
+      __m128i Z = _mm_load_si128((__m128i*) &zero[i*8]);
+      _mm_store_si128((__m128i*)&diagonalScore[i*8], Z);
+    }
+  }
 }
 
-union {
-    __m128i m128;
-    int8_t i8[16];
-} left;
-const int gap_op = 11;
-const int gap_ex = 1;
-void matching_SIMD(vector<int> vquery, int len1, int8_t* residue, int8_t* scoresRow,
-	 									int maxScoreX,int maxScoreY, int maxScoreVal){
-	__attribute__((aligned (8))) int8_t diag [len1+1];
-	for(int i = 0; i < len1 ; i++){
-		diag[i+1] = blosumMatrix[vquery[i]][residue];
-	}
-	diag[0] = 0;
+void matching_SIMD(int16_t* score, int16_t* diagGap, int16_t* opGap,
+  int16_t* maxColVal, int16_t* maxPosCol, int16_t* maxLineVal,
+  int16_t* maxPosLine, int16_t* exGap, int16_t* diagonalScore,
+  int16_t* maxScore, int16_t* zero, int16_t* PosCol, int16_t* PosLine,
+  int16_t* colScore, int16_t* lineScore, int16_t* unit){
 
-	__m128i  = _mm_set1_epi8(gap_ex);
-	for(int i = 1; i < len1+1; i+=16){
-		left.m128 = _mm_load_si128(scoresRow[i]);
-		vsum = _mm_add_epi32(vsum, v);
-	}
+  /*--------------------------------------------------------------------------
+  paddsb P[q], H // H = H + P[q]
+  pmaxub F, H // H = max(H, F)
+  pmaxub E, H // H = max(H, E)
+  pmaxub H, S // S = max(S, H)
+  psubsb R, F // F = F – R
+  psubsb R, E // E = E – R
+  movdqa H, N // N = H
+  psubsb Q, H // H = H – Q
+  pmaxub H, E // E = max(H, E)
+  pmaxub H, F // F = max(H, F)
+  ----------------------------------------------------------------------------*/
 
-	residuePtr.m128 = _mm_load_si128((__m128i*) residues);
-	_mm_store_si128((__m128i*)sum, _mm_add_epi8(residuePtr.m128,toAddPtr.m128));
-  sumPtr.m128 = _mm_load_si128((__m128i*) sum);
+  for(int i = 0; i < 2; i++){
 
+
+    __m128i Z = _mm_load_si128((__m128i*) &zero[i*8]);
+    __m128i RESC = _mm_load_si128((__m128i*) &colScore[i*8]);
+    __m128i RESL = _mm_load_si128((__m128i*) &lineScore[i*8]);
+    __m128i S = _mm_load_si128((__m128i*) &score[i*8]);
+
+    __m128i OP = _mm_load_si128((__m128i*) &opGap[i*8]);
+    __m128i COL = _mm_load_si128((__m128i*) &maxColVal[i*8]);
+    __m128i PMCOL = _mm_load_si128((__m128i*) &maxPosCol[i*8]);
+    __m128i PCOL = _mm_load_si128((__m128i*) &PosCol[i*8]);
+
+    __m128i EX = _mm_load_si128((__m128i*) &exGap[i*8]);
+    __m128i LIN = _mm_load_si128((__m128i*) &maxLineVal[i*8]);
+    __m128i PMLIN = _mm_load_si128((__m128i*) &maxPosLine[i*8]);
+    __m128i PLIN = _mm_load_si128((__m128i*) &PosLine[i*8]);
+
+    __m128i D = _mm_load_si128((__m128i*) &diagonalScore[i*8]);
+    __m128i P = _mm_load_si128((__m128i*) &diagGap[i*8]);
+
+    __m128i M = _mm_load_si128((__m128i*) &maxScore[i*8]);
+    __m128i UNIT = _mm_load_si128((__m128i*) &unit[i*8]);
+
+
+    __m128i SUBC1 = _mm_sub_epi16(COL, OP);
+    __m128i SUBC2 = _mm_sub_epi16(PCOL,PMCOL);
+    __m128i MULTC = _mm_mullo_epi16(EX,SUBC2);
+    RESC = _mm_sub_epi16(SUBC1,MULTC);
+    __m128i SUBL1 = _mm_sub_epi16(LIN, OP);
+    __m128i SUBL2 = _mm_sub_epi16(PLIN,PMLIN);
+    __m128i MULTL = _mm_mullo_epi16(EX,SUBL2);
+    RESL = _mm_sub_epi16(SUBL1,MULTL);
+
+    S = _mm_add_epi16(D,P);
+
+    S = _mm_max_epi16(S,RESC);
+    S = _mm_max_epi16(S,RESL);
+    S = _mm_max_epi16(S,Z);
+
+
+    __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, COL));
+    __m128i MULTC2 = _mm_mullo_epi16(PCOL,CMPLTC);
+    __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);
+
+    __m128i CMPLTL = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, LIN));
+    __m128i MULTL2 = _mm_mullo_epi16(PLIN,CMPLTL);
+    __m128i NEWMPL = _mm_max_epi16(PMLIN, MULTL2);
+
+    _mm_store_si128((__m128i*)&score[i*8], S);
+    _mm_store_si128((__m128i*)&diagonalScore[i*8], S);
+    _mm_store_si128((__m128i*)&maxPosCol[i*8], NEWMPC);
+    _mm_store_si128((__m128i*)&maxColVal[i*8], _mm_max_epi16(COL, S));
+    _mm_store_si128((__m128i*)&maxPosLine[i*8], NEWMPL);
+    _mm_store_si128((__m128i*)&maxLineVal[i*8], _mm_max_epi16(LIN, S));
+    _mm_store_si128((__m128i*)&maxScore[i*8], M = _mm_max_epi16(S,M));
+    _mm_store_si128((__m128i*)&colScore[i*8], RESC);
+    _mm_store_si128((__m128i*)&lineScore[i*8], RESL);
+  }
 }
-*/
-/*
-*--------------------------------------------------------------------------*
-*/
