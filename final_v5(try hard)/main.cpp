@@ -51,7 +51,7 @@ pair<string, string> readFasta(string file){
 string scoreString(int index, int score, string db, PIN* filePIN, PHR* filePHR, int maxLine){
   string res = "";
   string name = filePHR->read(filePIN, index, db);
-  //We only take the first char of the name;
+  //We only take the first #maxLine characters of the name;
   if(name.size()>maxLine){
     name = name.substr(0,maxLine)+"...";
   }
@@ -66,12 +66,17 @@ string scoreString(int index, int score, string db, PIN* filePIN, PHR* filePHR, 
 
 string alignementString(vector<int> result ,string query,string db, PIN* filePIN, PHR* filePHR, char dataBase[] , int maxLine){
   string res = "";
+  //We extract useful information from the result vector
+  //Index and score are in the 2 first position
   int index = result[0];
   int score = result[1];
+  //We get the offSet in the sequence of query and subject
   int startX = result[result.size()-1];
   int startY = result[result.size()-2];
   string name = filePHR->read(filePIN, index, db);
   res+=">";
+  //We don't want a too long line so we seperate it into lines of
+  //maximum #maxLine characters
   while (name.size()>maxLine){
     res+=(name.substr(0, maxLine)+"\n");
     name = name.substr(maxLine);
@@ -81,9 +86,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   int seqOffset = filePIN->getSqOffset(index);//position in .psq file of the found sequence
   int size = filePIN->getSqOffset(index+1)-seqOffset;//size of the sequence's header
 
-  //int* dbSeqV = filePSQ->getSequence(index);
+  //Conversion of the sequence of int from the database into a string readable for us
   string dbSeq = "";
-  //int temppp;
   for (int i = 0; i <size; i++){
     dbSeq+=conversionTable[dataBase[i+seqOffset]];
   }
@@ -119,14 +123,14 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
         line2+=" ";
         line3+= "-";
       }
-      else if(value ==3){//diag : match negatif
+      else if(value ==3){//diag : negative match
         line1+=query[x];
         x++;
         line2+=" ";
         line3+=dbSeq[y];
         y++;
       }
-      else if (value == 4){//diag : match parfait
+      else if (value == 4){//diag : perfect match
         posScore++;
         idScore++;
         line1+=query[x];
@@ -135,7 +139,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
         line3+=dbSeq[y];
         y++;
       }
-      else if (value == 5){//diag : match positif
+      else if (value == 5){//diag : positive match
         posScore++;
         line1+=query[x];
         x++;
@@ -144,6 +148,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
         y++;
       }
   }
+  //We also show the ratio of positive, gap, and identity matches
   double posRatio = (double)posScore/sizeAlignement;
   double gapRatio = (double) gapScore/sizeAlignement;
   double idRatio = (double)idScore/sizeAlignement;
@@ -166,6 +171,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   int gapX;
   int gapY;
   string tempString;
+  //While all the lines are too long, we continue to write lines of #maxLine characters
   while (line1.size() > maxLine && line2.size() > maxLine && line3.size() > maxLine){
 
     //Query
@@ -181,7 +187,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     x+=(maxLine-gapX);
     allLine+= (to_string(x-1) + "\n");
 
-    //alignement
+    //Alignement
 
     for (int i = 0; i < 10+ maxLenNumber; i++){
       allLine+=" ";
@@ -207,8 +213,10 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
 
     allLine+="\n";
   }
+  //Now, we have to do it one more for the rest of the line
   int restLineLength = max(line1.size(), max(line2.size(), line3.size()));
-  //query
+
+  //Query
 
   allLine += "Query :";
   for (int i = 0; i <= maxLenNumber-to_string(x).size()+2; i++){
@@ -221,14 +229,14 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   x+=(restLineLength-gapX);
   allLine+= (to_string(x) + "\n");
 
-  //alignement
+  //Alignement
 
   for (int i = 0; i < 10 + maxLenNumber; i++){
     allLine+=" ";
   }
   allLine+= (" "+line2.substr(0, restLineLength)+"\n");
 
-  //subject
+  //Subject
 
   allLine+= "Subject :";
   for (int i = 0; i <= maxLenNumber-to_string(y).size(); i++){
@@ -254,6 +262,7 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   cout << "Writing results in output file ..." << endl;
   PHR* filePHR = new PHR();
 
+  //Maximum characters per line
   int maxLine = 60;
   res+="Name";
   string scoreTitle = "Bitscore";
