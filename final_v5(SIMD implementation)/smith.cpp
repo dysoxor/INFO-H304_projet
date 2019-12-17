@@ -76,8 +76,7 @@ void merge(vector<int> &scorev, vector<int> &indexv, int left, int mid, int righ
 void insertion_sortmerge(vector<int> & scorev, vector<int> &indexv,int left, int right){
 	int tmps;
 	int tmpi;
-	for(int i=left; i<right; i++)
-	{
+	for(int i=left; i<right; i++){
 		int j=i;
 		while ( j>left && scorev[j-1]>scorev[j] )
 		{
@@ -163,7 +162,8 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 	} else {
 		cout << "Problem while opening the blosum file" << endl;
 	}
-};
+}
+
 void traceback(int maxX, int maxY, int sizeX, int sizeY, vector<vector<int>> rootAlignement){
 	int x = maxX;
 	int y = maxY;
