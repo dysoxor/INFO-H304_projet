@@ -284,7 +284,7 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
 
   //We write the date of execution
   time_t actualTime = time(nullptr);
-  output << "FIND 1.0.0" << endl;
+  output << "FIND 1.1.0" << endl;
   output << "Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS" << endl;
   output << endl;
   output << "Date : " << asctime(localtime(&actualTime)) << endl;
