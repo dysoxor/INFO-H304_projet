@@ -1,4 +1,5 @@
 #include "smith.h"
+#include <time.h>
 
 
 

@@ -291,8 +291,9 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   output << "Database : "<< dataBaseFileName <<endl;
   output << "Number of sequences in database : " << filePIN->getNumSeq()<<endl;
   output << "Query file : " << queryFileName << endl;
-  clock_t end = clock();
-  double timeElapsed= double(end - begin)/CLOCKS_PER_SEC;
+  time_t end;
+  time(&end);
+  double timeElapsed= difftime(end,begin);
   output << "Elapsed time : " << timeElapsed <<"s" << endl;
   output << "Query length : " << querySequence.size() << endl;
 

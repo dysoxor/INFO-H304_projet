@@ -70,7 +70,8 @@ int main( int argc, char **argv ){
   }
 
   //Let's start the timer
-  clock_t begin = clock();
+  time_t begin;
+  time(&begin);
 
   //It reads the name and the content of query sequence
   string name, content = "";
