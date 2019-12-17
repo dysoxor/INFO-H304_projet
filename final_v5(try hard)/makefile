@@ -1,2 +1,2 @@
 all:
-	g++ -O3 -Ofast -o main main.cpp binary.cpp smith.cpp
+	g++ -O3 -Ofast -o main main.cpp binary.cpp smith.cpp output.cpp

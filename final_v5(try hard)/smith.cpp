@@ -11,6 +11,12 @@ int gap_op;
 int gap_ex;
 
 
+
+char conversionTable[28] ={
+  '-','A','B','C','D','E','F','G','H','I',
+  'K','L','M','N','P','Q','R','S','T','V',
+  'W','X','Y','Z','U','*','O','J'};
+
 int findMax(int tableau[], int size){
 	int res = 0;
 	for (int i = 1; i < size; i++){
@@ -142,10 +148,6 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 			}
 		}
 		file.close();
-		char conversionTable[28] ={
-		  '-','A','B','C','D','E','F','G','H','I',
-		  'K','L','M','N','P','Q','R','S','T','V',
-		  'W','X','Y','Z','U','*','O','J'};
 		vector<vector<int>> otherBlosumMatrix;
 		vector<int> tempv;
 		tempv.assign(28,0);
@@ -349,7 +351,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
   clock_t begin = clock();
 	setupBlosumMatrix(smMatrix);
 	int len1 = query.size();
-	map<int,char> conversionTable {
+	map<int,char> charToInt{
 		{'A',1},{'B',2},{'C',3},{'D',4},
 		{'E',5},{'F',6},{'G',7},{'H',8},{'I',9},
 		{'K',10},{'L',11},{'M',12},{'N',13},{'P',14},
@@ -360,7 +362,7 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 	//vector<int> vquery;
 	int* vquery = new int[len1];
 	for (int i = 0; i < len1; i++){
-		vquery[i] = conversionTable[query.at(i)];//.push_back(conversionTable[query.at(i)]);
+		vquery[i] = charToInt[query.at(i)];//.push_back(conversionTable[query.at(i)]);
 	}
 
 	int score;
