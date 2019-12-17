@@ -248,7 +248,6 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
 void writeOutput(vector<vector<int>> results, string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, chrono::time_point<chrono::system_clock> begin, PIN* filePIN, PSQ* filePSQ, PHR* filePHR){
   string res = "";
   string temp = "";
-  cout << "Writing results in output file ..." << endl;
 
   //Maximum characters per line
   int maxLine = 60;
@@ -294,6 +293,7 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   chrono::time_point<chrono::system_clock> end = chrono::system_clock::now();
   auto timeElapsed = chrono::duration_cast<chrono::microseconds>(end - begin).count();
   output << "Elapsed time : " << (double)(timeElapsed/1000)/1000 <<"s" << endl;
+  output << "Number of cores : " << thread::hardware_concurrency()<< endl;
   output << "Query length : " << querySequence.size() << endl;
 
   int tempSize;
@@ -326,6 +326,5 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   }
   output << temp << querySequence << endl;
   output<< endl << res<< endl;
-  cout << "Output done" << endl;
   output.close();
 }

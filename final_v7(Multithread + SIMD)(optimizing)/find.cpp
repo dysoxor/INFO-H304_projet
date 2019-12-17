@@ -6,7 +6,7 @@ The purpose of this code is to align a query sequence with all the proteins
 from the database. Use the Smith-Watermann Algorithm to get scores and to
 get the alignements.
 
-Usage : ./main [OPTIONS]
+Usage : ./find [OPTIONS]
 Usage
 -q      name of query file (required)
 -d      name of data file (uniprot_sprot.fasta)
@@ -24,7 +24,7 @@ int main( int argc, char **argv ){
   // It verifies if there is less than the maximum parameters allowed
   if( argc > 15 ){ //Problem because we allow maximum 7 parameters (+ 7 flags)
       cerr << "Program need 7 parameters maximum" << endl;
-      return EXIT_FAILURE;
+      return 0;
   }
 
   //Read arguments
@@ -66,7 +66,7 @@ int main( int argc, char **argv ){
 
   if(!queryGiven){
     cerr << "No query file given" << endl;
-    return EXIT_FAILURE;
+    return 0;
   }
 
   //Let's start the timer
@@ -79,50 +79,42 @@ int main( int argc, char **argv ){
   tie(name,content) = readFasta(queryFileName);
   if (name == "" && content == ""){
     cerr<< "Unable to read the query file (.fasta)" << endl;
-    return EXIT_FAILURE;
+    return 0;
   }
   // Create an object PIN which reads the file *.pin
   PIN *filePIN = new PIN();
-  cout << "Reading PIN ..."<< endl;
   state = filePIN->read(dataFileName);
   if(state == EXIT_FAILURE){
     cerr << "the blast data file (.pin) in parameter is empty or inaccessible" << endl;
-    return EXIT_FAILURE;
+    return 0;
   }
-  cout<<"PIN done"<<endl;
   // create an object PSQ which read the file *.psq
 
-  cout << "Reading PSQ ..."<< endl;
   PSQ *filePSQ = new PSQ();
   // We charge the content of the file in the memory
   if(filePSQ->charge(filePIN, dataFileName)){
     cout << "Error in PSQ charging" << endl;
-    return EXIT_FAILURE;
+    return 0;
   }
-  cout << "PSQ done"<<endl;
 
   //We can now start the Smith-Watermann Algorithm
-  cout << "Algorithm in process ..."<< endl;
   vector<vector<int>> results;
   results = dbAlignment(dataFileName, content, filePSQ, smMatrix, gapPenalityOpening,
     gapPenalityExpansion,numberOfResults);
-  cout << "Algorithm done" << endl;
 
   PHR* filePHR = new PHR();
   if(filePHR->charge(filePIN, dataFileName)){
     cout << "Error in PHR charging" << endl;
-    return EXIT_FAILURE;
+    return 0;
   }
   //Now, we write the results in the outputFile
   writeOutput(results, outputFile, queryFileName, dataFileName, name, content, begin,filePIN,filePSQ, filePHR);
 
   //We can now delete the different objects made on the heap
-  cout << "Freeing up space ..." << endl;
   filePSQ->end();
   filePHR->end();
   delete filePIN;
   delete filePSQ;
   delete filePHR;
-  cout << "Space freed" << endl;
   return 0;
 }

@@ -615,8 +615,8 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
 		query[i] = charToInt[Squery.at(i)];//.push_back(conversionTable[query.at(i)]);
 	}
 
-  int n_cores = std::thread::hardware_concurrency();
-  cout << "Number of cores : " << n_cores << endl;
+  int n_cores = thread::hardware_concurrency();
+  //cout << "Number of cores : " << n_cores << endl;
   thread threads[n_cores];
   int seq_per_thread = dbSize/n_cores;
 
