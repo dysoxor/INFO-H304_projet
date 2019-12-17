@@ -12,7 +12,6 @@
 #include <map>
 #include <algorithm>
 #include <stdexcept>
-#include <ctime>
 #include <math.h>
 
 
@@ -67,14 +66,14 @@ public:
 
 class PHR{
 private:
-  /*int binary;
-  string hexadecimal;
-  string string_length_bits;
-  bool significantBitOn;
-  unsigned long int string_length;*/
-  //string seqTitle;
+  int fileSize;
+  char* file;
+  PIN* filePIN;
 public:
-  string read(PIN* filePIN, int index, string dataFileName);
+  int charge(PIN* fPIN, string dataFileName);
+  string getTitle(int index);
+  void end();
+  //string read(PIN* filePIN, int index, string dataFileName);
   string int_to_hex( int i );
   string hex_to_string(const string& in);
   string byteToBits(unsigned int u);

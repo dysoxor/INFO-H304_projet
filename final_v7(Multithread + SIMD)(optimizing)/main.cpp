@@ -70,8 +70,7 @@ int main( int argc, char **argv ){
   }
 
   //Let's start the timer
-  time_t begin;
-  time(&begin);
+   chrono::time_point<chrono::system_clock> begin = chrono::system_clock::now();
 
   //It reads the name and the content of query sequence
   string name, content = "";
@@ -96,7 +95,10 @@ int main( int argc, char **argv ){
   cout << "Reading PSQ ..."<< endl;
   PSQ *filePSQ = new PSQ();
   // We charge the content of the file in the memory
-  state = filePSQ->charge(filePIN, dataFileName);
+  if(filePSQ->charge(filePIN, dataFileName)){
+    cout << "Error in PSQ charging" << endl;
+    return EXIT_FAILURE;
+  }
   cout << "PSQ done"<<endl;
 
   //We can now start the Smith-Watermann Algorithm
@@ -106,14 +108,21 @@ int main( int argc, char **argv ){
     gapPenalityExpansion,numberOfResults);
   cout << "Algorithm done" << endl;
 
+  PHR* filePHR = new PHR();
+  if(filePHR->charge(filePIN, dataFileName)){
+    cout << "Error in PHR charging" << endl;
+    return EXIT_FAILURE;
+  }
   //Now, we write the results in the outputFile
-  writeOutput(results, outputFile, queryFileName, dataFileName, name, content, begin,filePIN,filePSQ);
+  writeOutput(results, outputFile, queryFileName, dataFileName, name, content, begin,filePIN,filePSQ, filePHR);
 
   //We can now delete the different objects made on the heap
   cout << "Freeing up space ..." << endl;
   filePSQ->end();
+  filePHR->end();
   delete filePIN;
   delete filePSQ;
+  delete filePHR;
   cout << "Space freed" << endl;
   return 0;
 }

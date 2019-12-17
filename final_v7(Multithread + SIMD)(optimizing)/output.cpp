@@ -37,7 +37,8 @@ pair<string, string> readFasta(string file){
 
 string scoreString(int index, int score, string db, PIN* filePIN, PHR* filePHR, int maxLine){
   string res = "";
-  string name = filePHR->read(filePIN, index, db);
+  //string name = filePHR->read(filePIN, index, db);
+  string name = filePHR->getTitle(index);
   //We only take the first #maxLine characters of the name;
   if(name.size()>maxLine){
     name = name.substr(0,maxLine)+"...";
@@ -60,7 +61,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   //We get the offSet in the sequence of query and subject
   int startX = result[result.size()-1];
   int startY = result[result.size()-2];
-  string name = filePHR->read(filePIN, index, db);
+  //string name = filePHR->read(filePIN, index, db);
+  string name = filePHR->getTitle(index);
   res+=">";
   //We don't want a too long line so we seperate it into lines of
   //maximum #maxLine characters
@@ -243,11 +245,10 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   return res;
 
 }
-void writeOutput(vector<vector<int>> results, string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, clock_t begin, PIN* filePIN, PSQ* filePSQ){
+void writeOutput(vector<vector<int>> results, string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, chrono::time_point<chrono::system_clock> begin, PIN* filePIN, PSQ* filePSQ, PHR* filePHR){
   string res = "";
   string temp = "";
   cout << "Writing results in output file ..." << endl;
-  PHR* filePHR = new PHR();
 
   //Maximum characters per line
   int maxLine = 60;
@@ -274,7 +275,6 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
     res+=temp;
     res+= "\n";
   }
-  delete filePHR;
 
   //We open the outputFile
   ofstream output(outputFile);
@@ -291,10 +291,9 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   output << "Database : "<< dataBaseFileName <<endl;
   output << "Number of sequences in database : " << filePIN->getNumSeq()<<endl;
   output << "Query file : " << queryFileName << endl;
-  time_t end;
-  time(&end);
-  double timeElapsed= difftime(end,begin);
-  output << "Elapsed time : " << timeElapsed <<"s" << endl;
+  chrono::time_point<chrono::system_clock> end = chrono::system_clock::now();
+  auto timeElapsed = chrono::duration_cast<chrono::microseconds>(end - begin).count();
+  output << "Elapsed time : " << (double)(timeElapsed/1000)/1000 <<"s" << endl;
   output << "Query length : " << querySequence.size() << endl;
 
   int tempSize;

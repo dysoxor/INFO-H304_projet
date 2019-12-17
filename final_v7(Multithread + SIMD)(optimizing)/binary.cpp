@@ -226,7 +226,77 @@ unsigned long PHR::toInt(std::string const &s) {
     return bits.to_ulong();
 }
 
-string PHR::read(PIN* filePIN, int index, string dataFileName){
+int PHR::charge(PIN* fPIN, string dataFileName){
+  filePIN = fPIN;
+  ifstream filePHR;
+  filePHR.open(dataFileName+".phr", ios::binary | ios::in);
+  //checking file if it is empty or unopennable
+  filePHR.seekg(0, ios::end);
+  fileSize=filePHR.tellg();
+  filePHR.seekg(0, ios::beg);
+  if(fileSize == -1){
+    return EXIT_FAILURE;
+  }
+  file = new char[fileSize];
+  filePHR.read(file, fileSize);
+  filePHR.close();
+  return EXIT_SUCCESS;
+}
+
+string PHR::getTitle(int index){
+  string seqTitle = "";
+  int binary = 0;
+  string hexadecimal = "";
+  string string_length_bits = "";
+  bool significantBitOn;
+  unsigned long int string_length;
+
+  int seqOffset = filePIN->getHrOffset(index);//position in .psq file of the found sequence
+  int size = filePIN->getHrOffset(index+1)-seqOffset;//size of the sequence's header
+  bool visible_string = false;
+  int byteForSize=0;
+
+  for(int i=0; i<size ; i++){
+    binary = file[seqOffset+i];//filePHR.read( (char*)&binary, 1);//read byte by byte the file
+    hexadecimal = int_to_hex(binary);//convert integer into the hexadecimal
+    if(!visible_string && hexadecimal == "1a"){//'1a' says that the following is visible_string
+      visible_string = true;
+    }
+    else if(visible_string){//if it is reading visible string of the file
+      if(string_length_bits == ""){//the byte which is next to '1a' is the length of the visible_string
+        string_length_bits = byteToBits(binary);//convert the byte responsible to give the size of the string into bits
+
+        significantBitOn = false;//see if the first bit is off or on
+        if(string_length_bits[0] == '1'){
+          significantBitOn = true;
+        }
+        //get the string size by getting a look over the sequence of bits
+        if(!significantBitOn){
+          string_length = binary;
+        }
+        else{
+          byteForSize = toInt(string_length_bits.substr(1,7));
+          string_length = file[seqOffset+i+byteForSize];//filePHR.read((char *)&string_length, byteForSize);
+          i+=byteForSize;
+          string_length = __bswap_32(string_length);
+        }
+      }
+      else if(string_length!=-1){//add character which is read while the string size is not reduced to -1
+        seqTitle+=hex_to_string(hexadecimal);
+        string_length--;
+      }
+    }
+
+  }
+  //cout << "The title is : " << seqTitle << endl;
+  return seqTitle;
+}
+
+void PHR::end(){
+  delete file;
+}
+
+/*string PHR::read(PIN* filePIN, int index, string dataFileName){
   string seqTitle = "";
   int binary = 0;
   string hexadecimal = "";
@@ -283,4 +353,4 @@ string PHR::read(PIN* filePIN, int index, string dataFileName){
   }
   //cout << "The title is : " << seqTitle << endl;
   return seqTitle;
-}
+}*/
