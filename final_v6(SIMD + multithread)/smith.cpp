@@ -651,8 +651,7 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
 
   int n_cores = std::thread::hardware_concurrency();
   cout << "Number of cores : " << n_cores << endl;
-  using namespace boost;
-  boost::thread threads[n_cores];
+  thread threads[n_cores];
   struct thread_data td[n_cores];
   int seq_per_thread = dbSize/n_cores;
   //pthread_t *test1;
@@ -662,13 +661,9 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
   //pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
   int begin;
   int end;
-  for(int n = 0; n < n_cores; n++){
-    if (n == 0){
-      td[n].begin = 1;
-    }
-    else {
-      td[n].begin = seq_per_thread*n;
-    }
+  for(int n = 1; n < n_cores; n++){
+    cout << "new thread" << endl;
+    td[n].begin = seq_per_thread*n;
     if (n == n_cores-1){
       td[n].end = dbSize;
     }
@@ -682,14 +677,22 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
     cout << "2" << endl;
     test2 = &td[n];
     cout << "3"<< endl;*/
-    threads[n] = boost::thread(job,td[n]);
+    threads[n] = thread(job,td[n]);
     //threads.push_back(t);
     //pthread_create(&threads[n], &attr, job, (void *) &td[n]);
     //cout << "4" << endl;
   }
+  cout << "here " << endl;
+  td[0].begin = 1;
+  td[0].end = dbSize-seq_per_thread*(n_cores-1);
+  td[0].query = query;
+  td[0].len1 = len1;
+  cout << "ready" << endl;
+  job(td[0]);
+
   /*void *status;
   pthread_attr_destroy(&attr);*/
-  for (int n = 0; n < n_cores ; n++){
+  for (int n = 1; n < n_cores ; n++){
     cout << "Waiting" << endl;
     //pthread_join(threads[n], &status);
     //threads[n].join();
@@ -697,7 +700,6 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
     cout << "Donnnn" << endl;
   }
   cout << "Done" << endl;
-  using namespace std;
 
 
 

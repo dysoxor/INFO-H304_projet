@@ -1,6 +1,5 @@
 #include "binary.h"
 #include <thread>
-#include <boost/thread.hpp>
 #include <immintrin.h>
 #include <emmintrin.h>
 
