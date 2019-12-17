@@ -6,7 +6,7 @@ The purpose of this code is to align a query sequence with all the proteins
 from the database. Use the Smith-Watermann Algorithm to get scores and to
 get the alignements.
 
-Usage : ./find [OPTIONS]
+Usage : ./launch [OPTIONS]
 Usage
 -q      name of query file (required)
 -d      name of data file (uniprot_sprot.fasta)
