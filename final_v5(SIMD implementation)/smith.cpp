@@ -304,15 +304,6 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
 			tempIndex = findMax(temp,4);
 			ligne2[j] = temp[tempIndex];
 
-			if (tempIndex == 3){ //if negative match, we keep 3
-				if(aa1==aa2){//perfect match
-					tempIndex=4;
-				}
-				else if(blosumGet>0){ //positif match but aa1 != aa2
-					tempIndex=5;
-				}
-			}
-			rootAlignement[i][j] = tempIndex;
 
       if (temp[tempIndex] >= temp[1]){
         maxColumn[i] = temp[tempIndex] - gap_op;
@@ -327,6 +318,16 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
 				maxX = i;
 				maxY = j;
       }
+      if (tempIndex == 3){ //if negative match, we keep 3
+				if(aa1==aa2){//perfect match
+					tempIndex=4;
+				}
+				else if(blosumGet>0){ //positif match but aa1 != aa2
+					tempIndex=5;
+				}
+			}
+			rootAlignement[i][j] = tempIndex;
+
     }
   }
   double lambda = 0.267;
