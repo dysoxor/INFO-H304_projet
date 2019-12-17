@@ -631,7 +631,6 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
     }
     td[n].query = query;
     td[n].len1 = len1;
-    cout << "Lauching thread #" << n << endl;
     threads[n] = thread(job,td[n]);
   }
 
@@ -639,14 +638,11 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
   td[0].end = dbSize - (n_cores-1)*seq_per_thread;
   td[0].query = query;
   td[0].len1 = len1;
-  cout << "Lauching main" << endl;
   job(td[0]);
 
   for (int n = 1; n < n_cores ; n++){
-    cout << "Waiting for thread #"<< n << endl;
     threads[n].join();
   }
-  cout << "Done" << endl;
 
 
     int seqOffset;
