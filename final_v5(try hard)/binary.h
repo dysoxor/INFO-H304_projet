@@ -44,33 +44,14 @@ class PSQ{
 private:
   char* database;
   PIN* filePIN;
-  /*int sequence;
-  vector<string> vectorSequences;
-  vector<vector<int>> vectorSequencesINT;*/
 public:
   int charge(PIN* fPIN, string dataFileName);
-  //int* getSequence(int index);
   void end();
   char* getDatabase();
   PIN* getPIN();
-  /*int read(PIN* filePIN, string query, string dataFileName);
-  string read(PIN* filePIN, string dataFileName, int target);
-  string& getSequence(int i);
-  vector<int>& getSequenceINT(int i);
-  vector<vector<int>>& getAllSequences();
-  void clearSequences();
-  vector<int> queryToInt(string query);
-  char intToString(int residue);*/
 };
 
 class PHR{
-private:
-  /*int binary;
-  string hexadecimal;
-  string string_length_bits;
-  bool significantBitOn;
-  unsigned long int string_length;*/
-  //string seqTitle;
 public:
   string read(PIN* filePIN, int index, string dataFileName);
   string int_to_hex( int i );

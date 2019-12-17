@@ -171,6 +171,7 @@ void traceback(int maxX, int maxY, int sizeX, int sizeY, vector<vector<int>> roo
 	int value = rootAlignement[x][y];
 	while (value != 0){ //temp[0] = 0
 		alignement.push_back(value);
+    //cout << value << " ";
 		switch(value){
 			case 1 	: y--;break;//gap dans query
 			case 2 	: x--;break;//gap dans dbSeq
@@ -180,6 +181,8 @@ void traceback(int maxX, int maxY, int sizeX, int sizeY, vector<vector<int>> roo
 		}
 		value = rootAlignement[x][y];
 	}
+  //cout << endl;
+  //while (true);
 	//offset par rapport au debut
 	//d abord la db puis la query
 	alignement.push_back(y); //offset de la db
@@ -252,23 +255,22 @@ int matching1(int seq1[], int index, char db[], int len1, int len2){
 	return bitscore;
 }
 
-void matching2(int seq1[], int index, char db[], int len1, int len2){
+int matching2(int seq1[], int index, char db[], int len1, int len2){
 
-	int *ligne1 = new int[len2+1];
+  int *ligne1 = new int[len2+1];
 	int *ligne2 = new int[len2+1];
 	int *tempLine;
+  vector<vector<int>> rootAlignement;
+  vector<int> tempv;
+  tempv.assign(len2+1,0);
+  rootAlignement.assign(len2+1,tempv);
+
 
   //Define variables used in order to fill the ScoringMatrix
 
   int maxValue = 0;
 	int maxX = 0;
 	int maxY = 0;
-
-	vector<vector<int>> rootAlignement;
-	vector<int> tempv2;
-	tempv2.assign(len2+1,0);
-	rootAlignement.assign(len1+1,tempv2);
-
   int maxLine[len2+1];
   int maxColumn[len1+1];
   int posXmaxLine[len2+1];
@@ -286,10 +288,7 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
   int temp[4];
   temp[0] = 0;
 	int tempIndex;
-	int blosumGet;
-	int aa1;
-	int aa2;
-
+  int aa1; int aa2; int blosumGet;
   for (int i = 1; i < len1+1; i++){
 		tempLine = ligne1;
 		ligne1 = ligne2;
@@ -297,23 +296,12 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
     for (int j = 1; j < len2+1; j++){
       temp[1] = maxColumn[i] - gap_ex*(j - posYmaxColumn[i]);
       temp[2] = maxLine[j] - gap_ex*(i - posXmaxLine[j]);
-			aa1 = seq1[i-1];
-			aa2 = db[index+j-1];
+      aa1 = seq1[i-1];
+      aa2 = db[index+j-1];
 			blosumGet = blosumMatrix[aa1][aa2];
 			temp[3] = ligne1[j-1] + blosumGet;
 			tempIndex = findMax(temp,4);
 			ligne2[j] = temp[tempIndex];
-
-			if (tempIndex == 3){ //if negative match, we keep 3
-				if(aa1==aa2){//perfect match
-					tempIndex=4;
-				}
-				else if(blosumGet>0){ //positif match but aa1 != aa2
-					tempIndex=5;
-				}
-			}
-			rootAlignement[i][j] = tempIndex;
-
       if (temp[tempIndex] >= temp[1]){
         maxColumn[i] = temp[tempIndex] - gap_op;
         posYmaxColumn[i] = j;
@@ -327,15 +315,27 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
 				maxX = i;
 				maxY = j;
       }
+      if(tempIndex == 3){
+        if(aa1 == aa2){
+          tempIndex = 4;
+        } else if(blosumGet > 0){
+          tempIndex = 5;
+        }
+      }
+      rootAlignement[i][j] = tempIndex;
+
+
     }
   }
   double lambda = 0.267;
   double logk = -3.34;
   double bitscore = double(maxValue);
   bitscore = (lambda*bitscore - logk)/log(2);
-	traceback(maxX,maxY, len1+1, len2+1,rootAlignement);
 	delete ligne1;
 	delete ligne2;
+  traceback(maxX,maxY, len1+1, len2+1,rootAlignement);
+  return bitscore;
+
 }
 
 
@@ -391,21 +391,28 @@ vector<vector<int>> dbAlignment(string db, string query, PSQ* filePSQ, string sm
 			cout << pcent << "% ... (estimated time remaining : "<<(int)estimatedTime/60<< "m"<<(int)estimatedTime%60<<"s)" << endl;
 		}
   }
+  /*for (int i = 2; i < results[1].size()-2 ; i++){
+    cout<< results[5916][i] << " ";
+  }
+  cout << endl;*/
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 	vector<vector<int>> results;
 	vector<int> tempRes;
 	int compt = 0;
 	for (int i = indexList.size()-1; i > indexList.size()-1 -nbResults; i--){
 			tempRes.clear();
+      cout << "Real Index : " << indexList[i] << " Score : " << scoreList[i];
 			tempRes.push_back(indexList[i]);
 			tempRes.push_back(scoreList[i]);
 			seqOffset = filePIN->getSqOffset(indexList[i]);
+      cout << " Offset : " << seqOffset << endl;
 			size = filePIN->getSqOffset(indexList[i]+1)-filePIN->getSqOffset(indexList[i]);
-			matching2(vquery,seqOffset,filePSQ->getDatabase(),len1,size);
-			tempRes.insert(tempRes.end(), alignementList[compt].begin(), alignementList[compt].end());
+      tempScore = matching2(vquery,seqOffset,filePSQ->getDatabase(),len1,size);
+      tempRes.insert(tempRes.end(), alignementList[compt].begin(), alignementList[compt].end());
 			results.push_back(tempRes);
 			compt++;
 	}
+  
 	delete vquery;
 	return results;
 

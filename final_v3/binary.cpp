@@ -72,6 +72,9 @@ int PIN::getSqOffset(int i)const{
 int PIN::getmaxSeq()const{
   return max_seq;
 }
+int PIN::getNumRes()const{
+  return residue_count;
+}
 
 //-------------------------- Reading .psq files section ------------------------
 

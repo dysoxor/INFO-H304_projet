@@ -75,56 +75,6 @@ int PIN::getmaxSeq()const{
 
 //-------------------------- Reading .psq files section ------------------------
 
-//convert query's sequence into a list of integer
-/*vector<int> PSQ::queryToInt(string query){
-  vector<int> res;
-  map<char,int> intToChar {
-    {'-',0},{'A',1},{'B',2},{'C',3},{'D',4},
-    {'E',5},{'F',6},{'G',7},{'H',8},{'I',9},
-    {'K',10},{'L',11},{'M',12},{'N',13},{'P',14},
-    {'Q',15},{'R',16},{'S',17},{'T',18},{'V',19},
-    {'W',20},{'X',21},{'Y',22},{'Z',23},{'U',24},
-    {'*',25},{'O',26},{'J',27}
-  };
-
-  for (int i = 0; i< query.size(); i++){
-    int indice = intToChar[query.at(i)];
-    res.push_back(indice);
-  }
-
-  return res;
-}*/
-/*char PSQ::intToString(int residue){
-  map<int,char> intToChar {
-    {0,'-'},{1,'A'},{2,'B'},{3,'C'},{4,'D'},
-    {5,'E'},{6,'F'},{7,'G'},{8,'H'},{9,'I'},
-    {10,'K'},{11,'L'},{12,'M'},{13,'N'},{14,'P'},
-    {15,'Q'},{16,'R'},{17,'S'},{18,'T'},{19,'V'},
-    {20,'W'},{21,'X'},{22,'Y'},{23,'Z'},{24,'U'},
-    {25,'*'},{26,'O'},{27,'J'}
-  };
-
-  return intToChar[residue];
-}
-
-string& PSQ::getSequence(int i){
-  return vectorSequences[i];
-}
-
-
-vector<int>& PSQ::getSequenceINT(int i){
-  return vectorSequencesINT[i];
-}
-
-vector<vector<int>>& PSQ::getAllSequences(){
-  return vectorSequencesINT;
-}
-
-void PSQ::clearSequences(){
-  vectorSequencesINT.clear();
-}
-
-*/
 int PSQ::charge(PIN* fPIN, string dataFileName){
   filePIN = fPIN;
   ifstream filePSQ;
@@ -141,16 +91,6 @@ int PSQ::charge(PIN* fPIN, string dataFileName){
   filePSQ.close();
   return EXIT_SUCCESS;
 }
-
-/*int* PSQ::getSequence(int index){
-  int seqOffset = filePIN->getSqOffset(index);//position in .psq file of the found sequence
-  int size = filePIN->getSqOffset(index+1)-seqOffset;//size of the sequence's header
-  int* sequence = new int[size];
-  for (int i = 0; i < size; i++){
-    *(sequence+i) = *(database+i+seqOffset);
-  }
-  return sequence;
-}*/
 
 char* PSQ::getDatabase(){
   return database;
@@ -273,6 +213,5 @@ string PHR::read(PIN* filePIN, int index, string dataFileName){
     }
 
   }
-  //cout << "The title is : " << seqTitle << endl;
   return seqTitle;
 }

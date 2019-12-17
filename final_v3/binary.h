@@ -38,6 +38,7 @@ public:
   int getHrOffset(int i)const;
   int getSqOffset(int i)const;
   int getmaxSeq()const;
+  int getNumRes() const;
 };
 
 class PSQ{
