@@ -73,7 +73,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     name = name.substr(maxLine);
   }
 
-  res +=(name+"\n");
+  res+=name;
+  res+='\n';
   int seqOffset = filePIN->getSqOffset(index);//position in .psq file of the found sequence
   int size = filePIN->getSqOffset(index+1)-seqOffset;//size of the sequence's header
 

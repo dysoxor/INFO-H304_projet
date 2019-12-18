@@ -227,7 +227,6 @@ string PHR::getTitle(int index){
         string_length--;
       }
     }
-
   }
   return seqTitle;
 }
