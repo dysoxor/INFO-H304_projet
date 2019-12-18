@@ -1,6 +1,6 @@
 Find 1.1.0
 
-This project has been made by Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan
+This project has been written by Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan
 SMEESTERS.
 
 The purpose of this code is to align a query sequence with all the proteins

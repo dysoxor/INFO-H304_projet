@@ -139,20 +139,18 @@ string PHR::byteToBits(unsigned int u){
 
 //convert hexadecimal to string
 string PHR::hex_to_string(const string& in) {
-    string output;
-    if ((in.length() % 2) != 0) {//an hexadecimal should be pair
-        throw runtime_error("String is not valid length ...");
-    }
-    size_t cnt = in.length() / 2;
-    for (size_t i = 0; cnt > i; ++i) {
-        uint32_t s = 0;
-        stringstream ss;
+  string output;
+  if ((in.length() % 2) != 0) {//an hexadecimal should be pair
+      throw runtime_error("String is not valid length ...");
+  }
+  uint32_t s = 0;
+  stringstream ss;
 
-        ss << hex << in.substr(i * 2, 2);//convert input string to hexadecimal format stocked into ss
-        ss >> s;//convert hexadecimal to uint32_t
-        output.push_back(static_cast<unsigned char>(s));//add it to output string with conversion of uint32_t to char
-    }
-    return output;
+  ss << hex << in;//convert input string to hexadecimal format stocked into ss
+  ss >> s;//convert hexadecimal to uint32_t
+  output.push_back(static_cast<unsigned char>(s));//add it to output string with conversion of uint32_t to char
+
+  return output;
 }
 
 //convert bits to integer
