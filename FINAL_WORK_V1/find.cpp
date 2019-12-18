@@ -22,7 +22,7 @@ Usage
 int main( int argc, char **argv ){
   // It verifies if there is less than the maximum parameters allowed
   if( argc > 15 ){ //Problem because we allow maximum 7 parameters (+ 7 flags)
-      cerr << "Program need 7 parameters maximum" << endl;
+      cout << "Program need 7 parameters maximum" << endl;
       return 0;
   }
 
@@ -66,7 +66,7 @@ int main( int argc, char **argv ){
   }
 
   if(!queryGiven || !databaseGiven){
-    cerr << "No query file given or no database given" << endl;
+    cout << "No query file given or no database given" << endl;
     return 0;
   }
 
@@ -79,14 +79,14 @@ int main( int argc, char **argv ){
 
   tie(name,content) = readFasta(queryFileName);
   if (name == "" && content == ""){
-    cerr<< "Unable to read the query file (.fasta)" << endl;
+    cout<< "Unable to read the query file (.fasta)" << endl;
     return 0;
   }
   // Create an object PIN which reads the file *.pin
   PIN *filePIN = new PIN();
   state = filePIN->read(dataFileName);
   if(state == EXIT_FAILURE){
-    cerr << "the blast data file (.pin) in parameter is empty or inaccessible" << endl;
+    cout << "The blast data file (.pin) in parameter is empty or inaccessible" << endl;
     return 0;
   }
   // create an object PSQ which read the file *.psq
