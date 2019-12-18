@@ -66,7 +66,7 @@ int main( int argc, char **argv ){
   }
 
   if(!queryGiven || !databaseGiven){
-    cerr << "No query file given or no databaseGiven" << endl;
+    cerr << "No query file given or no database given" << endl;
     return 0;
   }
 
@@ -100,8 +100,9 @@ int main( int argc, char **argv ){
 
   //We can now start the Smith-Watermann Algorithm
   vector<vector<int>> results;
-  results = dbAlignment(dataFileName, content, filePSQ, smMatrix, gapPenalityOpening,
-    gapPenalityExpansion,numberOfResults);
+  results = dbAlignment(dataFileName, content,
+    filePSQ, smMatrix, gapPenalityOpening, gapPenalityExpansion,
+    numberOfResults);
   if(results.size() == 0){
     cout << "No results from the algorithm" << endl;
     return 0;
@@ -113,7 +114,9 @@ int main( int argc, char **argv ){
     return 0;
   }
   //Now, we write the results in the outputFile
-  writeOutput(results, outputFile, queryFileName, dataFileName, name, content, begin,filePIN,filePSQ, filePHR);
+  writeOutput(results, outputFile, queryFileName,
+    dataFileName, name, content, begin,filePIN,filePSQ,
+    filePHR, smMatrix, gapPenalityExpansion, gapPenalityOpening);
 
   //We can now delete the different objects made on the heap
   filePSQ->end();

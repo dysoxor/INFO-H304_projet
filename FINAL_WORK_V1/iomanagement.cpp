@@ -247,7 +247,12 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   return res;
 
 }
-void writeOutput(vector<vector<int>> results, string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, chrono::time_point<chrono::system_clock> begin, PIN* filePIN, PSQ* filePSQ, PHR* filePHR){
+void writeOutput(vector<vector<int>> results, string outputFile,
+  string queryFileName, string dataBaseFileName, string queryName,
+  string querySequence, chrono::time_point<chrono::system_clock> begin,
+  PIN* filePIN, PSQ* filePSQ, PHR* filePHR, string smFile, int gap_ex,
+  int gap_op){
+
   string res = "";
   string temp = "";
 
@@ -291,6 +296,8 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   output << "Date : " << asctime(localtime(&actualTime)) << endl;
   output << "Database : "<< dataBaseFileName <<endl;
   output << "Number of sequences in database : " << filePIN->getNumSeq()<<endl;
+  output << "Scoring matrix : " << smFile << endl;
+  output << "Gap penalities : " << gap_op << "+"<< gap_ex<<"k" << endl;
   output << "Query file : " << queryFileName << endl;
   chrono::time_point<chrono::system_clock> end = chrono::system_clock::now();
   auto timeElapsed = chrono::duration_cast<chrono::microseconds>(end - begin).count();
