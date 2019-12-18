@@ -7,18 +7,23 @@
 #include <array>
 #include <stdio.h>
 #include <emmintrin.h>
+#include <avxintrin.h>
 using namespace std;
 
 int main(int argc, char** argv){
   __attribute__((aligned (16))) int16_t a[16];
   __attribute__((aligned (16))) int16_t b[16];
   int decr = 1;
+  cout << "initial: " << endl;
   for(int i = 0; i < 16; i++){
     a[i] = decr;
     b[i] = 0;
     if(i == 3 || i == 7 || i == 11)
       decr--;
+    cout << a[i] << " ";
   }
+  cout << endl;
+
   __m256i A = _mm256_load_si256((__m256i*) &a);
   __m256i B = _mm256_load_si256((__m256i*) &b);
 
@@ -27,7 +32,7 @@ int main(int argc, char** argv){
 
   _mm256_store_si256((__m256i*)&a, RES);
 
-  cout << result << endl;
+  cout << "result" << endl;
   for(int i = 0; i < 16; i++){
     cout << a[i] << " ";
   }

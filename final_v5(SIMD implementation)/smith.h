@@ -1,6 +1,7 @@
 #include "binary.h"
 #include <immintrin.h>
 #include <emmintrin.h>
+//#include <avxintrin.h>
 
 using namespace std;
 
