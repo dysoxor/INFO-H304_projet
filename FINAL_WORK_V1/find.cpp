@@ -9,7 +9,7 @@ get the alignements.
 Usage : ./launch [OPTIONS]
 Usage
 -q      name of query file (required)
--d      name of data file (uniprot_sprot.fasta)
+-d      name of data file (required)
 -o      name of output file (result.txt)
 -n      number of results showed (10)
 -m      scoring matrix used for Smith-Waterman(blosum62)
@@ -29,7 +29,7 @@ int main( int argc, char **argv ){
   //Read arguments
 
   string queryFileName; //required so, no default value
-  string dataFileName = "uniprot_sprot.fasta"; //default value
+  string dataFileName; //required so, no default value
   string outputFile = "result.txt"; //default value;
   int numberOfResults = 10; //default value;
   string smMatrix = "blosum62"; //default value;
@@ -37,6 +37,7 @@ int main( int argc, char **argv ){
   int gapPenalityExpansion = 1; // default value;
 
   bool queryGiven = false; //We absolutely need the query
+  bool databaseGiven = false; //We also absolutely need the database
 
   for (int i = 1; i < argc-1; i++){
     if ((string)argv[i] == "-q"){
@@ -45,6 +46,7 @@ int main( int argc, char **argv ){
     }
     else if ((string)argv[i] == "-d"){
       dataFileName = argv[i+1];
+      databaseGiven = true;
     }
     else if ((string)argv[i] == "-o"){
       outputFile = argv[i+1];
@@ -63,8 +65,8 @@ int main( int argc, char **argv ){
     }
   }
 
-  if(!queryGiven){
-    cerr << "No query file given" << endl;
+  if(!queryGiven || !databaseGiven){
+    cerr << "No query file given or no databaseGiven" << endl;
     return 0;
   }
 

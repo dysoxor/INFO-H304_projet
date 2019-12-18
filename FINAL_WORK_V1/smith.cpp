@@ -181,6 +181,7 @@ void job(struct thread_data data){
 
             __m128i SUB1 = _mm_sub_epi16(S, OP);
 
+
             __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESC));
             __m128i MULTC2 = _mm_mullo_epi16(PCOL,CMPLTC);
             __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);
