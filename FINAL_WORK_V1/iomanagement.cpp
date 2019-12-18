@@ -76,7 +76,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   res+=name;
   res+='\n';
   int seqOffset = filePIN->getSqOffset(index);//position in .psq file of the found sequence
-  int size = filePIN->getSqOffset(index+1)-seqOffset;//size of the sequence's header
+  int size = filePIN->getSqOffset(index+1)-seqOffset;//size of the sequence
 
   //Conversion of the sequence of int from the database into a string readable for us
   string dbSeq = "";
@@ -84,7 +84,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     dbSeq+=intToChar[dataBase[i+seqOffset]];
   }
 
-  res += ("Length = " + to_string(dbSeq.size())+"\n");
+  res += ("Length = " + to_string(size-1)+"\n");
   res +=("Bitscore = " + to_string(score)+"\n");
   string alignement;
   int indexX;
@@ -144,18 +144,18 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   double posRatio = (double)posScore/sizeAlignement;
   double gapRatio = (double) gapScore/sizeAlignement;
   double idRatio = (double)idScore/sizeAlignement;
-  if ((int)(idRatio*100) > 0)
+  if (idScore > 0)
     res += ("Identities : "+to_string(idScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(idRatio*100))+"%), ");
-  if ((int)(posRatio*100) > 0)
+  if (posScore > 0)
     res += ("Positives : "+to_string(posScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(posRatio*100))+"%), ");
-  if ((int)(gapRatio*100) > 0)
+  if (gapScore > 0)
     res += ("Gaps : "+to_string(gapScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(gapRatio*100))+"%), ");
   res+="\n";
 
   int endX = x;
   int endY = y;
-  x = startX;
-  y = startY;
+  x = startX+1;
+  y = startY+1;
   int maxLenX = to_string(endX).size();
   int maxLenY = to_string(endY).size();
   int maxLenNumber = max(maxLenX, maxLenY);
@@ -202,7 +202,6 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     y+=(maxLine-gapY);
     allLine+= (to_string(y-1) + "\n");
 
-
     allLine+="\n";
   }
   //Now, we have to do it one more for the rest of the line
@@ -219,7 +218,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   allLine+= (" " +tempString + " ");
   gapX = count(tempString.begin(), tempString.end(), '-');
   x+=(restLineLength-gapX);
-  allLine+= (to_string(x) + "\n");
+  allLine+= (to_string(x-1) + "\n");
 
   //Alignement
 
@@ -240,7 +239,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   gapY = count(tempString.begin(), tempString.end(), '-');
 
   y+=(restLineLength-gapY);
-  allLine+= (to_string(y) + "\n");
+  allLine+= (to_string(y-1) + "\n");
 
 
   allLine+= "\n";
@@ -248,7 +247,12 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   return res;
 
 }
-void writeOutput(vector<vector<int>> results, string outputFile, string queryFileName, string dataBaseFileName, string queryName, string querySequence, chrono::time_point<chrono::system_clock> begin, PIN* filePIN, PSQ* filePSQ, PHR* filePHR){
+void writeOutput(vector<vector<int>> results, string outputFile,
+  string queryFileName, string dataBaseFileName, string queryName,
+  string querySequence, chrono::time_point<chrono::system_clock> begin,
+  PIN* filePIN, PSQ* filePSQ, PHR* filePHR, string smFile, int gap_ex,
+  int gap_op){
+
   string res = "";
   string temp = "";
 
@@ -292,6 +296,8 @@ void writeOutput(vector<vector<int>> results, string outputFile, string queryFil
   output << "Date : " << asctime(localtime(&actualTime)) << endl;
   output << "Database : "<< dataBaseFileName <<endl;
   output << "Number of sequences in database : " << filePIN->getNumSeq()<<endl;
+  output << "Scoring matrix : " << smFile << endl;
+  output << "Gap penalities : " << gap_op << "+"<< gap_ex<<"k" << endl;
   output << "Query file : " << queryFileName << endl;
   chrono::time_point<chrono::system_clock> end = chrono::system_clock::now();
   auto timeElapsed = chrono::duration_cast<chrono::microseconds>(end - begin).count();

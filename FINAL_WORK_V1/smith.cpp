@@ -191,13 +191,14 @@ void job(struct thread_data data){
 
             __m128i SUB1 = _mm_sub_epi16(S, OP);// sub1 = score - open Gap
 
-            __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESC));// =1 if score >= score Column || =0 if score < score Column
+
+            __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(SUB1, RESC));// =1 if score - open Gap >= score Column || =0 if score < score Column
             __m128i MULTC2 = _mm_mullo_epi16(PCOL,CMPLTC);
             __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);// new position = current column position if CMPLTC == 1 || new position does not change if CMPLTC == 0
             __m128i NEWMC = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTC), COL),_mm_mullo_epi16(CMPLTC, SUB1));// save the new relative maximum value of the column
 
             //same for line
-            __m128i CMPLTL = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESL));
+            __m128i CMPLTL = _mm_add_epi16(UNIT,_mm_cmplt_epi16(SUB1, RESL));
             __m128i MULTL2 = _mm_mullo_epi16(PLIN,CMPLTL);
             __m128i NEWMPL = _mm_max_epi16(PMLIN, MULTL2);
             __m128i NEWML = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTL), LIN),_mm_mullo_epi16(CMPLTL, SUB1));
@@ -340,6 +341,7 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
 	int value;
 	int n_line = 0;
 	int n_column = 0;
+  int first_number;
   vector<vector<int>> otherBlosumMatrix;
 	if (file.is_open()){
 		while(getline(file,line)){ //We check every line
@@ -361,8 +363,13 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
 					line.erase(0,1);//remove the letter of the line
 					for (int i = 0; i< line.length();i++){
 						if (line.at(i) != ' ' && line.at(i) != '-'){//We skip the '-' character
-							value = (int)line.at(i) -48; //ASCII digits starts at 48
-							if (i != 0 && line.at(i-1) == '-'){
+            first_number = 0;
+            if (i< line.length() -1 && line.at(i+1) != ' '){
+              first_number = (int)line.at(i+1) -48;
+              i++;
+            }
+            value = 10*(first_number) + (int)line.at(i) -48; //ASCII digits starts at 48
+            if (i != 0 && line.at(i-1) == '-'){
 								//If there is a '-' before the int, we have a negative value
 								value = -value;
 							}
@@ -375,6 +382,7 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
 			}
 		}
 		file.close();
+
     vector<int> tempv;
     tempv.assign(28,0);
     blosumMatrix.assign(28, tempv);
@@ -400,7 +408,6 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
           valueX = default_column;
         } else{
           valueX = charToInt[conversionTable[i]];
-
         }
         if (charToInt.find(conversionTable[j]) == charToInt.end()){
           valueY = default_column;
@@ -484,6 +491,7 @@ void matching(int seq1[], int index, char db[], int len1, int len2){
 	int blosumGet;
 	int aa1;
 	int aa2;
+  int possibleValue;
 
   for (int i = 1; i < len1+1; i++){
     //We switch line1 and line2
@@ -499,17 +507,17 @@ void matching(int seq1[], int index, char db[], int len1, int len2){
 			temp[3] = line1[j-1] + blosumGet; //diag
 			tempIndex = findMax(temp,4);
 			line2[j] = temp[tempIndex];
-
-      if (temp[tempIndex] >= temp[1]){
+      possibleValue = temp[tempIndex] -gap_op;
+      if (possibleValue >= temp[1]){
         //We memoized the relative maximum of the column and its position
-        maxColumn[i] = temp[tempIndex] - gap_op;
+        maxColumn[i] = possibleValue;
         posYmaxColumn[i] = j;
       }
-      if (temp[tempIndex]>= temp[2]){
-        maxLine[j] = temp[tempIndex] - gap_op;
+      if (possibleValue >= temp[2]){
+        maxLine[j] = possibleValue;
         posXmaxLine[j] = i;
       }
-      if (temp[tempIndex] > maxValue){
+      if (temp[tempIndex] >= maxValue){
 				maxValue = temp[tempIndex];
 				maxX = i;
 				maxY = j;
@@ -523,7 +531,6 @@ void matching(int seq1[], int index, char db[], int len1, int len2){
 				}
 			}
 			rootAlignement[i][j] = tempIndex;
-
     }
   }
   double lambda = 0.267;
@@ -549,6 +556,11 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ,
   PIN* filePIN = globalPIN;
 	int dbSize = filePIN->getNumSeq();
   seqContainer = filePSQ->getDatabase();
+
+  //If the nbResults is too high, we set a maximum value
+  if(nbResults > dbSize){
+    nbResults = dbSize;
+  }
 
   //We set up the BlosumMatrix
 	if(setupBlosumMatrix(smMatrix)){
@@ -613,13 +625,14 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ,
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 	vector<int> tempRes;
 	int compt = 0;
+
   //The elements are sorted in ascending order
 	for (int i = indexList.size()-1; i > indexList.size()-1 -nbResults; i--){
 			tempRes.clear();
 			tempRes.push_back(indexList[i]);
 			tempRes.push_back(scoreList[i]);
 			seqOffset = filePIN->getSqOffset(indexList[i]);
-			size = filePIN->getSqOffset(indexList[i]+1)-filePIN->getSqOffset(indexList[i]);
+			size = filePIN->getSqOffset(indexList[i]+1)-seqOffset;
       //We redo the algorithm but only on the #nbResults best results to get the traceback
 			matching(query,seqOffset,filePSQ->getDatabase(),len1,size);
 			tempRes.insert(tempRes.end(), alignementList[compt].begin(), alignementList[compt].end());
