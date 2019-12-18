@@ -5,10 +5,47 @@ The purpose of this code is to align a query sequence with all the proteins
 from the database. It uses the Smith-Watermann Algorithm to get scores and to
 get the alignements in an output file (result.txt by default).
 
+To launch the program, use the instruction ./launch.
+It will do a bash run, which is used to avoid random segmentation faults,
+because of the SIMD and multithreading implementation. If a segmentation fault
+occur, it simply restarts the program.
+
+
+In this bash code, we start the executable file, which is "find", and we
+give him the args from the bash program.
+
+"find" will check all the args are will verify if the query and the
+database are given. Without them, we cannot run the algorithm.
+Once all the parameters are verified and that at least, the query
+and the database are given, we launch the program.
+
+First, we read in the *.pin file, in order to get all the information
+about the database, such as the offsets.
+Then, we charge the content of the *.psq file in memory, in order
+to access it faster.
+
+The algorithm can now be executed.
+
+The program works in 2 times.
+
+First, we calculate the alignement
+score of every sequence in the database, using SIMD parallelisation.
+If the computer has more than one core, we dispatch the work
+in order to go faster.
+Then, for the #n best results, we reapply the algorithm to find the
+alignement itself. This part don't use SIMD parallelisation.
+However, it can be implemented but the number of results asked
+are generally much lower than the number of sequences in the database.
+The gain is thus not significant for a #n lower enough.
+
+Once all the alignements are done, we can write the results in
+the output file.
+
+
 Usage : ./launch [OPTIONS]
 Usage
 -q      name of query file (required)
--d      name of data file (uniprot_sprot.fasta)
+-d      name of data file (required)
 -o      name of output file (result.txt)
 -n      number of results showed (10)
 -m      scoring matrix used for Smith-Waterman(blosum62)

@@ -535,6 +535,11 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
 	int dbSize = filePIN->getNumSeq();
   seqContainer = filePSQ->getDatabase();
 
+  //If the nbResults is too high, we set a maximum value
+  if(nbResults > dbSize){
+    nbResults = dbSize;
+  }
+
   //We set up the BlosumMatrix
 	if(setupBlosumMatrix(smMatrix)){
     return results;
@@ -597,6 +602,7 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
 	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
 	vector<int> tempRes;
 	int compt = 0;
+  
   //The elements are sorted in ascending order
 	for (int i = indexList.size()-1; i > indexList.size()-1 -nbResults; i--){
 			tempRes.clear();
