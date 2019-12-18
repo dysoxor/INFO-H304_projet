@@ -1,12 +1,12 @@
 # INFO-H304_projet
 project info-H304 2019-2020 written by Andrey Sobolevsky, Franck Trouillez et Tristan Smeesters
 
-The final version of codes is in the 'FINAL_WORK' folder which contains also a 'README' which explains how execute the code. You can find there result files '.txt' of P00533, Q9Y6V0 and P07327 which are proteins. These alignments were calculate with Smith-Waterman algorithm and optimised with threads and SIMD.
+The final version of codes is in the 'FINAL_WORK' folder which contains also a 'README' which explains how execute the code. The alignment is calculated with Smith-Waterman algorithm and optimised with threads and SIMD. Result files (.txt) of P00533, Q9Y6V0 and P07327 are available in the folder.
 
-A reduced database can be made by compiling and executing codes in 'create_database'
+A reduced database can be made by compiling and executing codes in 'create_database'.
 
-The simpliest form of this work is in 'INTERMEDIATE_WORK' which only find the perfect match of the query in the database
+The simpliest form of this work is in 'INTERMEDIATE_WORK' which only find the perfect match of the query in the database.
 
-Codes written from the begining to the end of the project are stored in 'PROGRESS'
+Codes written from the begining to the end of the project are stored in 'PROGRESS'.
 
 updated on December 18, 2019
