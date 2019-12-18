@@ -53,3 +53,5 @@ Usage
 -m      scoring matrix used for Smith-Waterman(blosum62)
 -gpo    gap penality opening (11)
 -gpe    gap penality expansion (1)
+
+updated on December 18, 2019
