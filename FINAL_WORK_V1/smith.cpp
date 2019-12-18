@@ -33,75 +33,80 @@ struct thread_data{
 };
 
 void job(struct thread_data data){
+  /*----------------------------------------------------------------------------------------------------------
+    score calctulation using SIMD for 16 sequences in parallel
+  -----------------------------------------------------------------------------------------------------------*/
+
     int begin = data.begin;
     int end = data.end;
     int len1 = data.len1;
     int *query = data.query;
     int dbSize = end;
+    //--------------------------------INITIALIZING-------------------------------------------------------------
 
-    //------------------------------------------------------ SIMD PRELIM ------------------------------------------
-    __attribute__((aligned (16))) int16_t score [16];
-    __attribute__((aligned (16))) int16_t diagGap[16];
-    __attribute__((aligned (16))) int16_t opGap[16];
-    __attribute__((aligned (16))) int16_t leftScore[len1+1][16];
-    __attribute__((aligned (16))) int16_t exGap[16];
-    __attribute__((aligned (16))) int16_t maxScore[16];
-    __attribute__((aligned (16))) int16_t zero[16];
+    __attribute__((aligned (16))) int16_t score[16]; //current score for 16 different sequences
+    __attribute__((aligned (16))) int16_t diagGap[16]; //score on diagonal from the current position
+    __attribute__((aligned (16))) int16_t opGap[16]; //opening gap
+    __attribute__((aligned (16))) int16_t leftScore[len1+1][16]; // score on left from the current position
+    __attribute__((aligned (16))) int16_t exGap[16]; //extend gap
+    __attribute__((aligned (16))) int16_t maxScore[16]; //memorize the maximum score
+    __attribute__((aligned (16))) int16_t zero[16]; //need a self-made matrix of 0 for the SIMD part
 
-    __attribute__((aligned (16))) int16_t maxPosLine[len1][16];
-    __attribute__((aligned (16))) int16_t maxPosCol[16];
-    __attribute__((aligned (16))) int16_t maxColVal[16];
-    __attribute__((aligned (16))) int16_t maxLineVal[len1][16];
-    __attribute__((aligned (16))) int16_t ColPos[16];
-    __attribute__((aligned (16))) int16_t LinePos[16];
-    __attribute__((aligned (16))) int16_t colScore[16];
-    __attribute__((aligned (16))) int16_t lineScore[16];
-    __attribute__((aligned (16))) int16_t unit[16];
+    __attribute__((aligned (16))) int16_t maxPosLine[len1][16]; //to memorize the position of the maximum score for each lines
+    __attribute__((aligned (16))) int16_t maxPosCol[16]; //to memorize the position of the maximum score of the current column
+    __attribute__((aligned (16))) int16_t maxColVal[16]; //to memorize the maximum of the column
+    __attribute__((aligned (16))) int16_t maxLineVal[len1][16];//to memorize the maximum of the line
+    __attribute__((aligned (16))) int16_t ColPos[16];//need current position on the column to calculate score
+    __attribute__((aligned (16))) int16_t LinePos[16];//position on the line
+    __attribute__((aligned (16))) int16_t colScore[16];//calculate the score from up
+    __attribute__((aligned (16))) int16_t lineScore[16];//calculate the score from left
+    __attribute__((aligned (16))) int16_t unit[16];//matrix of 1
 
-
+    //initializing constant variables
     for(int i = 0; i < 16; i++){
       zero[i] = 0;
       unit[i] = 1;
+      opGap[i] = 11;
+      exGap[i] = 1;
     }
 
 
-    vector<int> analysedSequences(16);
-    int analysedSeqIndex[16];
-    int len[16];
+    vector<int> analysedSequences(16);//position of 16 analysed sequences in database
+    int analysedSeqIndex[16];//offset of these analysed sequences
+    int len[16];//size
     fill_n(len, 16, 0);
-    int freePosition = 0;
-    int residue[16];
-    int tempScore;
+    int freePosition = 0;//if a sequence finish the calculations it is replaced by another sequence in analysedSequences
+    int residue[16];//each nucleon of the sequence
   	int seqOffset;
-  	int size;
 
-    bool done = false;
+    bool done = false;//if nothing more to analyse it becomes true
 
-    bool firstLine = false;
+    bool firstLine = false;//managing the left and diagonal scores because they are stored in the same matrix 'leftScore'
 
-
-    //--------------------------------------- End PRELIM -------------------------------------------------
-
-
+    //normalized scores
     double lambda = 0.267;
     double logk = -3.34;
     double bitscore;
-    int index[16];
+
+    int index[16];// store index of the sequences from database
+
+    //------------------------------------- End initializing ----------------------------------------------------------
+
     for(int i=begin; i <end ; i++){
 
-      //--------------------------------------------- SIMD ------------------------------------------
-      if(freePosition != -1){
+      if(freePosition != -1){//if there is a free place in analysedSequences
         index[freePosition] = i;
     		seqOffset = globalPIN->getSqOffset(i);//position in .psq file of the found sequence
         analysedSequences[freePosition] = seqOffset;
         len[freePosition] = globalPIN->getSqOffset(i+1)-seqOffset;
         analysedSeqIndex[freePosition] = 0;
-        freePosition = -1;
-        for(int t = 0; t < 16; t++){
 
+        freePosition = -1;
+
+        for(int t = 0; t < 16; t++){
           if(len[t] > analysedSeqIndex[t]){
             residue[t] = seqContainer[analysedSequences[t]+analysedSeqIndex[t]];
-            done = false;
+            done = false;//while something to analyse done = false
           }
           else{
             residue[t] = -1;
@@ -112,10 +117,11 @@ void job(struct thread_data data){
       }
       while(!done && (freePosition == -1 || i == dbSize-1)){
         done = true;
-        for(int l = 0; l < len1; l++){
-          for(int j = 0; j < 16; j++){
-            if(l == 0){
-              if(analysedSeqIndex[j] == 0){
+
+        for(int l = 0; l < len1; l++){//calculating scores for each residues with all query
+          for(int j = 0; j < 16; j++){//before the SIMD need some initializes
+            if(l == 0){//if it is at the first element of the query
+              if(analysedSeqIndex[j] == 0){//if it is at the first element of the sequence from database
                 for(int i = 0; i < len1+1; i++){
                   leftScore[i][j] = 0;
                   if(i != len1){
@@ -123,18 +129,16 @@ void job(struct thread_data data){
                     maxLineVal[i][j] = 0;
                   }
                 }
-                opGap[j] = 11;
-                exGap[j] = 1;
+
                 maxScore[j] = 0;
               }
+
               maxPosCol[j] = 0;
               maxColVal[j] = 0;
             }
+
             ColPos[j] = l;
             LinePos[j] = analysedSeqIndex[j];
-
-            colScore[j] = 0;
-            lineScore[j] = 0;
             if(residue[j] != -1){
               diagGap[j] = blosumMatrix[query[l]][residue[j]];
             }
@@ -142,7 +146,11 @@ void job(struct thread_data data){
               diagGap[j] = 0;
             }
           }
-          for(int w = 0; w < 2; w++){
+
+          for(int w = 0; w < 2; w++){//do it 2 times because matrices are stored on 256 bits and the SSE takes 128 bits
+
+            //--------------------------------- LOADING --------------------------------
+
             __m128i Z = _mm_load_si128((__m128i*) &zero[w*8]);
             __m128i RESC = _mm_load_si128((__m128i*) &colScore[w*8]);
             __m128i RESL = _mm_load_si128((__m128i*) &lineScore[w*8]);
@@ -164,33 +172,37 @@ void job(struct thread_data data){
             __m128i M = _mm_load_si128((__m128i*) &maxScore[w*8]);
             __m128i UNIT = _mm_load_si128((__m128i*) &unit[w*8]);
 
+            //------------------------------- calculating ---------------------------------------------
+
 
             __m128i SUBC2 = _mm_sub_epi16(PCOL,PMCOL);
             __m128i MULTC = _mm_mullo_epi16(EX,SUBC2);
-            RESC = _mm_sub_epi16(COL,MULTC);
+            RESC = _mm_sub_epi16(COL,MULTC);// score Column = max score Column - extend Gap*(position Column - max position Column)
 
             __m128i SUBL2 = _mm_sub_epi16(PLIN,PMLIN);
             __m128i MULTL = _mm_mullo_epi16(EX,SUBL2);
-            RESL = _mm_sub_epi16(LIN,MULTL);
+            RESL = _mm_sub_epi16(LIN,MULTL);// score Line = max score Line - extend Gap*(position Line - max position Line)
 
-            S = _mm_add_epi16(D,P);
+            S = _mm_add_epi16(D,P);// score = diagonal Score + blosumMatrix[query(l)][sequence from databse(k)]
 
-            S = _mm_max_epi16(S,RESC);
-            S = _mm_max_epi16(S,RESL);
-            S = _mm_max_epi16(S,Z);
+            S = _mm_max_epi16(S,RESC);// score = max(score, score Column)
+            S = _mm_max_epi16(S,RESL);// score = max(score, score Line)
+            S = _mm_max_epi16(S,Z);// score = max(score, 0)
 
-            __m128i SUB1 = _mm_sub_epi16(S, OP);
+            __m128i SUB1 = _mm_sub_epi16(S, OP);// sub1 = score - open Gap
 
-
-            __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESC));
+            __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESC));// =1 if score >= score Column || =0 if score < score Column
             __m128i MULTC2 = _mm_mullo_epi16(PCOL,CMPLTC);
-            __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);
-            __m128i NEWMC = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTC), COL),_mm_mullo_epi16(CMPLTC, SUB1));
+            __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);// new position = current column position if CMPLTC == 1 || new position does not change if CMPLTC == 0
+            __m128i NEWMC = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTC), COL),_mm_mullo_epi16(CMPLTC, SUB1));// save the new relative maximum value of the column
 
+            //same for line
             __m128i CMPLTL = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESL));
             __m128i MULTL2 = _mm_mullo_epi16(PLIN,CMPLTL);
             __m128i NEWMPL = _mm_max_epi16(PMLIN, MULTL2);
             __m128i NEWML = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTL), LIN),_mm_mullo_epi16(CMPLTL, SUB1));
+
+            //-------------------------------------- Storing the results in the arrays -------------------------------------------------------
 
             _mm_store_si128((__m128i*)&score[w*8], S);
             _mm_store_si128((__m128i*)&leftScore[l][w*8], S);
@@ -199,10 +211,11 @@ void job(struct thread_data data){
             _mm_store_si128((__m128i*)&maxPosLine[l][w*8], NEWMPL);
             _mm_store_si128((__m128i*)&maxLineVal[l][w*8], NEWML);
             _mm_store_si128((__m128i*)&maxScore[w*8], M = _mm_max_epi16(S,M));
-            _mm_store_si128((__m128i*)&colScore[w*8], RESC);
-            _mm_store_si128((__m128i*)&lineScore[w*8], RESL);
           }
-          if(l == len1-1){
+
+
+          if(l == len1-1){// if at the end of the column for the next colum the
+            //leftScore has to be offseted because currently the diagonal score is the left score
             for(int f = len1-1; f >= 0; f--){
               if(f == 0)
                 firstLine = true;
@@ -211,7 +224,7 @@ void job(struct thread_data data){
             }
           }
         }
-        for(int k = 0 ; k < 16; k++){
+        for(int k = 0 ; k < 16; k++){// updating the analysed sequences from database
           if(residue[k] != -1)
             analysedSeqIndex[k]++;
           if(len[k] > analysedSeqIndex[k]){
@@ -240,6 +253,9 @@ void job(struct thread_data data){
 }
 
 int findMax(int tableau[], int size){
+  /*
+  finding max in an array of a given size
+  */
 	int res = 0;
 	for (int i = 1; i < size; i++){
 		if (tableau[i]>tableau[res]){
@@ -401,7 +417,10 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
   return EXIT_SUCCESS;
 }
 
-void traceback(int maxX, int maxY, int sizeX, int sizeY, vector<vector<int>> rootAlignement){
+void traceback(int maxX, int maxY, vector<vector<int>> rootAlignement){
+  /*
+  Building the alignment between 2 sequences
+  */
 	int x = maxX;
 	int y = maxY;
 	vector<int> alignement;//we start from the end
@@ -510,14 +529,16 @@ void matching(int seq1[], int index, char db[], int len1, int len2){
   double lambda = 0.267;
   double logk = -3.34;
   double bitscore = (lambda*(double)(maxValue) - logk)/log(2);
-	traceback(maxX,maxY, len1+1, len2+1,rootAlignement);
+	traceback(maxX,maxY,rootAlignement);
 	delete line1;
 	delete line2;
 }
 
 
 
-vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string smMatrix, int gpo, int gpe, int nbResults){
+vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ,
+  string smMatrix, int gpo, int gpe, int nbResults){
+
   vector<vector<int>> results;
   //This is the first function which is called
   //We set up the global variables
@@ -584,6 +605,7 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
   for (int n = 1; n < n_cores ; n++){
     threads[n].join();
   }
+
   //--------END MULTI-THREADING ---------
 
   int seqOffset;
@@ -604,12 +626,15 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
 			results.push_back(tempRes);
 			compt++;
 	}
+
 	return results;
 }
 
 void offset(int16_t* leftScore, int16_t* diagonalScore, int16_t* zero, bool firstLine){
   for(int i = 0; i < 2; i++){
-
+    /*
+    Offseting 1 matrice with 2 submatrices of this leftScore and diagonalScore
+    */
     __m128i L = _mm_load_si128((__m128i*) &leftScore[i*8]);
     __m128i D = _mm_load_si128((__m128i*) &diagonalScore[i*8]);
     _mm_store_si128((__m128i*)&leftScore[i*8], D);

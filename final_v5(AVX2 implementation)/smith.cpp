@@ -507,9 +507,18 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
         }
 
         //for(int w = 0; w < 2; w++){
-        __attribute__((aligned (16))) int16_t* mlv = &maxLineVal[l][0];
-        __attribute__((aligned (16))) int16_t* mpl = &maxPosLine[l][0];
-        __attribute__((aligned (16))) int16_t* ls = &leftScore[l][0];
+        __attribute__((aligned (16))) int16_t mlv[16];
+        __attribute__((aligned (16))) int16_t mpl[16];
+        __attribute__((aligned (16))) int16_t ls[16];
+
+        for(int c = 0; c < 16; c++){
+          mlv[c] = maxLineVal[l][c];
+          mpl[c] = maxPosLine[l][c];
+          ls[c] = leftScore[l][c];
+        }
+
+
+
         __m256i Z = _mm256_load_si256((__m256i*) &zero);
         __m256i RESC = _mm256_load_si256((__m256i*) &colScore);
         __m256i RESL = _mm256_load_si256((__m256i*) &lineScore);
@@ -549,12 +558,12 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
 
         __m256i SUB1 = _mm256_sub_epi16(S, OP);
 
-        __m256i CMPLTC = _mm256_add_epi16(UNIT,_mm256_cmpgt_epi16(S,RESC));
+        __m256i CMPLTC = _mm256_add_epi16(UNIT,_mm256_cmpgt_epi16(RESC, S));
         __m256i MULTC2 = _mm256_mullo_epi16(PCOL,CMPLTC);
         __m256i NEWMPC = _mm256_max_epi16(PMCOL, MULTC2);
         __m256i NEWMC = _mm256_max_epi16(_mm256_mullo_epi16(_mm256_sub_epi16(UNIT,CMPLTC), COL),_mm256_mullo_epi16(CMPLTC, SUB1));
 
-        __m256i CMPLTL = _mm256_add_epi16(UNIT,_mm256_cmpgt_epi16(S,RESL));
+        __m256i CMPLTL = _mm256_add_epi16(UNIT,_mm256_cmpgt_epi16(RESL, S));
         __m256i MULTL2 = _mm256_mullo_epi16(PLIN,CMPLTL);
         __m256i NEWMPL = _mm256_max_epi16(PMLIN, MULTL2);
         __m256i NEWML = _mm256_max_epi16(_mm256_mullo_epi16(_mm256_sub_epi16(UNIT,CMPLTL), LIN),_mm256_mullo_epi16(CMPLTL, SUB1));
@@ -568,6 +577,12 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
         _mm256_store_si256((__m256i*)&maxScore, M = _mm256_max_epi16(S,M));
         _mm256_store_si256((__m256i*)&colScore, RESC);
         _mm256_store_si256((__m256i*)&lineScore, RESL);
+
+        for(int c = 0; c < 16; c++){
+          maxLineVal[l][c] = mlv[c];
+          maxPosLine[l][c] = mpl[c];
+          leftScore[l][c] = ls[c];
+        }
         //}
         /*for(int x = 0; x < 16; x++){
           if(score[x] == colScore[x])
