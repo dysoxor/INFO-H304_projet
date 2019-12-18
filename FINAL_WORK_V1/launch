@@ -10,7 +10,7 @@ while [ 1 ]; do
   ./find $@ && break
   if (( $errors == 10 )); then
     exec 2>&1
-    echo "Erreur, trop d'erreurs de segmentation"
+    echo "Error, too many segmentation faults"
     break
   fi
 done

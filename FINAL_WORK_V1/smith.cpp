@@ -34,7 +34,7 @@ struct thread_data{
 
 void job(struct thread_data data){
   /*----------------------------------------------------------------------------------------------------------
-    score calctulation using SIMD for 16 sequences in parallel
+    score calculation using SIMD for 16 sequences in parallel
   -----------------------------------------------------------------------------------------------------------*/
 
     int begin = data.begin;
@@ -547,7 +547,7 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ,
   string smMatrix, int gpo, int gpe, int nbResults){
 
   vector<vector<int>> results;
-  //This is the first function which is called
+  //This is the first function which is called in this file
   //We set up the global variables
   gap_op = gpo;
 	gap_ex = gpe;
@@ -576,7 +576,7 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ,
 		{'*',25},{'O',26},{'J',27}
 	};
 
-  //We change the query into a int[]
+  //We change the query into an int[]
   int query[len1];
 	for (int i = 0; i < len1; i++){
 		query[i] = charToInt[Squery.at(i)];//.push_back(conversionTable[query.at(i)]);
