@@ -1,13 +1,9 @@
-
-
 #include "output.h"
-
 
 char intToChar[28] ={
   '-','A','B','C','D','E','F','G','H','I',
   'K','L','M','N','P','Q','R','S','T','V',
   'W','X','Y','Z','U','*','O','J'};
-
 
 pair<string, string> readFasta(string file){
   ifstream input(file);

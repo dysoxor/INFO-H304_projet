@@ -506,69 +506,67 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
 
         }
 
-        //for(int w = 0; w < 2; w++){
-        __attribute__((aligned (16))) int16_t* mlv = &maxLineVal[l][0];
-        __attribute__((aligned (16))) int16_t* mpl = &maxPosLine[l][0];
-        __attribute__((aligned (16))) int16_t* ls = &leftScore[l][0];
-        __m256i Z = _mm256_load_si256((__m256i*) &zero);
-        __m256i RESC = _mm256_load_si256((__m256i*) &colScore);
-        __m256i RESL = _mm256_load_si256((__m256i*) &lineScore);
-        __m256i S = _mm256_load_si256((__m256i*) &score);
+        for(int w = 0; w < 2; w++){
 
-        __m256i OP = _mm256_load_si256((__m256i*) &opGap);
-        __m256i COL = _mm256_load_si256((__m256i*) &maxColVal);
-        __m256i PMCOL = _mm256_load_si256((__m256i*) &maxPosCol);
-        __m256i PCOL = _mm256_load_si256((__m256i*) &ColPos);
+          __m128i Z = _mm_load_si128((__m128i*) &zero[w*8]);
+          __m128i RESC = _mm_load_si128((__m128i*) &colScore[w*8]);
+          __m128i RESL = _mm_load_si128((__m128i*) &lineScore[w*8]);
+          __m128i S = _mm_load_si128((__m128i*) &score[w*8]);
 
-        __m256i EX = _mm256_load_si256((__m256i*) &exGap);
-        __m256i LIN = _mm256_load_si256((__m256i*) &mlv);
-        __m256i PMLIN = _mm256_load_si256((__m256i*) &mpl);
-        __m256i PLIN = _mm256_load_si256((__m256i*) &LinePos);
+          __m128i OP = _mm_load_si128((__m128i*) &opGap[w*8]);
+          __m128i COL = _mm_load_si128((__m128i*) &maxColVal[w*8]);
+          __m128i PMCOL = _mm_load_si128((__m128i*) &maxPosCol[w*8]);
+          __m128i PCOL = _mm_load_si128((__m128i*) &ColPos[w*8]);
 
-        __m256i D = _mm256_load_si256((__m256i*) &ls);
-        __m256i P = _mm256_load_si256((__m256i*) &diagGap);
+          __m128i EX = _mm_load_si128((__m128i*) &exGap[w*8]);
+          __m128i LIN = _mm_load_si128((__m128i*) &maxLineVal[l][w*8]);
+          __m128i PMLIN = _mm_load_si128((__m128i*) &maxPosLine[l][w*8]);
+          __m128i PLIN = _mm_load_si128((__m128i*) &LinePos[w*8]);
 
-        __m256i M = _mm256_load_si256((__m256i*) &maxScore);
-        __m256i UNIT = _mm256_load_si256((__m256i*) &unit);
+          __m128i D = _mm_load_si128((__m128i*) &leftScore[l][w*8]);
+          __m128i P = _mm_load_si128((__m128i*) &diagGap[w*8]);
+
+          __m128i M = _mm_load_si128((__m128i*) &maxScore[w*8]);
+          __m128i UNIT = _mm_load_si128((__m128i*) &unit[w*8]);
 
 
 
-        __m256i SUBC2 = _mm256_sub_epi16(PCOL,PMCOL);
-        __m256i MULTC = _mm256_mullo_epi16(EX,SUBC2);
-        RESC = _mm256_sub_epi16(COL,MULTC);
+          __m128i SUBC2 = _mm_sub_epi16(PCOL,PMCOL);
+          __m128i MULTC = _mm_mullo_epi16(EX,SUBC2);
+          RESC = _mm_sub_epi16(COL,MULTC);
 
-        __m256i SUBL2 = _mm256_sub_epi16(PLIN,PMLIN);
-        __m256i MULTL = _mm256_mullo_epi16(EX,SUBL2);
-        RESL = _mm256_sub_epi16(LIN,MULTL);
+          __m128i SUBL2 = _mm_sub_epi16(PLIN,PMLIN);
+          __m128i MULTL = _mm_mullo_epi16(EX,SUBL2);
+          RESL = _mm_sub_epi16(LIN,MULTL);
 
-        S = _mm256_add_epi16(D,P);
+          S = _mm_add_epi16(D,P);
 
-        S = _mm256_max_epi16(S,RESC);
-        S = _mm256_max_epi16(S,RESL);
-        S = _mm256_max_epi16(S,Z);
+          S = _mm_max_epi16(S,RESC);
+          S = _mm_max_epi16(S,RESL);
+          S = _mm_max_epi16(S,Z);
 
-        __m256i SUB1 = _mm256_sub_epi16(S, OP);
+          __m128i SUB1 = _mm_sub_epi16(S, OP);
 
-        __m256i CMPLTC = _mm256_add_epi16(UNIT,_mm256_cmpgt_epi16(S,RESC));
-        __m256i MULTC2 = _mm256_mullo_epi16(PCOL,CMPLTC);
-        __m256i NEWMPC = _mm256_max_epi16(PMCOL, MULTC2);
-        __m256i NEWMC = _mm256_max_epi16(_mm256_mullo_epi16(_mm256_sub_epi16(UNIT,CMPLTC), COL),_mm256_mullo_epi16(CMPLTC, SUB1));
+          __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESC));
+          __m128i MULTC2 = _mm_mullo_epi16(PCOL,CMPLTC);
+          __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);
+          __m128i NEWMC = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTC), COL),_mm_mullo_epi16(CMPLTC, SUB1));
 
-        __m256i CMPLTL = _mm256_add_epi16(UNIT,_mm256_cmpgt_epi16(S,RESL));
-        __m256i MULTL2 = _mm256_mullo_epi16(PLIN,CMPLTL);
-        __m256i NEWMPL = _mm256_max_epi16(PMLIN, MULTL2);
-        __m256i NEWML = _mm256_max_epi16(_mm256_mullo_epi16(_mm256_sub_epi16(UNIT,CMPLTL), LIN),_mm256_mullo_epi16(CMPLTL, SUB1));
+          __m128i CMPLTL = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESL));
+          __m128i MULTL2 = _mm_mullo_epi16(PLIN,CMPLTL);
+          __m128i NEWMPL = _mm_max_epi16(PMLIN, MULTL2);
+          __m128i NEWML = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTL), LIN),_mm_mullo_epi16(CMPLTL, SUB1));
 
-        _mm256_store_si256((__m256i*)&score, S);
-        _mm256_store_si256((__m256i*)&ls, S);
-        _mm256_store_si256((__m256i*)&maxPosCol, NEWMPC);
-        _mm256_store_si256((__m256i*)&maxColVal, NEWMC);
-        _mm256_store_si256((__m256i*)&mpl, NEWMPL);
-        _mm256_store_si256((__m256i*)&mlv, NEWML);
-        _mm256_store_si256((__m256i*)&maxScore, M = _mm256_max_epi16(S,M));
-        _mm256_store_si256((__m256i*)&colScore, RESC);
-        _mm256_store_si256((__m256i*)&lineScore, RESL);
-        //}
+          _mm_store_si128((__m128i*)&score[w*8], S);
+          _mm_store_si128((__m128i*)&leftScore[l][w*8], S);
+          _mm_store_si128((__m128i*)&maxPosCol[w*8], NEWMPC);
+          _mm_store_si128((__m128i*)&maxColVal[w*8], NEWMC);
+          _mm_store_si128((__m128i*)&maxPosLine[l][w*8], NEWMPL);
+          _mm_store_si128((__m128i*)&maxLineVal[l][w*8], NEWML);
+          _mm_store_si128((__m128i*)&maxScore[w*8], M = _mm_max_epi16(S,M));
+          _mm_store_si128((__m128i*)&colScore[w*8], RESC);
+          _mm_store_si128((__m128i*)&lineScore[w*8], RESL);
+        }
         /*for(int x = 0; x < 16; x++){
           if(score[x] == colScore[x])
             match[x] = 1;

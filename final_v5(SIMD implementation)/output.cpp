@@ -58,8 +58,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   int index = result[0];
   int score = result[1];
   //We get the offSet in the sequence of query and subject
-  int startX = result[result.size()-1];
-  int startY = result[result.size()-2];
+  int startX = result[result.size()-1]-1;
+  int startY = result[result.size()-2]-1;
   string name = filePHR->read(filePIN, index, db);
   res+=">";
   //We don't want a too long line so we seperate it into lines of
