@@ -1,3 +1,16 @@
 #!/bin/bash
+#We use this launcher to avoid random segmentation faults
+#Because of the multithreading and SIMD, some segmentation faults can occur
+#If it happens, we just restart the program, until the job is done
+
 exec 2> /dev/null
-while [ 1 ]; do ./find $@ && break; done
+errors = 0
+while [ 1 ]; do
+  errors=$((errors+1))
+  ./find $@ && break
+  if (( $errors == 10 )); then
+    exec 2>&1
+    echo "Erreur, trop d'erreurs de segmentation"
+    break
+  fi
+done

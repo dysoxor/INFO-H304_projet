@@ -17,10 +17,9 @@ Usage
 -gpe    gap penality expansion (1)
 */
 
-#include "output.h"
+#include "iomanagement.h"
 
 int main( int argc, char **argv ){
-
   // It verifies if there is less than the maximum parameters allowed
   if( argc > 15 ){ //Problem because we allow maximum 7 parameters (+ 7 flags)
       cerr << "Program need 7 parameters maximum" << endl;
@@ -101,7 +100,11 @@ int main( int argc, char **argv ){
   vector<vector<int>> results;
   results = dbAlignment(dataFileName, content, filePSQ, smMatrix, gapPenalityOpening,
     gapPenalityExpansion,numberOfResults);
-
+  if(results.size() == 0){
+    cout << "No results from the algorithm" << endl;
+    return 0;
+  }
+  //Create the PHR object, which is needed to find the titles
   PHR* filePHR = new PHR();
   if(filePHR->charge(filePIN, dataFileName)){
     cout << "Error in PHR charging" << endl;

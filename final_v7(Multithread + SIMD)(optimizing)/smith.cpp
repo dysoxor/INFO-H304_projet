@@ -1,6 +1,11 @@
 #include "smith.h"
 
+/*
+This file contains all the calculations for the algorithm
+This program use SIMD and multithreading if the computer allows it.
+*/
 
+//We declare global variables which are constantly used
 
 vector<vector<int>> blosumMatrix;
 map<char,int> charToInt;
@@ -20,247 +25,218 @@ char conversionTable[28] ={
   'K','L','M','N','P','Q','R','S','T','V',
   'W','X','Y','Z','U','*','O','J'};
 
-  struct thread_data{
-    int* query;
-    int len1;
-    int begin;
-    int end;
-  };
+struct thread_data{
+  int* query;
+  int len1;
+  int begin;
+  int end;
+};
 
-  void job(struct thread_data data){
-      int begin = data.begin;
-      int end = data.end;
-      int len1 = data.len1;
-      int *query = data.query;
-      int dbSize = end;
+void job(struct thread_data data){
+    int begin = data.begin;
+    int end = data.end;
+    int len1 = data.len1;
+    int *query = data.query;
+    int dbSize = end;
 
-      //------------------------------------------------------ SIMD PRELIM ------------------------------------------
-      __attribute__((aligned (16))) int16_t score [16];
-      __attribute__((aligned (16))) int16_t diagGap[16];
-      __attribute__((aligned (16))) int16_t opGap[16];
-      __attribute__((aligned (16))) int16_t leftScore[len1+1][16];
-      __attribute__((aligned (16))) int16_t exGap[16];
-      __attribute__((aligned (16))) int16_t maxScore[16];
-      __attribute__((aligned (16))) int16_t zero[16];
+    //------------------------------------------------------ SIMD PRELIM ------------------------------------------
+    __attribute__((aligned (16))) int16_t score [16];
+    __attribute__((aligned (16))) int16_t diagGap[16];
+    __attribute__((aligned (16))) int16_t opGap[16];
+    __attribute__((aligned (16))) int16_t leftScore[len1+1][16];
+    __attribute__((aligned (16))) int16_t exGap[16];
+    __attribute__((aligned (16))) int16_t maxScore[16];
+    __attribute__((aligned (16))) int16_t zero[16];
 
-      __attribute__((aligned (16))) int16_t maxPosLine[len1][16];
-      __attribute__((aligned (16))) int16_t maxPosCol[16];
-      __attribute__((aligned (16))) int16_t maxColVal[16];
-      __attribute__((aligned (16))) int16_t maxLineVal[len1][16];
-      __attribute__((aligned (16))) int16_t ColPos[16];
-      __attribute__((aligned (16))) int16_t LinePos[16];
-      __attribute__((aligned (16))) int16_t colScore[16];
-      __attribute__((aligned (16))) int16_t lineScore[16];
-      __attribute__((aligned (16))) int16_t unit[16];
-
-
-      for(int i = 0; i < 16; i++){
-        zero[i] = 0;
-        unit[i] = 1;
-      }
+    __attribute__((aligned (16))) int16_t maxPosLine[len1][16];
+    __attribute__((aligned (16))) int16_t maxPosCol[16];
+    __attribute__((aligned (16))) int16_t maxColVal[16];
+    __attribute__((aligned (16))) int16_t maxLineVal[len1][16];
+    __attribute__((aligned (16))) int16_t ColPos[16];
+    __attribute__((aligned (16))) int16_t LinePos[16];
+    __attribute__((aligned (16))) int16_t colScore[16];
+    __attribute__((aligned (16))) int16_t lineScore[16];
+    __attribute__((aligned (16))) int16_t unit[16];
 
 
-      vector<int> analysedSequences(16);
-      int analysedSeqIndex[16];
-      int len[16];
-      fill_n(len, 16, 0);
-      int freePosition = 0;
-      int residue[16];
-      int tempScore;
-    	int seqOffset;
-    	int size;
-
-      bool done = false;
-
-      bool firstLine = false;
+    for(int i = 0; i < 16; i++){
+      zero[i] = 0;
+      unit[i] = 1;
+    }
 
 
-      //--------------------------------------- End PRELIM -------------------------------------------------
-      //locker.lock();
-      //char* seqContainer = globalPSQ->getDatabase();
-      //locker.unlock();
+    vector<int> analysedSequences(16);
+    int analysedSeqIndex[16];
+    int len[16];
+    fill_n(len, 16, 0);
+    int freePosition = 0;
+    int residue[16];
+    int tempScore;
+  	int seqOffset;
+  	int size;
+
+    bool done = false;
+
+    bool firstLine = false;
 
 
-      double lambda = 0.267;
-      double logk = -3.34;
-      double bitscore;
-      int index[16];
-      for(int i=begin; i <end ; i++){
-    		//tempScore = matching1(query, seqOffset, filePSQ->getDatabase(), len1, size);
+    //--------------------------------------- End PRELIM -------------------------------------------------
 
 
-        //--------------------------------------------- SIMD ------------------------------------------
-        if(freePosition != -1){
-          index[freePosition] = i;
-          //pthread_mutex_lock(&locker);
-          //locker.lock();
-      		seqOffset = globalPIN->getSqOffset(i);//position in .psq file of the found sequence
-          //locker.unlock();
-          //pthread_mutex_unlock(&locker);
+    double lambda = 0.267;
+    double logk = -3.34;
+    double bitscore;
+    int index[16];
+    for(int i=begin; i <end ; i++){
 
+      //--------------------------------------------- SIMD ------------------------------------------
+      if(freePosition != -1){
+        index[freePosition] = i;
+    		seqOffset = globalPIN->getSqOffset(i);//position in .psq file of the found sequence
+        analysedSequences[freePosition] = seqOffset;
+        len[freePosition] = globalPIN->getSqOffset(i+1)-seqOffset;
+        analysedSeqIndex[freePosition] = 0;
+        freePosition = -1;
+        for(int t = 0; t < 16; t++){
 
-          analysedSequences[freePosition] = seqOffset;
-
-          //pthread_mutex_lock(&locker);
-
-          len[freePosition] = globalPIN->getSqOffset(i+1)-seqOffset;
-          //pthread_mutex_unlock(&locker);
-
-
-          analysedSeqIndex[freePosition] = 0;
-
-          freePosition = -1;
-
-          for(int t = 0; t < 16; t++){
-
-            if(len[t] > analysedSeqIndex[t]){
-              residue[t] = seqContainer[analysedSequences[t]+analysedSeqIndex[t]];
-              done = false;
-            }
-            else{
-              residue[t] = -1;
-              if(freePosition == -1 && i != dbSize - 1)
-                freePosition = t;
-            }
-
+          if(len[t] > analysedSeqIndex[t]){
+            residue[t] = seqContainer[analysedSequences[t]+analysedSeqIndex[t]];
+            done = false;
           }
-
+          else{
+            residue[t] = -1;
+            if(freePosition == -1 && i != dbSize - 1)
+              freePosition = t;
+          }
         }
-        while(!done && (freePosition == -1 || i == dbSize-1)){
-          done = true;
-          for(int l = 0; l < len1; l++){
-            for(int j = 0; j < 16; j++){
-              if(l == 0){
-                if(analysedSeqIndex[j] == 0){
-                  for(int i = 0; i < len1+1; i++){
-                    leftScore[i][j] = 0;
-                    if(i != len1){
-                      maxPosLine[i][j] = 0;
-                      maxLineVal[i][j] = 0;
-                    }
+      }
+      while(!done && (freePosition == -1 || i == dbSize-1)){
+        done = true;
+        for(int l = 0; l < len1; l++){
+          for(int j = 0; j < 16; j++){
+            if(l == 0){
+              if(analysedSeqIndex[j] == 0){
+                for(int i = 0; i < len1+1; i++){
+                  leftScore[i][j] = 0;
+                  if(i != len1){
+                    maxPosLine[i][j] = 0;
+                    maxLineVal[i][j] = 0;
                   }
-                  opGap[j] = 11;
-                  exGap[j] = 1;
-                  maxScore[j] = 0;
                 }
-                maxPosCol[j] = 0;
-                maxColVal[j] = 0;
+                opGap[j] = 11;
+                exGap[j] = 1;
+                maxScore[j] = 0;
               }
-              ColPos[j] = l;
-              LinePos[j] = analysedSeqIndex[j];
-
-              colScore[j] = 0;
-              lineScore[j] = 0;
-              if(residue[j] != -1){
-                //pthread_mutex_lock(&locker);
-                diagGap[j] = blosumMatrix[query[l]][residue[j]];
-                //pthread_mutex_unlock(&locker);
-              }
-              else{
-                diagGap[j] = 0;
-              }
-
-
+              maxPosCol[j] = 0;
+              maxColVal[j] = 0;
             }
+            ColPos[j] = l;
+            LinePos[j] = analysedSeqIndex[j];
 
-            for(int w = 0; w < 2; w++){
-
-              __m128i Z = _mm_load_si128((__m128i*) &zero[w*8]);
-              __m128i RESC = _mm_load_si128((__m128i*) &colScore[w*8]);
-              __m128i RESL = _mm_load_si128((__m128i*) &lineScore[w*8]);
-              __m128i S = _mm_load_si128((__m128i*) &score[w*8]);
-
-              __m128i OP = _mm_load_si128((__m128i*) &opGap[w*8]);
-              __m128i COL = _mm_load_si128((__m128i*) &maxColVal[w*8]);
-              __m128i PMCOL = _mm_load_si128((__m128i*) &maxPosCol[w*8]);
-              __m128i PCOL = _mm_load_si128((__m128i*) &ColPos[w*8]);
-
-              __m128i EX = _mm_load_si128((__m128i*) &exGap[w*8]);
-              __m128i LIN = _mm_load_si128((__m128i*) &maxLineVal[l][w*8]);
-              __m128i PMLIN = _mm_load_si128((__m128i*) &maxPosLine[l][w*8]);
-              __m128i PLIN = _mm_load_si128((__m128i*) &LinePos[w*8]);
-
-              __m128i D = _mm_load_si128((__m128i*) &leftScore[l][w*8]);
-              __m128i P = _mm_load_si128((__m128i*) &diagGap[w*8]);
-
-              __m128i M = _mm_load_si128((__m128i*) &maxScore[w*8]);
-              __m128i UNIT = _mm_load_si128((__m128i*) &unit[w*8]);
-
-
-
-              __m128i SUBC2 = _mm_sub_epi16(PCOL,PMCOL);
-              __m128i MULTC = _mm_mullo_epi16(EX,SUBC2);
-              RESC = _mm_sub_epi16(COL,MULTC);
-
-              __m128i SUBL2 = _mm_sub_epi16(PLIN,PMLIN);
-              __m128i MULTL = _mm_mullo_epi16(EX,SUBL2);
-              RESL = _mm_sub_epi16(LIN,MULTL);
-
-              S = _mm_add_epi16(D,P);
-
-              S = _mm_max_epi16(S,RESC);
-              S = _mm_max_epi16(S,RESL);
-              S = _mm_max_epi16(S,Z);
-
-              __m128i SUB1 = _mm_sub_epi16(S, OP);
-
-              __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESC));
-              __m128i MULTC2 = _mm_mullo_epi16(PCOL,CMPLTC);
-              __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);
-              __m128i NEWMC = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTC), COL),_mm_mullo_epi16(CMPLTC, SUB1));
-
-              __m128i CMPLTL = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESL));
-              __m128i MULTL2 = _mm_mullo_epi16(PLIN,CMPLTL);
-              __m128i NEWMPL = _mm_max_epi16(PMLIN, MULTL2);
-              __m128i NEWML = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTL), LIN),_mm_mullo_epi16(CMPLTL, SUB1));
-
-              _mm_store_si128((__m128i*)&score[w*8], S);
-              _mm_store_si128((__m128i*)&leftScore[l][w*8], S);
-              _mm_store_si128((__m128i*)&maxPosCol[w*8], NEWMPC);
-              _mm_store_si128((__m128i*)&maxColVal[w*8], NEWMC);
-              _mm_store_si128((__m128i*)&maxPosLine[l][w*8], NEWMPL);
-              _mm_store_si128((__m128i*)&maxLineVal[l][w*8], NEWML);
-              _mm_store_si128((__m128i*)&maxScore[w*8], M = _mm_max_epi16(S,M));
-              _mm_store_si128((__m128i*)&colScore[w*8], RESC);
-              _mm_store_si128((__m128i*)&lineScore[w*8], RESL);
-            }
-
-            if(l == len1-1){
-              for(int f = len1-1; f >= 0; f--){
-                if(f == 0)
-                  firstLine = true;
-                offset(leftScore[f+1], leftScore[f], zero, firstLine);
-                firstLine = false;
-              }
-            }
-          }
-
-          for(int k = 0 ; k < 16; k++){
-            if(residue[k] != -1)
-              analysedSeqIndex[k]++;
-            if(len[k] > analysedSeqIndex[k]){
-              residue[k] = seqContainer[analysedSequences[k]+analysedSeqIndex[k]];
-              done = false;
+            colScore[j] = 0;
+            lineScore[j] = 0;
+            if(residue[j] != -1){
+              diagGap[j] = blosumMatrix[query[l]][residue[j]];
             }
             else{
-              residue[k] = -1;
-              if(freePosition == -1 && i != dbSize - 1){
-                freePosition = k;
-                bitscore = double(maxScore[k]);
-                bitscore = (lambda*bitscore - logk)/log(2);
-                locker.lock();
-                scoreList.push_back(bitscore);
-                indexList.push_back(index[k]);
-                locker.unlock();
-
-
-              }
+              diagGap[j] = 0;
             }
           }
+          for(int w = 0; w < 2; w++){
+            __m128i Z = _mm_load_si128((__m128i*) &zero[w*8]);
+            __m128i RESC = _mm_load_si128((__m128i*) &colScore[w*8]);
+            __m128i RESL = _mm_load_si128((__m128i*) &lineScore[w*8]);
+            __m128i S = _mm_load_si128((__m128i*) &score[w*8]);
 
+            __m128i OP = _mm_load_si128((__m128i*) &opGap[w*8]);
+            __m128i COL = _mm_load_si128((__m128i*) &maxColVal[w*8]);
+            __m128i PMCOL = _mm_load_si128((__m128i*) &maxPosCol[w*8]);
+            __m128i PCOL = _mm_load_si128((__m128i*) &ColPos[w*8]);
+
+            __m128i EX = _mm_load_si128((__m128i*) &exGap[w*8]);
+            __m128i LIN = _mm_load_si128((__m128i*) &maxLineVal[l][w*8]);
+            __m128i PMLIN = _mm_load_si128((__m128i*) &maxPosLine[l][w*8]);
+            __m128i PLIN = _mm_load_si128((__m128i*) &LinePos[w*8]);
+
+            __m128i D = _mm_load_si128((__m128i*) &leftScore[l][w*8]);
+            __m128i P = _mm_load_si128((__m128i*) &diagGap[w*8]);
+
+            __m128i M = _mm_load_si128((__m128i*) &maxScore[w*8]);
+            __m128i UNIT = _mm_load_si128((__m128i*) &unit[w*8]);
+
+
+            __m128i SUBC2 = _mm_sub_epi16(PCOL,PMCOL);
+            __m128i MULTC = _mm_mullo_epi16(EX,SUBC2);
+            RESC = _mm_sub_epi16(COL,MULTC);
+
+            __m128i SUBL2 = _mm_sub_epi16(PLIN,PMLIN);
+            __m128i MULTL = _mm_mullo_epi16(EX,SUBL2);
+            RESL = _mm_sub_epi16(LIN,MULTL);
+
+            S = _mm_add_epi16(D,P);
+
+            S = _mm_max_epi16(S,RESC);
+            S = _mm_max_epi16(S,RESL);
+            S = _mm_max_epi16(S,Z);
+
+            __m128i SUB1 = _mm_sub_epi16(S, OP);
+
+            __m128i CMPLTC = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESC));
+            __m128i MULTC2 = _mm_mullo_epi16(PCOL,CMPLTC);
+            __m128i NEWMPC = _mm_max_epi16(PMCOL, MULTC2);
+            __m128i NEWMC = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTC), COL),_mm_mullo_epi16(CMPLTC, SUB1));
+
+            __m128i CMPLTL = _mm_add_epi16(UNIT,_mm_cmplt_epi16(S, RESL));
+            __m128i MULTL2 = _mm_mullo_epi16(PLIN,CMPLTL);
+            __m128i NEWMPL = _mm_max_epi16(PMLIN, MULTL2);
+            __m128i NEWML = _mm_max_epi16(_mm_mullo_epi16(_mm_sub_epi16(UNIT,CMPLTL), LIN),_mm_mullo_epi16(CMPLTL, SUB1));
+
+            _mm_store_si128((__m128i*)&score[w*8], S);
+            _mm_store_si128((__m128i*)&leftScore[l][w*8], S);
+            _mm_store_si128((__m128i*)&maxPosCol[w*8], NEWMPC);
+            _mm_store_si128((__m128i*)&maxColVal[w*8], NEWMC);
+            _mm_store_si128((__m128i*)&maxPosLine[l][w*8], NEWMPL);
+            _mm_store_si128((__m128i*)&maxLineVal[l][w*8], NEWML);
+            _mm_store_si128((__m128i*)&maxScore[w*8], M = _mm_max_epi16(S,M));
+            _mm_store_si128((__m128i*)&colScore[w*8], RESC);
+            _mm_store_si128((__m128i*)&lineScore[w*8], RESL);
+          }
+          if(l == len1-1){
+            for(int f = len1-1; f >= 0; f--){
+              if(f == 0)
+                firstLine = true;
+              offset(leftScore[f+1], leftScore[f], zero, firstLine);
+              firstLine = false;
+            }
+          }
+        }
+        for(int k = 0 ; k < 16; k++){
+          if(residue[k] != -1)
+            analysedSeqIndex[k]++;
+          if(len[k] > analysedSeqIndex[k]){
+            residue[k] = seqContainer[analysedSequences[k]+analysedSeqIndex[k]];
+            done = false;
+          }
+          else{
+            residue[k] = -1;
+            if(freePosition == -1 && i != dbSize - 1){
+              freePosition = k;
+              bitscore = double(maxScore[k]);
+              bitscore = (lambda*bitscore - logk)/log(2);
+              /*
+              We have to use a mutex and lock this part
+              because we are writing in a global variable
+              */
+              locker.lock();
+              scoreList.push_back(bitscore);
+              indexList.push_back(index[k]);
+              locker.unlock();
+            }
+          }
         }
       }
-  }
+    }
+}
 
 int findMax(int tableau[], int size){
 	int res = 0;
@@ -272,19 +248,9 @@ int findMax(int tableau[], int size){
 	return res;
 }
 
-int findMax(vector<int> tableau, int size){
-	int res = 0;
-	for (int i = 1; i < size; i++){
-		if (tableau[i]>tableau[res]){
-			res = i;
-		}
-	}
-	return res;
-}
-
-void merge(vector<int> &scorev, vector<int> &indexv, int left, int mid, int right)
-{
-	/** Merge two sorted vectors **/
+void merge(vector<int> &scorev, vector<int> &indexv, int left, int mid, int right){
+	//Merge two sorted vectors
+  //We are sorting according to score but we move the index with it
 	int nl = mid-left;
 	int nr = right - mid +1;
 	vector<int> Lscore;
@@ -323,8 +289,7 @@ void insertion_sortmerge(vector<int> & scorev, vector<int> &indexv,int left, int
 	int tmpi;
 	for(int i=left; i<right; i++){
 		int j=i;
-		while ( j>left && scorev[j-1]>scorev[j] )
-		{
+		while ( j>left && scorev[j-1]>scorev[j] ){
 			tmps = scorev[j];
 			tmpi = indexv[j];
 			scorev[j] = scorev[j-1];
@@ -336,27 +301,29 @@ void insertion_sortmerge(vector<int> & scorev, vector<int> &indexv,int left, int
 	}
 }
 
-void merge_sort(vector<int> &scorev, vector<int> &indexv, int left, int right)
-{
-	/** Sort a vector by calling merge() recursively **/
-	const int seuil = 256;
-	if(right-left+1 < seuil) { insertion_sortmerge(scorev, indexv,left, right); }
+void merge_sort(vector<int> &scorev, vector<int> &indexv, int left, int right){
+	//Sort a vector with the merge_sort
+  //We are sorting the two vectors according to score but we move index
+  //to get them at the same position
+	const int min_merge = 256;
+  //If we have less than #min_merge elements, we use the insertion_sort
+	if(right-left+1 < min_merge) { insertion_sortmerge(scorev, indexv,left, right); }
 	if (left < right){
 		int mid = ceil((float)(left+right)/2);
 		merge_sort(scorev, indexv, mid, right);
 		merge_sort(scorev, indexv, left, mid-1);
 		merge(scorev, indexv,left,mid,right);
-
 	}
 }
 
-void setupBlosumMatrix(string pathToBlosumMatrix){
+int setupBlosumMatrix(string pathToBlosumMatrix){
 	ifstream file(pathToBlosumMatrix);
 	string line;
 	bool first_line = true;
 	int value;
 	int n_line = 0;
 	int n_column = 0;
+  vector<vector<int>> otherBlosumMatrix;
 	if (file.is_open()){
 		while(getline(file,line)){ //We check every line
 			if (line.at(0) != '#'){ //We don't do anything we the comments of the file
@@ -371,7 +338,7 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 							n_column++;
 						}
 					}
-					blosumMatrix.assign(charToInt.size(), vector<int> (charToInt.size(),0));
+					otherBlosumMatrix.assign(charToInt.size(), vector<int> (charToInt.size(),0));
 					//We initialize the matrix with full 0
 				} else {
 					line.erase(0,1);//remove the letter of the line
@@ -382,133 +349,96 @@ void setupBlosumMatrix(string pathToBlosumMatrix){
 								//If there is a '-' before the int, we have a negative value
 								value = -value;
 							}
-							blosumMatrix[n_line][n_column] = value; //Set the value
+							otherBlosumMatrix[n_line][n_column] = value; //Set the value
 							n_column++;
 						}
 					}
 					n_line++;
 				}
-
 			}
 		}
 		file.close();
-		vector<vector<int>> otherBlosumMatrix;
-		vector<int> tempv;
-		tempv.assign(28,0);
-		otherBlosumMatrix.assign(28,tempv);
+    vector<int> tempv;
+    tempv.assign(28,0);
+    blosumMatrix.assign(28, tempv);
+    int valueX;
+    int valueY;
+    int default_column;
+    /*
+    If we don't find a default character '*' AND
+    we don't have all the letters,
+    our blosumMatrix is not complete
+    */
+    if (charToInt.find('*') == charToInt.end() && charToInt.size() < 26){
+      cout << "Problem while reading the blosumMatrix : missing scores for some amino acids combinations" << endl;
+      return EXIT_FAILURE;
+    }
+    else {
+      default_column = charToInt['*'];
+    }
 		for (int i = 1; i < 28; i++){
-			for (int j = 1; j <28; j++){
-				otherBlosumMatrix[i][j] = blosumMatrix[charToInt[conversionTable[i]]][charToInt[conversionTable[j]]];
+			for (int j = 1; j < 28; j++){
+        //If the character is not in the table, we attribute it a default value
+        if (charToInt.find(conversionTable[i]) == charToInt.end()){
+          valueX = default_column;
+        } else{
+          valueX = charToInt[conversionTable[i]];
+
+        }
+        if (charToInt.find(conversionTable[j]) == charToInt.end()){
+          valueY = default_column;
+        } else{
+          valueY = charToInt[conversionTable[j]];
+        }
+        blosumMatrix[i][j] = otherBlosumMatrix[valueX][valueY];
 			}
 		}
-		blosumMatrix = otherBlosumMatrix;
-
-
 	} else {
 		cout << "Problem while opening the blosum file" << endl;
+    return EXIT_FAILURE;
 	}
+  return EXIT_SUCCESS;
 }
 
 void traceback(int maxX, int maxY, int sizeX, int sizeY, vector<vector<int>> rootAlignement){
 	int x = maxX;
 	int y = maxY;
-	vector<int> alignement;//on part de la fin
+	vector<int> alignement;//we start from the end
 	int value = rootAlignement[x][y];
 	while (value != 0){ //temp[0] = 0
 		alignement.push_back(value);
 		switch(value){
-			case 1 	: y--;break;//gap dans query
-			case 2 	: x--;break;//gap dans dbSeq
-			case 3 	: x--; y--;break;//match negatif
-			case 4	: x--; y--;break;//match parfait
-			case 5	: x--; y--; break; //match positif
+			case 1 	: y--;break;//gap in query
+			case 2 	: x--;break;//gap in dbSeq
+			case 3 	: x--; y--;break;//negative match
+			case 4	: x--; y--;break;//perfect match
+			case 5	: x--; y--; break; //positive match
 		}
 		value = rootAlignement[x][y];
 	}
-	//offset par rapport au debut
-	//d abord la db puis la query
-	alignement.push_back(y); //offset de la db
-	alignement.push_back(x); //offset de la query
+	//offset of the alignement
+	//we push_back first the subject offset, then the query offset
+	alignement.push_back(y); //subject offset
+	alignement.push_back(x); //query offset
 
 	alignementList.push_back(alignement);
 }
 
-int matching1(int seq1[], int index, char db[], int len1, int len2){
+void matching(int seq1[], int index, char db[], int len1, int len2){
 
-	int *ligne1 = new int[len2+1];
-	int *ligne2 = new int[len2+1];
+  //We are working with two lines and not the entire matrix because
+  //We don't need all the matrix to calculate a single case
+	int *line1 = new int[len2+1];
+	int *line2 = new int[len2+1];
 	int *tempLine;
 
-  //Define variables used in order to fill the ScoringMatrix
-
-  int maxValue = 0;
-	int maxX = 0;
-	int maxY = 0;
-  int maxLine[len2+1];
-  int maxColumn[len1+1];
-  int posXmaxLine[len2+1];
-  int posYmaxColumn[len1+1];
-  for (int i = 0; i < len1+1; i++){
-    posYmaxColumn[i] = 0;
-    maxColumn[i] = 0;
-  }
-  for (int j = 0; j < len2+1; j++){
-    posXmaxLine[j] = 0;
-    maxLine[j] = 0;
-		ligne1[j] = 0;
-		ligne2[j] = 0;
-  }
-  int temp[4];
-  temp[0] = 0;
-	int tempIndex;
-
-  for (int i = 1; i < len1+1; i++){
-		tempLine = ligne1;
-		ligne1 = ligne2;
-		ligne2 = tempLine;
-    for (int j = 1; j < len2+1; j++){
-      temp[1] = maxColumn[i] - gap_ex*(j - posYmaxColumn[i]);
-      temp[2] = maxLine[j] - gap_ex*(i - posXmaxLine[j]);
-			//blosumGet = blosumMatrix[seq1[i-1]][db[index+j-1]];
-			temp[3] = ligne1[j-1] + blosumMatrix[seq1[i-1]][db[index+j-1]];
-			tempIndex = findMax(temp,4);
-			ligne2[j] = temp[tempIndex];
-      if (temp[tempIndex] >= temp[1]){
-        maxColumn[i] = temp[tempIndex] - gap_op;
-        posYmaxColumn[i] = j;
-      }
-      if (temp[tempIndex]>= temp[2]){
-        maxLine[j] = temp[tempIndex] - gap_op;
-        posXmaxLine[j] = i;
-      }
-      if (temp[tempIndex] > maxValue){
-				maxValue = temp[tempIndex];
-				maxX = i;
-				maxY = j;
-      }
-    }
-  }
-  double lambda = 0.267;
-  double logk = -3.34;
-  double bitscore = double(maxValue);
-  bitscore = (lambda*bitscore - logk)/log(2);
-	delete ligne1;
-	delete ligne2;
-	return bitscore;
-}
-
-void matching2(int seq1[], int index, char db[], int len1, int len2){
-
-	int *ligne1 = new int[len2+1];
-	int *ligne2 = new int[len2+1];
-	int *tempLine;
-
-  //Define variables used in order to fill the ScoringMatrix
+  //Define variables used in order to find the maxValue
 
   int maxValue = 0;
 	int maxX = 0;
 	int maxY = 0;
 
+  //We set up the matrix for the traceback
 	vector<vector<int>> rootAlignement;
 	vector<int> tempv2;
 	tempv2.assign(len2+1,0);
@@ -525,8 +455,8 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
   for (int j = 0; j < len2+1; j++){
     posXmaxLine[j] = 0;
     maxLine[j] = 0;
-		ligne1[j] = 0;
-		ligne2[j] = 0;
+		line1[j] = 0;
+		line2[j] = 0;
   }
   int temp[4];
   temp[0] = 0;
@@ -536,21 +466,22 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
 	int aa2;
 
   for (int i = 1; i < len1+1; i++){
-		tempLine = ligne1;
-		ligne1 = ligne2;
-		ligne2 = tempLine;
+    //We switch line1 and line2
+		tempLine = line1;
+		line1 = line2;
+		line2 = tempLine;
     for (int j = 1; j < len2+1; j++){
-      temp[1] = maxColumn[i] - gap_ex*(j - posYmaxColumn[i]);
-      temp[2] = maxLine[j] - gap_ex*(i - posXmaxLine[j]);
+      temp[1] = maxColumn[i] - gap_ex*(j - posYmaxColumn[i]); //up
+      temp[2] = maxLine[j] - gap_ex*(i - posXmaxLine[j]); //left
 			aa1 = seq1[i-1];
 			aa2 = db[index+j-1];
 			blosumGet = blosumMatrix[aa1][aa2];
-			temp[3] = ligne1[j-1] + blosumGet;
+			temp[3] = line1[j-1] + blosumGet; //diag
 			tempIndex = findMax(temp,4);
-			ligne2[j] = temp[tempIndex];
-
+			line2[j] = temp[tempIndex];
 
       if (temp[tempIndex] >= temp[1]){
+        //We memoized the relative maximum of the column and its position
         maxColumn[i] = temp[tempIndex] - gap_op;
         posYmaxColumn[i] = j;
       }
@@ -567,7 +498,7 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
 				if(aa1==aa2){//perfect match
 					tempIndex=4;
 				}
-				else if(blosumGet>0){ //positif match but aa1 != aa2
+				else if(blosumGet>0){ //positive match but aa1 != aa2
 					tempIndex=5;
 				}
 			}
@@ -577,28 +508,30 @@ void matching2(int seq1[], int index, char db[], int len1, int len2){
   }
   double lambda = 0.267;
   double logk = -3.34;
-  double bitscore = double(maxValue);
-  bitscore = (lambda*bitscore - logk)/log(2);
+  double bitscore = (lambda*(double)(maxValue) - logk)/log(2);
 	traceback(maxX,maxY, len1+1, len2+1,rootAlignement);
-	delete ligne1;
-	delete ligne2;
+	delete line1;
+	delete line2;
 }
 
 
 
 vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string smMatrix, int gpo, int gpe, int nbResults){
-	gap_op = gpo;
+  vector<vector<int>> results;
+  //This is the first function which is called
+  //We set up the global variables
+  gap_op = gpo;
 	gap_ex = gpe;
 	globalPIN = filePSQ->getPIN();
   globalPSQ = filePSQ;
   PIN* filePIN = globalPIN;
 	int dbSize = filePIN->getNumSeq();
   seqContainer = filePSQ->getDatabase();
-	/*if (endIndex == -1){
-		endIndex = dbSize;
-	}*/
-  clock_t begin = clock();
-	setupBlosumMatrix(smMatrix);
+
+  //We set up the BlosumMatrix
+	if(setupBlosumMatrix(smMatrix)){
+    return results;
+  }
 	int len1 = Squery.size();
 	map<int,char> charToInt{
 		{'A',1},{'B',2},{'C',3},{'D',4},
@@ -608,19 +541,24 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
 		{'W',20},{'X',21},{'Y',22},{'Z',23},{'U',24},
 		{'*',25},{'O',26},{'J',27}
 	};
-	//vector<int> vquery;
-	//int* query = new int[len1];
+
+  //We change the query into a int[]
   int query[len1];
 	for (int i = 0; i < len1; i++){
 		query[i] = charToInt[Squery.at(i)];//.push_back(conversionTable[query.at(i)]);
 	}
 
+  //--------------MULTI-THREADING----------
+
+  //We look at the number of cores
   int n_cores = thread::hardware_concurrency();
-  //cout << "Number of cores : " << n_cores << endl;
   thread threads[n_cores];
   int seq_per_thread = dbSize/n_cores;
 
   struct thread_data td[n_cores];
+
+  //If we have more than one core, we can split the work and
+  //start an other thread
   for(int n = 1; n < n_cores; n++){
     td[n].begin = seq_per_thread*n;
     if (n == n_cores-1){
@@ -634,40 +572,40 @@ vector<vector<int>> dbAlignment(string db, string Squery, PSQ* filePSQ, string s
     threads[n] = thread(job,td[n]);
   }
 
+  //We start the main thread
   td[0].begin = 1;
   td[0].end = dbSize - (n_cores-1)*seq_per_thread;
   td[0].query = query;
   td[0].len1 = len1;
   job(td[0]);
 
+  //We wait until the all job is done
   for (int n = 1; n < n_cores ; n++){
     threads[n].join();
   }
+  //--------END MULTI-THREADING ---------
 
-
-    int seqOffset;
-    int size;
-  	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
-  	vector<vector<int>> results;
-  	vector<int> tempRes;
-  	int compt = 0;
-  	for (int i = indexList.size()-1; i > indexList.size()-1 -nbResults; i--){
-  			tempRes.clear();
-  			tempRes.push_back(indexList[i]);
-  			tempRes.push_back(scoreList[i]);
-  			seqOffset = filePIN->getSqOffset(indexList[i]);
-  			size = filePIN->getSqOffset(indexList[i]+1)-filePIN->getSqOffset(indexList[i]);
-  			matching2(query,seqOffset,filePSQ->getDatabase(),len1,size);
-  			tempRes.insert(tempRes.end(), alignementList[compt].begin(), alignementList[compt].end());
-  			results.push_back(tempRes);
-  			compt++;
-  	}
-  	//delete query;
-  	return results;
-
-
-
+  int seqOffset;
+  int size;
+	merge_sort(scoreList, indexList, 0, scoreList.size()-1);
+	vector<int> tempRes;
+	int compt = 0;
+  //The elements are sorted in ascending order
+	for (int i = indexList.size()-1; i > indexList.size()-1 -nbResults; i--){
+			tempRes.clear();
+			tempRes.push_back(indexList[i]);
+			tempRes.push_back(scoreList[i]);
+			seqOffset = filePIN->getSqOffset(indexList[i]);
+			size = filePIN->getSqOffset(indexList[i]+1)-filePIN->getSqOffset(indexList[i]);
+      //We redo the algorithm but only on the #nbResults best results to get the traceback
+			matching(query,seqOffset,filePSQ->getDatabase(),len1,size);
+			tempRes.insert(tempRes.end(), alignementList[compt].begin(), alignementList[compt].end());
+			results.push_back(tempRes);
+			compt++;
+	}
+	return results;
 }
+
 void offset(int16_t* leftScore, int16_t* diagonalScore, int16_t* zero, bool firstLine){
   for(int i = 0; i < 2; i++){
 
@@ -680,125 +618,3 @@ void offset(int16_t* leftScore, int16_t* diagonalScore, int16_t* zero, bool firs
     }
   }
 }
-
-/*void dbAlignmentTest(string query, string dbSeq){
-  setupBlosumMatrix("blosum62");
-	int len1 = query.size();
-	vector<int> vquery;
-	for (int i = 0; i < len1; i++){
-		vquery.push_back(charToInt[query.at(i)]);
-	}
-	vector<int> vdbSeq;
-	for (int i = 0; i < dbSeq.size(); i++){
-		vdbSeq.push_back(charToInt[dbSeq.at(i)]);
-	}
-
-	int score = matching(vquery, dbSeq,len1);
-	cout << "Score " << score << endl;
-}*/
-
-
-/*
-*---------------------------------- SIMD ----------------------------------*
-*/
-/*
-int dbAlignmentSIMD(string query, PIN* filePIN, PSQ* filePSQ){
-
-	int dbSize = filePIN->getNumSeq();
-
-  clock_t begin = clock();
-
-	setupBlosumMatrix("blosum62");
-
-	int len1 = query.size();
-	vector<int> vquery;
-	for (int i = 0; i < len1; i++){
-		vquery.push_back(charToInt[query.at(i)]);
-	}
-
-	int score;
-
-	int pcent = 0;
-	clock_t inter;
-	double interTime;
-	double estimatedTime;
-
-	vector<vector<int>> sequences = filePSQ->getAllSequences();
-	filePSQ->clearSequences();
-	int tempScore;
-	int maxSeq = filePIN->getmaxSeq();
-
-	__attribute__((aligned (8))) int8_t analysedSequences[16][maxSeq+1];
-	int len[16];
-	int analysedSeqIndex[16];
-	int freePosition = 0;
-
-	__attribute__((aligned (8))) int8_t residue [16];
-
-
-	__attribute__((aligned (8))) int8_t dGap [len1];
-	__attribute__((aligned (8))) int8_t lGap [len1];
-
-	__attribute__((aligned (8))) int8_t scoresRow [len1+1];
-
-	int maxScoreX;
-	int maxScoreY;
-	int maxScoreVal;
-
-
-	for(int i = 1; i < dbSize; i++){
-		if(freePosition != -1){
-			analysedSequences[freePosition] = sequences[i];
-			len[freePosition] = sequence[i].size();
-			analysedSeqIndex[freePosition] = 0;
-			freePosition = -1;
-			for(int k = 0; k<16; k++){
-				residue[k] = analysedSequences[analysedSeqIndex[k]];
-				if(residue[k] == 0)
-					freePosition = k;
-			}
-		}
-
-		while(freePosition == -1){
-			matching_SIMD(vquery, len1, residue, scoresRow, maxScoreX, maxScoreY, maxScoreVal);
-			for(int k = 0; k<16; k++){
-				analysedSeqIndex[k]++;
-				residue[k] = analysedSequences[analysedSeqIndex[k]];
-				if(residue[k] == 0)
-					freePosition = k;
-			}
-		}
-	}
-
-
-}
-
-union {
-    __m128i m128;
-    int8_t i8[16];
-} left;
-const int gap_op = 11;
-const int gap_ex = 1;
-void matching_SIMD(vector<int> vquery, int len1, int8_t* residue, int8_t* scoresRow,
-	 									int maxScoreX,int maxScoreY, int maxScoreVal){
-	__attribute__((aligned (8))) int8_t diag [len1+1];
-	for(int i = 0; i < len1 ; i++){
-		diag[i+1] = blosumMatrix[vquery[i]][residue];
-	}
-	diag[0] = 0;
-
-	__m128i  = _mm_set1_epi8(gap_ex);
-	for(int i = 1; i < len1+1; i+=16){
-		left.m128 = _mm_load_si128(scoresRow[i]);
-		vsum = _mm_add_epi32(vsum, v);
-	}
-
-	residuePtr.m128 = _mm_load_si128((__m128i*) residues);
-	_mm_store_si128((__m128i*)sum, _mm_add_epi8(residuePtr.m128,toAddPtr.m128));
-  sumPtr.m128 = _mm_load_si128((__m128i*) sum);
-
-}
-*/
-/*
-*--------------------------------------------------------------------------*
-*/
