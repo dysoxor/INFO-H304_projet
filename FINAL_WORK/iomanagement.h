@@ -15,3 +15,4 @@ void writeOutput(vector<vector<int>> results, string outputFile,
   chrono::time_point<chrono::system_clock> begin,
   PIN* filePIN, PSQ* filePSQ,PHR* filePHR, string smFile,
   int gap_ex, int gap_op);
+  void rewriteOutput(string outputFile);

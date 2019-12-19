@@ -150,7 +150,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     res += ("Positives : "+to_string(posScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(posRatio*100))+"%), ");
   if (gapScore > 0)
     res += ("Gaps : "+to_string(gapScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(gapRatio*100))+"%), ");
-  res+="\n";
+  res+='\n';
+  res+='\n';
 
   int endX = x;
   int endY = y;
@@ -336,4 +337,19 @@ void writeOutput(vector<vector<int>> results, string outputFile,
   output << temp << querySequence << endl;
   output<< endl << res<< endl;
   output.close();
+}
+
+void rewriteOutput(string file){
+  ifstream in(file);
+  string res = "";
+  char temp;
+  while (in.get(temp)){
+    if (temp == '\n' || (temp < 128 && temp > 31)){
+      res+=temp;
+    }
+  }
+  in.close();
+  ofstream out(file);
+  out << res;
+  out.close();
 }
