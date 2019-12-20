@@ -54,7 +54,8 @@ string scoreString(int index, int score, string db, PIN* filePIN, PHR* filePHR, 
   return res;
 }
 
-string alignementString(vector<int> result ,string query,string db, PIN* filePIN, PHR* filePHR, char dataBase[] , int maxLine){
+string alignementString(vector<int> result ,string query,string db, PIN* filePIN,
+  PHR* filePHR, char dataBase[] , int maxLine){
   string res = "";
   //We extract useful information from the result vector
   //Index and score are in the 2 first position
