@@ -63,7 +63,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   //We get the offSet in the sequence of query and subject
   int startX = result[result.size()-1];
   int startY = result[result.size()-2];
-  //string name = filePHR->read(filePIN, index, db);
+
   string name = filePHR->getTitle(index);
   res+=">";
   //We don't want a too long line so we seperate it into lines of
@@ -115,7 +115,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
         line2+=" ";
         line3+= "-";
       }
-      else if(value ==3){//diag : negative match
+      else if(value == 3){//diag : negative match
         line1+=query[x];
         x++;
         line2+=" ";
@@ -335,6 +335,7 @@ void writeOutput(vector<vector<int>> results, string outputFile,
     querySequence = querySequence.substr(maxLine);
   }
   output << temp << querySequence << endl;
+  
   output<< endl << res<< endl;
   output.close();
 }
