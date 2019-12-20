@@ -38,6 +38,7 @@ public:
   int getSqOffset(int i)const;
   int getmaxSeq()const;
   int getNumRes()const;
+  void end();
 };
 
 class PSQ{
