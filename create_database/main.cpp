@@ -9,10 +9,11 @@ using namespace std;
 int main(int argc, char** argv){
   //3 arguments :
   //database_source, new_database et lettre(quelle lettre au début du nom)
-  
+
   string db = argv[1];
   string new_db = argv[2];
-  string first_letter = argv[3];
+  string first_letters = argv[3];
+  int lenstr = strlen(first_letters);
 
   string line;
   string outputString = "";
@@ -21,7 +22,7 @@ int main(int argc, char** argv){
   if (file.is_open()){
     while(getline(file, line)){
       if(line[0] == '>'){
-        if(line.at(1+line.find_last_of('|')) == first_letter.at(0)){
+        if(compare(line.substr(1+line.find_last_of('|'), lenstr),first_letters)){
             outputString+=line;
             outputString+='\n';
             detected = true;
