@@ -229,7 +229,8 @@ void job(struct thread_data data){
             done = false;
           }
           else{
-
+            if(i != dbSize-1)
+              freePosition = -1;
             if(freePosition == -1 && residue[k] != -1){
               if(i != dbSize-1)
                 freePosition = k;
