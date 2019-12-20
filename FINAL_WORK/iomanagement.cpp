@@ -86,7 +86,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   }
 
   res += ("Length = " + to_string(size-1)+"\n");
-  res +=("Bitscore = " + to_string(score)+"\n");
+  res +=("Rawscore = " + to_string(score)+"\n");
   string alignement;
   int indexX;
   int indexY;
@@ -261,7 +261,7 @@ void writeOutput(vector<vector<int>> results, string outputFile,
   //Maximum characters per line
   int maxLine = 60;
   res+="Name";
-  string scoreTitle = "Bitscore";
+  string scoreTitle = "Rawscore";
   while(res.size()<=maxLine+15-scoreTitle.size()){
     res+=" ";
   }
@@ -336,7 +336,7 @@ void writeOutput(vector<vector<int>> results, string outputFile,
     querySequence = querySequence.substr(maxLine);
   }
   output << temp << querySequence << endl;
-  
+
   output<< endl << res<< endl;
   output.close();
 }
