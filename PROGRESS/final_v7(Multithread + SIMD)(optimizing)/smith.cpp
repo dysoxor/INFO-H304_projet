@@ -358,6 +358,7 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
 			}
 		}
 		file.close();
+    
     vector<int> tempv;
     tempv.assign(28,0);
     blosumMatrix.assign(28, tempv);
