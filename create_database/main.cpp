@@ -23,6 +23,7 @@ int main(int argc, char** argv){
     while(getline(file, line)){
       if(line[0] == '>'){
         if(line.substr(1+line.find_last_of('|'), lenstr).compare(first_letters) == 0){
+            cout << line << endl;
             outputString+=line;
             outputString+='\n';
             detected = true;
