@@ -1,15 +1,15 @@
 FIND 1.1.0
 Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS
 
-Date : Thu Dec 19 12:28:59 2019
+Date : Fri Dec 20 18:57:53 2019
 
-Database : e_base.fasta
-Number of sequences in database : 14532
+Database : E_base.fasta
+Number of sequences in database : 14533
 Scoring matrix : blosum62
 Gap penalities : 11+1k
 Query file : Q9Y6V0.fasta
-Elapsed time : 42.546s
-Number of cores : 2
+Elapsed time : 37.374s
+Number of cores : 4
 Query length : 5142
 Query full name : sp|Q9Y6V0|PCLO_HUMAN Protein piccolo OS=Ho
 mo sapiens OX=9606 GN=PCLO PE=1 SV=5
@@ -100,24 +100,24 @@ SSTAGETNLFPIPRIGKMGQNGQEPVKQPGVGVGLADTEAKTQVMGEIKIALKKEMKTDG
 EQLIVEILQCRNITYKFKSPDHLPDLYVKIYVMNISTQKKVIKKKTRVCRHDREPSFNET
 FRFSLSPAGHSLQILLFSNGGKFMKKTLIGEACIWLDKVDLRKRIVNWHKLLVSPTQTH
 
-Name                                                                Bitscore
->sp|Q9ZQI0|EPR1_ARATH Proline-rich extensin-like protein EPR1...     154
->sp|P13983|EXTN_TOBAC Extensin OS=Nicotiana tabacum OX=4097 G...     133
->sp|P24152|EXTN_SORBI Extensin OS=Sorghum bicolor OX=4558 GN=...     130
->sp|P14918|EXTN_MAIZE Extensin OS=Zea mays OX=4577 GN=HRGP PE...     121
->sp|Q17Q32|ENOPH_AEDAE Enolase-phosphatase E1 OS=Aedes aegypt...     103
->sp|Q9M1G9|EXTN2_ARATH Extensin-2 OS=Arabidopsis thaliana OX=...     99
->sp|P9WJC5|ESPI_MYCTU ESX-1 secretion-associated protein EspI...     98
->sp|P9WJC4|ESPI_MYCTO ESX-1 secretion-associated protein EspI...     98
->sp|Q03173|ENAH_MOUSE Protein enabled homolog OS=Mus musculus...     95
->sp|G3CHK5|ELF5_PONTR Protein EARLY FLOWERING 5 OS=Poncirus t...     93
+Name                                                                Rawscore
+>sp|Q9ZQI0|EPR1_ARATH Proline-rich extensin-like protein EPR1...     388
+>sp|P13983|EXTN_TOBAC Extensin OS=Nicotiana tabacum OX=4097 G...     333
+>sp|P24152|EXTN_SORBI Extensin OS=Sorghum bicolor OX=4558 GN=...     327
+>sp|P14918|EXTN_MAIZE Extensin OS=Zea mays OX=4577 GN=HRGP PE...     303
+>sp|Q17Q32|ENOPH_AEDAE Enolase-phosphatase E1 OS=Aedes aegypt...     257
+>sp|Q9M1G9|EXTN2_ARATH Extensin-2 OS=Arabidopsis thaliana OX=...     245
+>sp|P9WJC5|ESPI_MYCTU ESX-1 secretion-associated protein EspI...     244
+>sp|P9WJC4|ESPI_MYCTO ESX-1 secretion-associated protein EspI...     244
+>sp|Q03173|ENAH_MOUSE Protein enabled homolog OS=Mus musculus...     236
+>sp|G3CHK5|ELF5_PONTR Protein EARLY FLOWERING 5 OS=Poncirus t...     229
 
 -------------
 
 >sp|Q9ZQI0|EPR1_ARATH Proline-rich extensin-like protein EPR1
  OS=Arabidopsis thaliana OX=3702 GN=EPR1 PE=2 SV=1
 Length = 761
-Bitscore = 154
+Rawscore = 388
 Identities : 199/705(28%), Positives : 251/705(35%), Gaps : 97/705(13%), 
 
 Query :   207 IKPPLQQQPPKPIPKQQGPGRDP-LQQDGTPKSISSQQPEKIKSQP-PGTGKP-IQGPTQ 263
@@ -172,7 +172,7 @@ Subject : 663 PPTPTYSPPVKPPPVQLPPTPTYSP--PVKPPPV-QVPPTPTYSP 704
 >sp|P13983|EXTN_TOBAC Extensin OS=Nicotiana tabacum OX=4097 G
 N=HRGPNT3 PE=2 SV=1
 Length = 620
-Bitscore = 133
+Rawscore = 333
 Identities : 178/699(25%), Positives : 222/699(31%), Gaps : 126/699(18%), 
 
 Query :   205 GIIKPPLQQQPPKPIPKQQGPGRDPLQQDGTPKSISSQQPEKIKSQPPGTG---KPIQGP 261
@@ -227,7 +227,7 @@ Subject : 577 -QIHSPPPPHRQPRP---PTPTYGQPPSPPTTYSPPSPP 611
 >sp|P24152|EXTN_SORBI Extensin OS=Sorghum bicolor OX=4558 GN=
 HRGP PE=3 SV=1
 Length = 283
-Bitscore = 130
+Rawscore = 327
 Identities : 108/294(36%), Positives : 129/294(43%), Gaps : 45/294(15%), 
 
 Query :   285 QADIVRGESVKPSLPSPSKPPIQQPTPGKPPAQQPGHEKSQPGPAKPPAQPSGLTKPLAQ 344
@@ -254,7 +254,7 @@ Subject : 231 PKPTPHTP---Y-PQAHPPTYKP-APKPSPPAPTPPTYTPPVSHTPSSPPPPPP 279
 >sp|P14918|EXTN_MAIZE Extensin OS=Zea mays OX=4577 GN=HRGP PE
 =2 SV=1
 Length = 267
-Bitscore = 121
+Rawscore = 303
 Identities : 88/265(33%), Positives : 111/265(41%), Gaps : 16/265(6%), 
 
 Query :   290 RGESVKPSLPSPS-KPPIQQPTPGK-PPAQQPGHEKSQPGPAKPPAQPSGLTKPLAQQPG 347
@@ -281,7 +281,7 @@ Subject : 243 PATKPPTYTP--TPPVSHTPSPPPP 265
 >sp|Q17Q32|ENOPH_AEDAE Enolase-phosphatase E1 OS=Aedes aegypt
 i OX=7159 GN=AAEL000109 PE=3 SV=1
 Length = 1107
-Bitscore = 103
+Rawscore = 257
 Identities : 182/916(19%), Positives : 365/916(39%), Gaps : 118/916(12%), 
 
 Query :    981 KSTGQAPPAPAKSIPVKKETKAPAAEKLEPKAEQAPTVKRTETEKKPPPIKDSKSLTAEP 1040
@@ -352,7 +352,7 @@ Subject : 1073 SSSTTPSSETVAEIKS 1088
 >sp|Q9M1G9|EXTN2_ARATH Extensin-2 OS=Arabidopsis thaliana OX=
 3702 GN=EXT2 PE=2 SV=1
 Length = 743
-Bitscore = 99
+Rawscore = 245
 Identities : 184/812(22%), Positives : 255/812(31%), Gaps : 119/812(14%), 
 
 Query :    239 ISSQQPEKIKSQPPGTGKPIQGPTQTPQTDHAKLPLQRDASRPQTKQADIVRGESVKPSL 298
@@ -417,7 +417,7 @@ Subject :  708 VYYKSPP-----PPSYYSPSPK-VEYKSPPPP 733
 X=83332 GN=espI PE=1 SV=100BL_ORD_ID/
 
 Length = 666
-Bitscore = 98
+Rawscore = 244
 Identities : 92/352(26%), Positives : 132/352(37%), Gaps : 42/352(11%), 
 
 Query :   261 PTQTPQTDHAKLPLQRDASRPQTKQADIVRGESVKPSLPSPSKPPIQQPTP---GKPPAQ 317
@@ -450,7 +450,7 @@ Subject : 325 SITAATTGGRRRKRAAPDLDATQKSLRPAAKGPKVKKVKPQ--KPKATKPPK 374
 X=83331 GN=espI PE=3 SV=100BL_ORD_ID/
 
 Length = 666
-Bitscore = 98
+Rawscore = 244
 Identities : 92/352(26%), Positives : 132/352(37%), Gaps : 42/352(11%), 
 
 Query :   261 PTQTPQTDHAKLPLQRDASRPQTKQADIVRGESVKPSLPSPSKPPIQQPTP---GKPPAQ 317
@@ -481,7 +481,7 @@ Subject : 325 SITAATTGGRRRKRAAPDLDATQKSLRPAAKGPKVKKVKPQ--KPKATKPPK 374
 >sp|Q03173|ENAH_MOUSE Protein enabled homolog OS=Mus musculus
  OX=10090 GN=Enah PE=1 SV=2
 Length = 802
-Bitscore = 95
+Rawscore = 236
 Identities : 102/379(26%), Positives : 134/379(35%), Gaps : 55/379(14%), 
 
 Query :   183 EASQEETTKKQKVVQKEQGKPEGIIKPPLQQ----QPPKPIPKQQGPGRDPLQQDGTPK- 237
@@ -516,7 +516,7 @@ Subject : 588 LPNQAPPPPPPP-PAPPLP 605
 >sp|G3CHK5|ELF5_PONTR Protein EARLY FLOWERING 5 OS=Poncirus t
 rifoliata OX=37690 GN=ELF5 PE=2 SV=1
 Length = 540
-Bitscore = 93
+Rawscore = 229
 Identities : 105/372(28%), Positives : 133/372(35%), Gaps : 58/372(15%), 
 
 Query :   243 QPEKIKS-QPP-G-TGKPIQG-PTQTPQTDHAKLPLQRD-ASRPQTKQADI--------- 288

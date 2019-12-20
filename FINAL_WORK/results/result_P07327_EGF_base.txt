@@ -1,0 +1,160 @@
+FIND 1.1.0
+Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS
+
+Date : Fri Dec 20 19:04:31 2019
+
+Database : EGF_base.fasta
+Number of sequences in database : 30
+Scoring matrix : blosum62
+Gap penalities : 11+1k
+Query file : P07327.fasta
+Elapsed time : 0.176s
+Number of cores : 4
+Query length : 375
+Query full name : sp|P07327|ADH1A_HUMAN Alcohol dehydrogenas
+e 1A OS=Homo sapiens OX=9606 GN=ADH1A PE=1 SV=2
+Query sequence : MSTAGKVIKCKAAVLWELKKPFSIEEVEVAPPKAHEVRIKMVA
+VGICGTDDHVVSGTMVTPLPVILGHEAAGIVESVGEGVTTVKPGDKVIPLAIPQCGKCRI
+CKNPESNYCLKNDVSNPQGTLQDGTSRFTCRRKPIHHFLGISTFSQYTVVDENAVAKIDA
+ASPLEKVCLIGCGFSTGYGSAVNVAKVTPGSTCAVFGLGGVGLSAIMGCKAAGAARIIAV
+DINKDKFAKAKELGATECINPQDYKKPIQEVLKEMTDGGVDFSFEVIGRLDTMMASLLCC
+HEACGTSVIVGVPPDSQNLSMNPMLLLTGRTWKGAILGGFKSKECVPKLVADFMAKKFSL
+DALITHVLPFEKINEGFDLLHSGKSIRTILMF
+
+Name                                                                Rawscore
+>sp|P0CY46|EGFR_APIME Epidermal growth factor receptor OS=Api...     49
+>sp|Q95ND4|EGF_FELCA Pro-epidermal growth factor OS=Felis cat...     48
+>sp|Q00968|EGF_PIG Pro-epidermal growth factor OS=Sus scrofa ...     46
+>sp|Q9BEA0|EGF_CANLF Pro-epidermal growth factor OS=Canis lup...     45
+>sp|Q63HQ2|EGFLA_HUMAN Pikachurin OS=Homo sapiens OX=9606 GN=...     43
+>sp|Q4VBE4|EGFLA_MOUSE Pikachurin OS=Mus musculus OX=10090 GN...     40
+>sp|B4F785|EGFLA_RAT Pikachurin OS=Rattus norvegicus OX=10116...     40
+>sp|P04412|EGFR_DROME Epidermal growth factor receptor OS=Dro...     39
+>sp|Q9UHF1|EGFL7_HUMAN Epidermal growth factor-like protein 7...     39
+>sp|P13387|EGFR_CHICK Epidermal growth factor receptor (Fragm...     38
+
+-------------
+
+>sp|P0CY46|EGFR_APIME Epidermal growth factor receptor OS=Api
+s mellifera OX=7460 GN=Egfr PE=2 SV=1
+Length = 1292
+Rawscore = 49
+Identities : 10/22(45%), Positives : 11/22(50%), 
+
+Query :    93 LAIPQCGKCRICKNPESNYCLK 114
+              L IP   +CR C  P  N C K
+Subject : 564 LCIPCFSECRGCFGPGPNQCYK 585
+
+
+>sp|Q95ND4|EGF_FELCA Pro-epidermal growth factor OS=Felis cat
+us OX=9685 GN=EGF PE=2 SV=1
+Length = 1210
+Rawscore = 48
+Identities : 14/38(36%), Positives : 17/38(44%), Gaps : 2/38(5%), 
+
+Query :    93 LAIPQCGKCRICKNPESNY-CL-KNDVSNPQGTLQDGT 128
+              L I  CG+   C N E NY C+    +S P     D T
+Subject : 917 LGIHTCGENATCTNTEGNYTCMCAGTLSEPGQMCPDST 954
+
+
+>sp|Q00968|EGF_PIG Pro-epidermal growth factor OS=Sus scrofa 
+OX=9823 GN=EGF PE=1 SV=2
+Length = 1214
+Rawscore = 46
+Identities : 8/19(42%), Positives : 10/19(52%), 
+
+Query :    93 LAIPQCGKCRICKNPESNY 111
+              L +  CG+   C N E NY
+Subject : 918 LGVHTCGENATCTNTEGNY 936
+
+
+>sp|Q9BEA0|EGF_CANLF Pro-epidermal growth factor OS=Canis lup
+us familiaris OX=9615 GN=EGF PE=2 SV=1
+Length = 1216
+Rawscore = 45
+Identities : 13/38(34%), Positives : 17/38(44%), Gaps : 2/38(5%), 
+
+Query :    93 LAIPQCGKCRICKNPESNY-CL-KNDVSNPQGTLQDGT 128
+              L +  CG+   C N E NY C+    +S P     D T
+Subject : 921 LGMHTCGENATCTNMEGNYTCMCAGSLSEPGQICADST 958
+
+
+>sp|Q63HQ2|EGFLA_HUMAN Pikachurin OS=Homo sapiens OX=9606 GN=
+EGFLAM PE=1 SV=2
+Length = 1017
+Rawscore = 43
+Identities : 12/39(30%), Positives : 18/39(46%), 
+
+Query :    54 VSGTMVTPLPVILGHEAAGIVESVGEGVTTVKPGDKVIP 92
+              +S   V PLP   G     +VES    ++  K   ++IP
+Subject : 272 ISFEEVKPLPATKGGNKKFLVESKKMSISNPKTISRLIP 310
+
+
+>sp|Q4VBE4|EGFLA_MOUSE Pikachurin OS=Mus musculus OX=10090 GN
+=Egflam PE=1 SV=1
+Length = 1017
+Rawscore = 40
+Identities : 20/68(29%), Positives : 29/68(42%), Gaps : 3/68(4%), 
+
+Query :   309 LLTGRTWKGAILGGFKSKECVPKLVADFMAKKFSLDALITHVLPFEKINEGFDLLH--SG 366
+              L   RT K  IL   K K         F   K + D  I  V  ++ + +   +LH  SG
+Subject : 698 LRVSRTAKNGILQVDKQKVVEGMAEGGFTQIKCNTDIFIGGVPNYDDVKKNSGILHPFSG 757
+
+Query :   367 KSIRTILM 374
+               SI+ I++
+Subject : 758 -SIQKIIL 764
+
+
+>sp|B4F785|EGFLA_RAT Pikachurin OS=Rattus norvegicus OX=10116
+ GN=Egflam PE=2 SV=1
+Length = 1005
+Rawscore = 40
+Identities : 20/68(29%), Positives : 29/68(42%), Gaps : 3/68(4%), 
+
+Query :   309 LLTGRTWKGAILGGFKSKECVPKLVADFMAKKFSLDALITHVLPFEKINEGFDLLH--SG 366
+              L   RT K  IL   K K         F   K + D  I  V  ++ + +   +LH  SG
+Subject : 694 LRVSRTAKNGILQVDKQKVVEGMAEGGFTQIKCNTDIFIGGVPNYDDVKKNSGILHPFSG 753
+
+Query :   367 KSIRTILM 374
+               SI+ I++
+Subject : 754 -SIQKIIL 760
+
+
+>sp|P04412|EGFR_DROME Epidermal growth factor receptor OS=Dro
+sophila melanogaster OX=7227 GN=Egfr PE=1 SV=3
+Length = 1426
+Rawscore = 39
+Identities : 9/25(36%), Positives : 12/25(48%), 
+
+Query :   132 TCRRKPIHHFLGISTFSQYTVVDEN 156
+              TC    + H   I +F   TV+D N
+Subject : 402 TCPGVTVLHAGNIDSFRNCTVIDGN 426
+
+
+>sp|Q9UHF1|EGFL7_HUMAN Epidermal growth factor-like protein 7
+ OS=Homo sapiens OX=9606 GN=EGFL7 PE=1 SV=3
+Length = 273
+Rawscore = 39
+Identities : 7/24(29%), Positives : 14/24(58%), 
+
+Query :   266 SFEVIGRLDTMMASLLCCHEACGT 289
+              SF+ +GR+D++   +    E  G+
+Subject : 243 SFQQLGRIDSLSEQISFLEEQLGS 266
+
+
+>sp|P13387|EGFR_CHICK Epidermal growth factor receptor (Fragm
+ent) OS=Gallus gallus OX=9031 GN=EGFR PE=1 SV=1
+Length = 703
+Rawscore = 38
+Identities : 25/88(28%), Positives : 37/88(42%), Gaps : 13/88(14%), 
+
+Query :   119 NPQGTLQDGTSRFTCRRKPIHHFL-----G-ISTFSQYT-VVDENAVAKIDAASPL-EKV 170
+              NP+G    G +  TC R+  H+++       + + +  T  V+EN V K      L  KV
+Subject : 287 NPEGKYSFG-A--TCVRECPHNYVVTDHGSCVRSCNTDTYEVEENGVRKCKKCDGLCSKV 343
+
+Query :   171 CL-IGCGFSTGYGSAVNVAKVTPGSTCA 197
+              C  IG G   G  S +N   +     C 
+Subject : 344 CNGIGIGELKGILS-INATNIDSFKNCT 370
+
+
+

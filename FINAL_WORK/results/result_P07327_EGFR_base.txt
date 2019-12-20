@@ -1,0 +1,108 @@
+FIND 1.1.0
+Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS
+
+Date : Fri Dec 20 19:05:50 2019
+
+Database : EGFR_base.fasta
+Number of sequences in database : 6
+Scoring matrix : blosum62
+Gap penalities : 11+1k
+Query file : P07327.fasta
+Elapsed time : 0.153s
+Number of cores : 4
+Query length : 375
+Query full name : sp|P07327|ADH1A_HUMAN Alcohol dehydrogenas
+e 1A OS=Homo sapiens OX=9606 GN=ADH1A PE=1 SV=2
+Query sequence : MSTAGKVIKCKAAVLWELKKPFSIEEVEVAPPKAHEVRIKMVA
+VGICGTDDHVVSGTMVTPLPVILGHEAAGIVESVGEGVTTVKPGDKVIPLAIPQCGKCRI
+CKNPESNYCLKNDVSNPQGTLQDGTSRFTCRRKPIHHFLGISTFSQYTVVDENAVAKIDA
+ASPLEKVCLIGCGFSTGYGSAVNVAKVTPGSTCAVFGLGGVGLSAIMGCKAAGAARIIAV
+DINKDKFAKAKELGATECINPQDYKKPIQEVLKEMTDGGVDFSFEVIGRLDTMMASLLCC
+HEACGTSVIVGVPPDSQNLSMNPMLLLTGRTWKGAILGGFKSKECVPKLVADFMAKKFSL
+DALITHVLPFEKINEGFDLLHSGKSIRTILMF
+
+Name                                                                Rawscore
+>sp|P04412|EGFR_DROME Epidermal growth factor receptor OS=Dro...     39
+>sp|P04412|EGFR_DROME Epidermal growth factor receptor OS=Dro...     39
+>sp|P13387|EGFR_CHICK Epidermal growth factor receptor (Fragm...     38
+>sp|P13387|EGFR_CHICK Epidermal growth factor receptor (Fragm...     38
+>sp|Q01279|EGFR_MOUSE Epidermal growth factor receptor OS=Mus...     34
+>sp|P55245|EGFR_MACMU Epidermal growth factor receptor OS=Mac...     34
+
+-------------
+
+>sp|P04412|EGFR_DROME Epidermal growth factor receptor OS=Dro
+sophila melanogaster OX=7227 GN=Egfr PE=1 SV=3
+Length = 1426
+Rawscore = 39
+Identities : 9/25(36%), Positives : 12/25(48%), 
+
+Query :   132 TCRRKPIHHFLGISTFSQYTVVDEN 156
+              TC    + H   I +F   TV+D N
+Subject : 402 TCPGVTVLHAGNIDSFRNCTVIDGN 426
+
+
+>sp|P04412|EGFR_DROME Epidermal growth factor receptor OS=Dro
+sophila melanogaster OX=7227 GN=Egfr PE=1 SV=3
+Length = 1426
+Rawscore = 39
+Identities : 9/25(36%), Positives : 12/25(48%), 
+
+Query :   132 TCRRKPIHHFLGISTFSQYTVVDEN 156
+              TC    + H   I +F   TV+D N
+Subject : 402 TCPGVTVLHAGNIDSFRNCTVIDGN 426
+
+
+>sp|P13387|EGFR_CHICK Epidermal growth factor receptor (Fragm
+ent) OS=Gallus gallus OX=9031 GN=EGFR PE=1 SV=1
+Length = 703
+Rawscore = 38
+Identities : 25/88(28%), Positives : 37/88(42%), Gaps : 13/88(14%), 
+
+Query :   119 NPQGTLQDGTSRFTCRRKPIHHFL-----G-ISTFSQYT-VVDENAVAKIDAASPL-EKV 170
+              NP+G    G +  TC R+  H+++       + + +  T  V+EN V K      L  KV
+Subject : 287 NPEGKYSFG-A--TCVRECPHNYVVTDHGSCVRSCNTDTYEVEENGVRKCKKCDGLCSKV 343
+
+Query :   171 CL-IGCGFSTGYGSAVNVAKVTPGSTCA 197
+              C  IG G   G  S +N   +     C 
+Subject : 344 CNGIGIGELKGILS-INATNIDSFKNCT 370
+
+
+>sp|P13387|EGFR_CHICK Epidermal growth factor receptor (Fragm
+ent) OS=Gallus gallus OX=9031 GN=EGFR PE=1 SV=1
+Length = 703
+Rawscore = 38
+Identities : 25/88(28%), Positives : 37/88(42%), Gaps : 13/88(14%), 
+
+Query :   119 NPQGTLQDGTSRFTCRRKPIHHFL-----G-ISTFSQYT-VVDENAVAKIDAASPL-EKV 170
+              NP+G    G +  TC R+  H+++       + + +  T  V+EN V K      L  KV
+Subject : 287 NPEGKYSFG-A--TCVRECPHNYVVTDHGSCVRSCNTDTYEVEENGVRKCKKCDGLCSKV 343
+
+Query :   171 CL-IGCGFSTGYGSAVNVAKVTPGSTCA 197
+              C  IG G   G  S +N   +     C 
+Subject : 344 CNGIGIGELKGILS-INATNIDSFKNCT 370
+
+
+>sp|Q01279|EGFR_MOUSE Epidermal growth factor receptor OS=Mus
+ musculus OX=10090 GN=Egfr PE=1 SV=1
+Length = 1210
+Rawscore = 34
+Identities : 4/9(44%), Positives : 4/9(44%), 
+
+Query :   282 CCHEACGTS 290
+              CCH  C   
+Subject : 231 CCHNQCAAG 239
+
+
+>sp|P55245|EGFR_MACMU Epidermal growth factor receptor OS=Mac
+aca mulatta OX=9544 GN=EGFR PE=2 SV=2
+Length = 1210
+Rawscore = 34
+Identities : 4/9(44%), Positives : 4/9(44%), 
+
+Query :   282 CCHEACGTS 290
+              CCH  C   
+Subject : 231 CCHNQCAAG 239
+
+
+

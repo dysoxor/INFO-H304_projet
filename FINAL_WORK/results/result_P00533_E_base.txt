@@ -1,15 +1,15 @@
 FIND 1.1.0
 Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS
 
-Date : Fri Dec 20 16:45:40 2019
+Date : Fri Dec 20 18:53:40 2019
 
-Database : e_base.fasta
-Number of sequences in database : 14532
+Database : E_base.fasta
+Number of sequences in database : 14533
 Scoring matrix : blosum62
 Gap penalities : 11+1k
 Query file : P00533.fasta
-Elapsed time : 10.085s
-Number of cores : 2
+Elapsed time : 8.503s
+Number of cores : 4
 Query length : 1210
 Query full name : sp|P00533|EGFR_HUMAN Epidermal growth fact
 or receptor OS=Homo sapiens OX=9606 GN=EGFR PE=1 SV=2
@@ -35,24 +35,24 @@ SFLQRYSSDPTGALTEDSIDDTFLPVPEYINQSVPKRPAGSVQNPVYHNQPLNPAPSRDP
 HYQDPHSTAVGNPEYLNTVQPTCVNSTFDSPAHWAQKGSHQISLDNPDYQQDFFPKEAKP
 NGIFKGSTAENAEYLRVAPQSSEFIGA
 
-Name                                                                Bitscore
->sp|P00533|EGFR_HUMAN Epidermal growth factor receptor OS=Hom...     2518
->sp|P55245|EGFR_MACMU Epidermal growth factor receptor OS=Mac...     2503
->sp|Q01279|EGFR_MOUSE Epidermal growth factor receptor OS=Mus...     2299
->sp|Q15303|ERBB4_HUMAN Receptor tyrosine-protein kinase erbB-...     1264
->sp|Q61527|ERBB4_MOUSE Receptor tyrosine-protein kinase erbB-...     1263
->sp|Q62956|ERBB4_RAT Receptor tyrosine-protein kinase erbB-4 ...     1254
->sp|P04626|ERBB2_HUMAN Receptor tyrosine-protein kinase erbB-...     1198
->sp|O18735|ERBB2_CANLF Receptor tyrosine-protein kinase erbB-...     1185
->sp|P06494|ERBB2_RAT Receptor tyrosine-protein kinase erbB-2 ...     1180
->sp|P70424|ERBB2_MOUSE Receptor tyrosine-protein kinase erbB-...     1175
+Name                                                                Rawscore
+>sp|P00533|EGFR_HUMAN Epidermal growth factor receptor OS=Hom...     6525
+>sp|P55245|EGFR_MACMU Epidermal growth factor receptor OS=Mac...     6487
+>sp|Q01279|EGFR_MOUSE Epidermal growth factor receptor OS=Mus...     5957
+>sp|Q15303|ERBB4_HUMAN Receptor tyrosine-protein kinase erbB-...     3269
+>sp|Q61527|ERBB4_MOUSE Receptor tyrosine-protein kinase erbB-...     3268
+>sp|Q62956|ERBB4_RAT Receptor tyrosine-protein kinase erbB-4 ...     3245
+>sp|P04626|ERBB2_HUMAN Receptor tyrosine-protein kinase erbB-...     3099
+>sp|O18735|ERBB2_CANLF Receptor tyrosine-protein kinase erbB-...     3066
+>sp|P06494|ERBB2_RAT Receptor tyrosine-protein kinase erbB-2 ...     3053
+>sp|P70424|ERBB2_MOUSE Receptor tyrosine-protein kinase erbB-...     3040
 
 -------------
 
 >sp|P00533|EGFR_HUMAN Epidermal growth factor receptor OS=Hom
 o sapiens OX=9606 GN=EGFR PE=1 SV=2
 Length = 1210
-Bitscore = 2518
+Rawscore = 6525
 Identities : 1210/1210(100%), Positives : 1210/1210(100%), 
 
 Query :      1 MRPSGTAGAALLALLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEV 60
@@ -143,7 +143,7 @@ Subject : 1201 APQSSEFIGA 1210
 >sp|P55245|EGFR_MACMU Epidermal growth factor receptor OS=Mac
 aca mulatta OX=9544 GN=EGFR PE=2 SV=2
 Length = 1210
-Bitscore = 2503
+Rawscore = 6487
 Identities : 1202/1210(99%), Positives : 1206/1210(99%), 
 
 Query :      1 MRPSGTAGAALLALLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEV 60
@@ -234,7 +234,7 @@ Subject : 1201 APQSSEFIGA 1210
 >sp|Q01279|EGFR_MOUSE Epidermal growth factor receptor OS=Mus
  musculus OX=10090 GN=Egfr PE=1 SV=1
 Length = 1210
-Bitscore = 2299
+Rawscore = 5957
 Identities : 1095/1212(90%), Positives : 1150/1212(94%), Gaps : 4/1212(0%), 
 
 Query :      1 MRPSGTAGAALLALLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEV 60
@@ -325,7 +325,7 @@ Subject : 1199 RVAPPSSEFIGA 1210
 >sp|Q15303|ERBB4_HUMAN Receptor tyrosine-protein kinase erbB-
 4 OS=Homo sapiens OX=9606 GN=ERBB4 PE=1 SV=1
 Length = 1308
-Bitscore = 1264
+Rawscore = 3269
 Identities : 644/1267(50%), Positives : 822/1267(64%), Gaps : 99/1267(7%), 
 
 Query :     26 EEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRNYDLSFLKTIQEV 85
@@ -420,7 +420,7 @@ Subject : 1279 AENPEYL 1285
 >sp|Q61527|ERBB4_MOUSE Receptor tyrosine-protein kinase erbB-
 4 OS=Mus musculus OX=10090 GN=Erbb4 PE=1 SV=5
 Length = 1308
-Bitscore = 1263
+Rawscore = 3268
 Identities : 641/1265(50%), Positives : 820/1265(64%), Gaps : 99/1265(7%), 
 
 Query :     28 KKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRNYDLSFLKTIQEVAG 87
@@ -515,7 +515,7 @@ Subject : 1281 NPEYL 1285
 >sp|Q62956|ERBB4_RAT Receptor tyrosine-protein kinase erbB-4 
 OS=Rattus norvegicus OX=10116 GN=Erbb4 PE=1 SV=3
 Length = 1308
-Bitscore = 1254
+Rawscore = 3245
 Identities : 644/1279(50%), Positives : 825/1279(64%), Gaps : 102/1279(7%), 
 
 Query :     17 ALCPASRALE---EKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRN 73
@@ -610,7 +610,7 @@ Subject : 1267 FYKQNGRIRPIVAENPEYL 1285
 >sp|P04626|ERBB2_HUMAN Receptor tyrosine-protein kinase erbB-
 2 OS=Homo sapiens OX=9606 GN=ERBB2 PE=1 SV=1
 Length = 1255
-Bitscore = 1198
+Rawscore = 3099
 Identities : 630/1252(50%), Positives : 806/1252(64%), Gaps : 80/1252(6%), 
 
 Query :     14 LLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRN 73
@@ -701,7 +701,7 @@ Subject : 1205 PQPHPPPA-F------SPAFDNLYYWDQDPPERGAPPSTFKGTPTAENPEYL 1249
 >sp|O18735|ERBB2_CANLF Receptor tyrosine-protein kinase erbB-
 2 OS=Canis lupus familiaris OX=9615 GN=ERBB2 PE=2 SV=1
 Length = 1259
-Bitscore = 1185
+Rawscore = 3066
 Identities : 623/1265(49%), Positives : 807/1265(63%), Gaps : 102/1265(8%), 
 
 Query :     14 LLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRN 73
@@ -796,7 +796,7 @@ Subject : 1249 NPEYL 1253
 >sp|P06494|ERBB2_RAT Receptor tyrosine-protein kinase erbB-2 
 OS=Rattus norvegicus OX=10116 GN=Erbb2 PE=1 SV=3
 Length = 1257
-Bitscore = 1180
+Rawscore = 3053
 Identities : 634/1259(50%), Positives : 811/1259(64%), Gaps : 94/1259(7%), 
 
 Query :     15 LAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRNY 74
@@ -887,7 +887,7 @@ Subject : 1201 PREGT---A---SPPHPSPAFS-P-AFDNLYYWDQNSSEQGPPPSNFEGTPTAENPEYL 1251
 >sp|P70424|ERBB2_MOUSE Receptor tyrosine-protein kinase erbB-
 2 OS=Mus musculus OX=10090 GN=Erbb2 PE=1 SV=3
 Length = 1256
-Bitscore = 1175
+Rawscore = 3040
 Identities : 629/1267(49%), Positives : 801/1267(63%), Gaps : 110/1267(8%), 
 
 Query :     14 LLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEVVLGNLEITYVQRN 73

@@ -1,15 +1,15 @@
 FIND 1.1.0
 Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS
 
-Date : Thu Dec 19 12:30:51 2019
+Date : Fri Dec 20 18:56:32 2019
 
-Database : e_base.fasta
-Number of sequences in database : 14532
+Database : E_base.fasta
+Number of sequences in database : 14533
 Scoring matrix : blosum62
 Gap penalities : 11+1k
 Query file : P07327.fasta
-Elapsed time : 3.216s
-Number of cores : 2
+Elapsed time : 2.7s
+Number of cores : 4
 Query length : 375
 Query full name : sp|P07327|ADH1A_HUMAN Alcohol dehydrogenas
 e 1A OS=Homo sapiens OX=9606 GN=ADH1A PE=1 SV=2
@@ -21,17 +21,17 @@ DINKDKFAKAKELGATECINPQDYKKPIQEVLKEMTDGGVDFSFEVIGRLDTMMASLLCC
 HEACGTSVIVGVPPDSQNLSMNPMLLLTGRTWKGAILGGFKSKECVPKLVADFMAKKFSL
 DALITHVLPFEKINEGFDLLHSGKSIRTILMF
 
-Name                                                                Bitscore
->sp|A0QXD8|ELTD_MYCS2 Erythritol/L-threitol dehydrogenase OS=...     88
->sp|A2QTF1|EPAF_ASPNC Dehydrogenase orf1 OS=Aspergillus niger...     52
->sp|O23939|ENOX_FRAVE 2-methylene-furan-3-one reductase OS=Fr...     47
->sp|Q84V25|ENOXE_FRAAN 2-methylene-furan-3-one reductase OS=F...     46
->sp|K4BW79|ENOX_SOLLC 2-methylene-furan-3-one reductase OS=So...     44
->sp|Q941I0|ENOXC_FRAAN 2-methylene-furan-3-one reductase OS=F...     44
->sp|Q03132|ERYA2_SACER 6-deoxyerythronolide-B synthase EryA2,...     40
->sp|Q6CIR6|ETR1_KLULA Enoyl-[acyl-carrier-protein] reductase,...     34
->sp|Q6BLV6|ETR1_DEBHA Enoyl-[acyl-carrier-protein] reductase ...     32
->sp|Q5R5M8|ECHP_PONAB Peroxisomal bifunctional enzyme OS=Pong...     32
+Name                                                                Rawscore
+>sp|A0QXD8|ELTD_MYCS2 Erythritol/L-threitol dehydrogenase OS=...     217
+>sp|A2QTF1|EPAF_ASPNC Dehydrogenase orf1 OS=Aspergillus niger...     125
+>sp|O23939|ENOX_FRAVE 2-methylene-furan-3-one reductase OS=Fr...     111
+>sp|Q84V25|ENOXE_FRAAN 2-methylene-furan-3-one reductase OS=F...     107
+>sp|Q941I0|ENOXC_FRAAN 2-methylene-furan-3-one reductase OS=F...     104
+>sp|K4BW79|ENOX_SOLLC 2-methylene-furan-3-one reductase OS=So...     103
+>sp|Q03132|ERYA2_SACER 6-deoxyerythronolide-B synthase EryA2,...     92
+>sp|Q6CIR6|ETR1_KLULA Enoyl-[acyl-carrier-protein] reductase,...     76
+>sp|Q6BLV6|ETR1_DEBHA Enoyl-[acyl-carrier-protein] reductase ...     72
+>sp|Q5R5M8|ECHP_PONAB Peroxisomal bifunctional enzyme OS=Pong...     72
 
 -------------
 
@@ -40,7 +40,7 @@ Mycolicibacterium smegmatis (strain ATCC 700084 / mc(2)155)
 OX=246196 GN=eltD PE=1 SV=100BL_ORD_ID
 
 Length = 362
-Bitscore = 88
+Rawscore = 217
 Identities : 97/374(25%), Positives : 153/374(40%), Gaps : 54/374(14%), 
 
 Query :    22 FSIEEVEVAPPKAHEVRIKMVAVGICGTD------------DHVVSG---TMVTPLPVIL 66
@@ -76,7 +76,7 @@ Subject : 347 LVASGKESVKVSLI 360
  (strain CBS 513.88 / FGSC A1513) OX=425011 GN=orf1 PE=3 SV=
 1
 Length = 346
-Bitscore = 52
+Rawscore = 125
 Identities : 64/266(24%), Positives : 104/266(39%), Gaps : 61/266(22%), 
 
 Query :    12 AAVLWELKKPFSIEEVEVAPPKAHE--VRIKMVAVGICGTDDHVVSGTMV--TPLPVILG 67
@@ -103,7 +103,7 @@ Subject : 204 GATAAF---DYKKPSIRDDLREAFRG 226
 >sp|O23939|ENOX_FRAVE 2-methylene-furan-3-one reductase OS=Fr
 agaria vesca OX=57918 GN=EO PE=2 SV=2
 Length = 322
-Bitscore = 47
+Rawscore = 111
 Identities : 87/353(24%), Positives : 133/353(37%), Gaps : 71/353(20%), 
 
 Query :    27 VEVAPPKAHEVRIKMVAVGICGTDDHVVSGTM--V-TPLPVILGHEAAGIVESVGEGVTT 83
@@ -134,7 +134,7 @@ Subject : 275 -KLK---PYLESG-KV-KPVLDP--TSPYPFTKVVEAFGYLESSRATGKVVVY 319
 >sp|Q84V25|ENOXE_FRAAN 2-methylene-furan-3-one reductase OS=F
 ragaria ananassa OX=3747 GN=EO PE=1 SV=1
 Length = 322
-Bitscore = 46
+Rawscore = 107
 Identities : 84/353(23%), Positives : 133/353(37%), Gaps : 71/353(20%), 
 
 Query :    27 VEVAPPKAHEVRIKMVAVGICGTDDHVVSGTM--V-TPLPVILGHEAAGIVESVGEGVTT 83
@@ -162,37 +162,10 @@ Query :   323 FKSKECVPKLVADFMAKKFSLDALITHVLPFEKINEGFDLLHSGKSIRTILMF 375
 Subject : 275 -KLK---PYLESG-KV-KPVLDP--TSPYPFTKLVEAFGYLESSRATGKVVVY 319
 
 
->sp|K4BW79|ENOX_SOLLC 2-methylene-furan-3-one reductase OS=So
-lanum lycopersicum OX=4081 GN=EO PE=1 SV=1
-Length = 388
-Bitscore = 44
-Identities : 59/241(24%), Positives : 85/241(35%), Gaps : 46/241(19%), 
-
-Query :    24 IEEVEVAPP-KAHEVRIKMVAVGICGTDDHVVSGTM--V-TPLPVILGHEAAGIVESVGE 79
-              +E     P  K  +V IK+VA  +   D     G      +PLP + G++ AG+V  VG 
-Subject :  96 LESNVAVPDIKEDQVLIKIVAAALNPVDFKRRLGKFKATDSPLPTVPGYDVAGVVVKVGS 155
-
-Query :    80 GVTTVKPGDKVIPLAIPQCGKCRICKNPESNYCLKNDVSNPQGTLQDGTSRFTCRRKPIH 139
-               V  +K GD+V                    Y    D+ + +    DG  +F        
-Subject : 156 QVKGLKEGDEV--------------------Y---GDI-H-EKA-LDGPKQF-------- 181
-
-Query :   140 HFLGISTFSQYTVVDENAVAKIDAASPLEKVCLIGCGFSTGYGSAVNVAKVTPGSTCAVF 199
-                    + ++YT V+E  VA         +   +     T Y         +  S   + 
-Subject : 182 -----GSLAEYTAVEEKLVALKPKNLSFAEAAALPLAIETAYEGLEKAGFSSGKSILVLG 236
-
-Query :   200 GLGGVGLSAIMGCKAAGAARIIAVDINKDKFAKAKELGATECINPQDYKKPIQEVLKEMT 259
-              G GGVG   I   K    A  +A   +  K    K LGA   I   DY K   E L +  
-Subject : 237 GAGGVGSLVIQLAKHVFGASKVAATSSTGKLELLKSLGADLAI---DYTKENFEDLPDKF 293
-
-Query :   260 D 260
-              D
-Subject : 294 D 294
-
-
 >sp|Q941I0|ENOXC_FRAAN 2-methylene-furan-3-one reductase OS=F
 ragaria ananassa OX=3747 GN=EO PE=1 SV=2
 Length = 323
-Bitscore = 44
+Rawscore = 104
 Identities : 85/353(24%), Positives : 134/353(37%), Gaps : 70/353(19%), 
 
 Query :    27 VEVAPPKAHEVRIKMVAVGICGTDDHVVSGTM--V-TPLPVILGHEAAGIVESVGEGVTT 83
@@ -220,12 +193,39 @@ Query :   323 FKSKECVPKLVADFMAKKFSLDALITHVLPFEKINEGFDLLHSGKSIRTILMF 375
 Subject : 276 -KLK---PYLESG-KV-KPVLDP--TSPYPFTKVVEAFGYLESSRATGKVVVY 320
 
 
+>sp|K4BW79|ENOX_SOLLC 2-methylene-furan-3-one reductase OS=So
+lanum lycopersicum OX=4081 GN=EO PE=1 SV=1
+Length = 388
+Rawscore = 103
+Identities : 59/241(24%), Positives : 85/241(35%), Gaps : 46/241(19%), 
+
+Query :    24 IEEVEVAPP-KAHEVRIKMVAVGICGTDDHVVSGTM--V-TPLPVILGHEAAGIVESVGE 79
+              +E     P  K  +V IK+VA  +   D     G      +PLP + G++ AG+V  VG 
+Subject :  96 LESNVAVPDIKEDQVLIKIVAAALNPVDFKRRLGKFKATDSPLPTVPGYDVAGVVVKVGS 155
+
+Query :    80 GVTTVKPGDKVIPLAIPQCGKCRICKNPESNYCLKNDVSNPQGTLQDGTSRFTCRRKPIH 139
+               V  +K GD+V                    Y    D+ + +    DG  +F        
+Subject : 156 QVKGLKEGDEV--------------------Y---GDI-H-EKA-LDGPKQF-------- 181
+
+Query :   140 HFLGISTFSQYTVVDENAVAKIDAASPLEKVCLIGCGFSTGYGSAVNVAKVTPGSTCAVF 199
+                    + ++YT V+E  VA         +   +     T Y         +  S   + 
+Subject : 182 -----GSLAEYTAVEEKLVALKPKNLSFAEAAALPLAIETAYEGLEKAGFSSGKSILVLG 236
+
+Query :   200 GLGGVGLSAIMGCKAAGAARIIAVDINKDKFAKAKELGATECINPQDYKKPIQEVLKEMT 259
+              G GGVG   I   K    A  +A   +  K    K LGA   I   DY K   E L +  
+Subject : 237 GAGGVGSLVIQLAKHVFGASKVAATSSTGKLELLKSLGADLAI---DYTKENFEDLPDKF 293
+
+Query :   260 D 260
+              D
+Subject : 294 D 294
+
+
 >sp|Q03132|ERYA2_SACER 6-deoxyerythronolide-B synthase EryA2,
  modules 3 and 4 OS=Saccharopolyspora erythraea OX=1836 GN=e
 ryA PE=1 SV=300BL_ORD_ID.
 
 Length = 3567
-Bitscore = 40
+Rawscore = 92
 Identities : 51/254(20%), Positives : 94/254(37%), Gaps : 63/254(24%), 
 
 Query :     31 PPKAHEVRIKMVAVGICGTDDHVVSGTMVTPLPVILGHEAAGIVESVGEGVTTVKPGDKV 90
@@ -252,10 +252,10 @@ Subject : 3036 TGELLDESADLLAE 3049
 >sp|Q6CIR6|ETR1_KLULA Enoyl-[acyl-carrier-protein] reductase,
  mitochondrial OS=Kluyveromyces lactis (strain ATCC 8585 / C
 BS 2359 / DSM 70799 / NBRC 1267 / NRRL Y-1140 / WM37) OX=284
-590 GN=ETR1 PE=3 SV=100BL_ORD_ID1~
+590 GN=ETR1 PE=3 SV=100BL_ORD_ID1
 
 Length = 382
-Bitscore = 34
+Rawscore = 76
 Identities : 17/29(58%), Positives : 20/29(68%), 
 
 Query :    65 ILGHEAAGIVESVGEGVTTVKPGDKVIPL 93
@@ -266,10 +266,10 @@ Subject :  95 IAGNEGVFEVVSVPSSVSTLKPGDKVIPL 123
 >sp|Q6BLV6|ETR1_DEBHA Enoyl-[acyl-carrier-protein] reductase 
 1, mitochondrial OS=Debaryomyces hansenii (strain ATCC 36239
  / CBS 767 / JCM 1990 / NBRC 0083 / IGC 2968) OX=284592 GN=E
-TR1 PE=3 SV=200BL_ORD_ID1}
+TR1 PE=3 SV=200BL_ORD_ID1~
 
 Length = 378
-Bitscore = 32
+Rawscore = 72
 Identities : 33/92(35%), Positives : 47/92(51%), Gaps : 15/92(16%), 
 
 Query :    22 FSIEEVEVAPPKAHEVRIKMVAVGICGTDDHVVSGT------M---V-TPLPVILG-HEA 70
@@ -284,7 +284,7 @@ Subject :  83 LYKVIEVGSDVTSYKNGDWVIP-KMPSFGTWR 113
 >sp|Q5R5M8|ECHP_PONAB Peroxisomal bifunctional enzyme OS=Pong
 o abelii OX=9601 GN=EHHADH PE=2 SV=1
 Length = 723
-Bitscore = 32
+Rawscore = 72
 Identities : 31/105(29%), Positives : 48/105(45%), Gaps : 14/105(13%), 
 
 Query :   177 FSTGYGSAVNVAKVTPGSTCAVFGLGGVGLSAIMGCKAAGAARIIAVDINKDKFA---KA 233
