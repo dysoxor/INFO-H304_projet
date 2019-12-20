@@ -56,6 +56,11 @@ int PIN::read(string dataFileName){
   return EXIT_SUCCESS;
 }
 
+void PIN::end(){
+  delete hr_offset_table;
+  delete seq_offset_table;
+}
+
 int PIN::getNumSeq()const{
   return num_of_seq;
 }

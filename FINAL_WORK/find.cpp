@@ -122,6 +122,7 @@ int main( int argc, char **argv ){
   //We can now delete the different objects made on the heap
   filePSQ->end();
   filePHR->end();
+  filePIN->end();
   delete filePIN;
   delete filePSQ;
   delete filePHR;
