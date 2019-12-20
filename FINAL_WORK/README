@@ -43,6 +43,7 @@ The gain is thus not significant for a #n lower enough.
 Once all the alignements are done, we can write the results in
 the output file.
 
+Note : Results, especially made on 4-core PC (*_ULB_PC.txt), are reported in results_rep
 
 Usage : ./launch [OPTIONS]
 Usage

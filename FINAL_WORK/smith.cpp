@@ -339,6 +339,7 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
 	int n_line = 0;
 	int n_column = 0;
   int first_number;
+  int second_number;
   vector<vector<int>> otherBlosumMatrix;
 	if (file.is_open()){
 		while(getline(file,line)){ //We check every line
@@ -361,11 +362,13 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
 					for (int i = 0; i< line.length();i++){
 						if (line.at(i) != ' ' && line.at(i) != '-'){//We skip the '-' character
             first_number = 0;
+            second_number = (int)line.at(i) -48;
             if (i< line.length() -1 && line.at(i+1) != ' '){
-              first_number = (int)line.at(i+1) -48;
+              first_number = second_number;
+              second_number = (int)line.at(i+1) -48;
               i++;
             }
-            value = 10*(first_number) + (int)line.at(i) -48; //ASCII digits starts at 48
+            value = 10*first_number + second_number; //ASCII digits starts at 48
             if (i != 0 && line.at(i-1) == '-'){
 								//If there is a '-' before the int, we have a negative value
 								value = -value;
@@ -379,7 +382,7 @@ int setupBlosumMatrix(string pathToBlosumMatrix){
 			}
 		}
 		file.close();
-
+    
     vector<int> tempv;
     tempv.assign(28,0);
     blosumMatrix.assign(28, tempv);
