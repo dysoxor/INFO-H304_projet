@@ -85,6 +85,7 @@ void job(struct thread_data data){
 
     int index[16];// store index of the sequences from database
 
+
     //------------------------------------- End initializing ----------------------------------------------------------
 
     for(int i=begin; i <end ; i++){
@@ -228,8 +229,8 @@ void job(struct thread_data data){
             done = false;
           }
           else{
-            residue[k] = -1;
-            if(freePosition == -1 && i != dbSize - 1){
+
+            if(freePosition == -1 && residue[k] != -1){
               freePosition = k;
               /*
               We have to use a mutex and lock this part
@@ -240,6 +241,7 @@ void job(struct thread_data data){
               indexList.push_back(index[k]);
               locker.unlock();
             }
+            residue[k] = -1;
           }
         }
       }
