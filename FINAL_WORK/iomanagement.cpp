@@ -64,7 +64,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
   //We get the offSet in the sequence of query and subject
   int startX = result[result.size()-1];
   int startY = result[result.size()-2];
-  //string name = filePHR->read(filePIN, index, db);
+
   string name = filePHR->getTitle(index);
   res+=">";
   //We don't want a too long line so we seperate it into lines of
@@ -116,7 +116,7 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
         line2+=" ";
         line3+= "-";
       }
-      else if(value ==3){//diag : negative match
+      else if(value == 3){//diag : negative match
         line1+=query[x];
         x++;
         line2+=" ";
@@ -151,7 +151,8 @@ string alignementString(vector<int> result ,string query,string db, PIN* filePIN
     res += ("Positives : "+to_string(posScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(posRatio*100))+"%), ");
   if (gapScore > 0)
     res += ("Gaps : "+to_string(gapScore)+"/"+to_string(sizeAlignement)+"("+to_string((int)(gapRatio*100))+"%), ");
-  res+="\n";
+  res+='\n';
+  res+='\n';
 
   int endX = x;
   int endY = y;
@@ -335,6 +336,22 @@ void writeOutput(vector<vector<int>> results, string outputFile,
     querySequence = querySequence.substr(maxLine);
   }
   output << temp << querySequence << endl;
+  
   output<< endl << res<< endl;
   output.close();
+}
+
+void rewriteOutput(string file){
+  ifstream in(file);
+  string res = "";
+  char temp;
+  while (in.get(temp)){
+    if (temp == '\n' || (temp < 128 && temp > 31)){
+      res+=temp;
+    }
+  }
+  in.close();
+  ofstream out(file);
+  out << res;
+  out.close();
 }

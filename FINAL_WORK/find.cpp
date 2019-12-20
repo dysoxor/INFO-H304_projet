@@ -118,6 +118,7 @@ int main( int argc, char **argv ){
     dataFileName, name, content, begin,filePIN,filePSQ,
     filePHR, smMatrix, gapPenalityExpansion, gapPenalityOpening);
 
+  rewriteOutput(outputFile);
   //We can now delete the different objects made on the heap
   filePSQ->end();
   filePHR->end();

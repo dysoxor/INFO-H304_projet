@@ -7,8 +7,9 @@
 using namespace std;
 
 int main(int argc, char** argv){
-  //3 arguments : database_source, new_database et quelle lettre
-  //Il faut mettre uniprot.fasta
+  //3 arguments :
+  //database_source, new_database et lettre(quelle lettre au début du nom)
+  
   string db = argv[1];
   string new_db = argv[2];
   string first_letter = argv[3];

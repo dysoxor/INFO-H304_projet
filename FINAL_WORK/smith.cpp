@@ -66,8 +66,8 @@ void job(struct thread_data data){
     for(int i = 0; i < 16; i++){
       zero[i] = 0;
       unit[i] = 1;
-      opGap[i] = 11;
-      exGap[i] = 1;
+      opGap[i] = gap_op;
+      exGap[i] = gap_ex;
     }
 
 
