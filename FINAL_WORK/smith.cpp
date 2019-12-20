@@ -231,7 +231,8 @@ void job(struct thread_data data){
           else{
 
             if(freePosition == -1 && residue[k] != -1){
-              freePosition = k;
+              if(i != dbSize-1)
+                freePosition = k;
               /*
               We have to use a mutex and lock this part
               because we are writing in a global variable
