@@ -83,11 +83,6 @@ void job(struct thread_data data){
 
     bool firstLine = false;//managing the left and diagonal scores because they are stored in the same matrix 'leftScore'
 
-    //normalized scores
-    double lambda = 0.267;
-    double logk = -3.34;
-    double bitscore;
-
     int index[16];// store index of the sequences from database
 
 
@@ -237,14 +232,12 @@ void job(struct thread_data data){
 
             if(freePosition == -1 && residue[k] != -1){
               freePosition = k;
-              bitscore = double(maxScore[k]);
-              bitscore = (lambda*bitscore - logk)/log(2);
               /*
               We have to use a mutex and lock this part
               because we are writing in a global variable
               */
               locker.lock();
-              scoreList.push_back(bitscore);
+              scoreList.push_back(maxScore[k]);
               indexList.push_back(index[k]);
               locker.unlock();
             }
@@ -535,9 +528,6 @@ void matching(int seq1[], int index, char db[], int len1, int len2){
 			rootAlignement[i][j] = tempIndex;
     }
   }
-  double lambda = 0.267;
-  double logk = -3.34;
-  double bitscore = (lambda*(double)(maxValue) - logk)/log(2);
 	traceback(maxX,maxY,rootAlignement);
 	delete line1;
 	delete line2;

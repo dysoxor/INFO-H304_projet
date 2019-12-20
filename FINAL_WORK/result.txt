@@ -1,14 +1,14 @@
 FIND 1.1.0
 Authors : Andrey SOBOLEVSKY, Franck TROUILLEZ and Tristan SMEESTERS
 
-Date : Fri Dec 20 15:05:13 2019
+Date : Fri Dec 20 16:45:40 2019
 
 Database : e_base.fasta
 Number of sequences in database : 14532
 Scoring matrix : blosum62
 Gap penalities : 11+1k
 Query file : P00533.fasta
-Elapsed time : 10.192s
+Elapsed time : 10.085s
 Number of cores : 2
 Query length : 1210
 Query full name : sp|P00533|EGFR_HUMAN Epidermal growth fact
