@@ -13,7 +13,7 @@ int main(int argc, char** argv){
   string db = argv[1];
   string new_db = argv[2];
   string first_letters = argv[3];
-  int lenstr = strlen(first_letters);
+  int lenstr = first_letters.size();
 
   string line;
   string outputString = "";
@@ -22,7 +22,8 @@ int main(int argc, char** argv){
   if (file.is_open()){
     while(getline(file, line)){
       if(line[0] == '>'){
-        if(compare(line.substr(1+line.find_last_of('|'), lenstr),first_letters)){
+        if(line.substr(1+line.find_last_of('|'), lenstr).compare(first_letters) == 0){
+            cout << line << endl;
             outputString+=line;
             outputString+='\n';
             detected = true;
